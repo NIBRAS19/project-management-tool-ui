@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectHub - Complete UI Wireframe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        secondary: '#764ba2',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .gradient-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .gradient-success {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            }
+            .gradient-warning {
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            }
+            .gradient-danger {
+                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            }
+            .animate-slide-in {
+                animation: slideIn 0.3s ease-out;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Top Navigation -->
+    <nav
+        class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-[70px] flex items-center justify-between px-8 z-50">
+        <div class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent cursor-pointer"
+            onclick="navigateTo('dashboard')">
+            ProjectHub
+        </div>
+
+        <div class="flex-1 max-w-md mx-10">
+            <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                <input type="text" id="globalSearch"
+                    class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="Search projects, tasks, or people...">
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button onclick="openCreateModal()"
+                class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                ➕
+            </button>
+            <button onclick="toggleNotifications()"
+                class="relative w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                🔔
+                <span id="notifCount"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-5 h-5 rounded-full flex items-center justify-center">3</span>
+            </button>
+            <div onclick="navigateTo('settings')"
+                class="w-11 h-11 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold text-sm cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/30 transition-all">
+                SM
+            </div>
+        </div>
+    </nav>
+
+    <!-- App Layout -->
+    <div class="flex mt-[70px]">
+        <!-- Sidebar -->
+        <aside class="fixed left-0 w-64 h-[calc(100vh-70px)] bg-white border-r border-gray-200 p-6 overflow-y-auto">
+            <div class="mb-8">
+                <div class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 gradient-primary text-white shadow-lg shadow-primary/20"
+                    data-page="dashboard" onclick="navigateTo('dashboard')">
+                    <span>📊</span>
+                    <span class="font-medium">Dashboard</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="projects" onclick="navigateTo('projects')">
+                    <span>📁</span>
+                    <span class="font-medium">Projects</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="tasks" onclick="navigateTo('tasks')">
+                    <span>✅</span>
+                    <span class="font-medium">My Tasks</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="calendar" onclick="navigateTo('calendar')">
+                    <span>📅</span>
+                    <span class="font-medium">Calendar</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="chat" onclick="navigateTo('chat')">
+                    <span>💬</span>
+                    <span class="font-medium">Team Chat</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="team" onclick="navigateTo('team')">
+                    <span>👥</span>
+                    <span class="font-medium">Team</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="reports" onclick="navigateTo('reports')">
+                    <span>📈</span>
+                    <span class="font-medium">Reports</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="settings" onclick="navigateTo('settings')">
+                    <span>⚙️</span>
+                    <span class="font-medium">Settings</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ml-64 flex-1 p-10">
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-4xl font-bold text-gray-900 mb-1">Welcome back, Sarah! 👋</h1>
+                        <p class="text-gray-500">Here's what's happening with your projects today</p>
+                    </div>
+                    <button onclick="openCreateModal('project')"
+                        class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all flex items-center gap-2">
+                        <span>➕</span>
+                        <span>Create Project</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+                    <div
+                        class="bg-white p-6 rounded-xl border border-gray-200 hover:-translate-y-1 hover:shadow-lg transition-all">
+                        <div class="text-sm text-gray-500 mb-2">Total Tasks</div>
+                        <div id="totalTasks" class="text-4xl font-bold text-gray-900 mb-2">48</div>
+                        <div class="text-sm text-green-600 font-medium">↗ 12% from last week</div>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl border border-gray-200 hover:-translate-y-1 hover:shadow-lg transition-all">
+                        <div class="text-sm text-gray-500 mb-2">In Progress</div>
+                        <div id="inProgressTasks" class="text-4xl font-bold text-gray-900 mb-2">23</div>
+                        <div class="text-sm text-green-600 font-medium">↗ 8% from last week</div>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl border border-gray-200 hover:-translate-y-1 hover:shadow-lg transition-all">
+                        <div class="text-sm text-gray-500 mb-2">Completed</div>
+                        <div id="completedTasks" class="text-4xl font-bold text-gray-900 mb-2">20</div>
+                        <div class="text-sm text-green-600 font-medium">↗ 15% from last week</div>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl border border-gray-200 hover:-translate-y-1 hover:shadow-lg transition-all">
+                        <div class="text-sm text-gray-500 mb-2">Overdue</div>
+                        <div id="overdueTasks" class="text-4xl font-bold text-gray-900 mb-2">5</div>
+                        <div class="text-sm text-red-500 font-medium">↘ 3% from last week</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white rounded-xl border border-gray-200 p-6">
+                        <div class="flex justify-between items-center pb-4 mb-5 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-900">Tasks Due Today</h2>
+                            <button onclick="navigateTo('tasks')"
+                                class="text-primary hover:text-secondary font-medium text-sm transition-colors">
+                                View All →
+                            </button>
+                        </div>
+                        <div id="todayTasks" class="space-y-3"></div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6">
+                        <div class="flex justify-between items-center pb-4 mb-5 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-900">Recent Activity</h2>
+                            <button onclick="navigateTo('reports')"
+                                class="text-primary hover:text-secondary font-medium text-sm transition-colors">
+                                View All →
+                            </button>
+                        </div>
+                        <div id="recentActivity" class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold">
+                                    MJ</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900"><span class="font-semibold">Mike Johnson</span>
+                                        completed task <span class="font-medium">"Design homepage mockup"</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">2 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-sm font-semibold">
+                                    AL</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900"><span class="font-semibold">Alex Lee</span>
+                                        commented on <span class="font-medium">"Mobile App Launch"</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">5 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-sm font-semibold">
+                                    SM</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900"><span class="font-semibold">You</span> created
+                                        project <span class="font-medium">"CRM Migration"</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">Yesterday</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex justify-between items-center pb-4 mb-5 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">My Projects</h2>
+                        <button onclick="navigateTo('projects')"
+                            class="text-primary hover:text-secondary font-medium text-sm transition-colors">
+                            View All →
+                        </button>
+                    </div>
+                    <div id="dashboardProjects" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                </div>
+            </div>
+
+            <!-- Tasks Page -->
+            <div id="tasks-page" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-4xl font-bold text-gray-900 mb-1">My Tasks</h1>
+                        <p class="text-gray-500"><span id="taskCount">0</span> tasks assigned to you</p>
+                    </div>
+                    <button onclick="openCreateModal('task')"
+                        class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all flex items-center gap-2">
+                        <span>➕</span>
+                        <span>Create Task</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex justify-between items-center pb-4 mb-5 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">All Tasks</h2>
+                        <div class="flex gap-3">
+                            <button onclick="filterTasks('all')"
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                All
+                            </button>
+                            <button onclick="filterTasks('active')"
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                Active
+                            </button>
+                            <button onclick="filterTasks('completed')"
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                Completed
+                            </button>
+                        </div>
+                    </div>
+                    <div id="allTasks" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Projects Page -->
+            <div id="projects-page" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-4xl font-bold text-gray-900 mb-1">All Projects</h1>
+                        <p class="text-gray-500">Manage and track all your team projects</p>
+                    </div>
+                    <button onclick="openCreateModal('project')"
+                        class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all flex items-center gap-2">
+                        <span>➕</span>
+                        <span>Create Project</span>
+                    </button>
+                </div>
+
+                <div id="projectsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+            </div>
+
+            <!-- Project Detail Page -->
+            <div id="project-detail-page" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 id="projectDetailTitle" class="text-4xl font-bold text-gray-900 mb-1">Project Details</h1>
+                        <p id="projectDetailDescription" class="text-gray-500">Project details and tasks</p>
+                    </div>
+                    <button onclick="openCreateModal('task')"
+                        class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all flex items-center gap-2">
+                        <span>➕</span>
+                        <span>Add Task</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <div id="projectDetailIcon"
+                                    class="w-14 h-14 rounded-xl flex items-center justify-center text-3xl"></div>
+                                <div>
+                                    <h2 id="projectDetailName" class="text-2xl font-bold text-gray-900">Project Name
+                                    </h2>
+                                    <p id="projectDetailStatus" class="text-sm text-gray-500">Status: <span
+                                            class="font-medium">Active</span></p>
+                                </div>
+                            </div>
+                            <p id="projectDetailFullDescription" class="text-gray-600 max-w-2xl">Project description
+                                goes here...</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="editProject()"
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                Edit
+                            </button>
+                            <button onclick="archiveProject()"
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-warning hover:text-warning transition-all">
+                                Archive
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <div class="text-sm text-gray-500 mb-1">Progress</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2"><span
+                                    id="projectDetailProgress">0</span>%</div>
+                            <div class="bg-gray-200 h-2 rounded-full overflow-hidden">
+                                <div id="projectDetailProgressBar" class="h-full rounded-full transition-all"
+                                    style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <div class="text-sm text-gray-500 mb-1">Total Tasks</div>
+                            <div class="text-2xl font-bold text-gray-900"><span id="projectDetailTaskCount">0</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <div class="text-sm text-gray-500 mb-1">Due Date</div>
+                            <div class="text-2xl font-bold text-gray-900"><span id="projectDetailDueDate">-</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex justify-between items-center pb-4 mb-5 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">Project Tasks</h2>
+                        <div class="flex gap-3">
+                            <button onclick="filterProjectTasks('all')"
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                All
+                            </button>
+                            <button onclick="filterProjectTasks('active')"
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                Active
+                            </button>
+                            <button onclick="filterProjectTasks('completed')"
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                Completed
+                            </button>
+                        </div>
+                    </div>
+                    <div id="projectTasks" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Calendar Page -->
+            <div id="calendar-page" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-4xl font-bold text-gray-900 mb-1">Calendar</h1>
+                        <p class="text-gray-500">View and manage your schedule</p>
+                    </div>
+                    <button onclick="openCreateModal('event')"
+                        class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all flex items-center gap-2">
+                        <span>➕</span>
+                        <span>Add Event</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center gap-4">
+                            <button
+                                class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                ←
+                            </button>
+                            <h2 class="text-xl font-semibold text-gray-900" id="calendarMonth">October 2025</h2>
+                            <button
+                                class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                →
+                            </button>
+                        </div>
+                        <div class="flex gap-3">
+                            <button
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                Month
+                            </button>
+                            <button
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                Week
+                            </button>
+                            <button
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-primary text-primary transition-all">
+                                Day
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden">
+                        <div class="bg-gray-50 p-4 text-center font-semibold text-gray-700">Sun</div>
+                        <div class="bg-gray-50 p-4 text-center font-semibold text-gray-700">Mon</div>
+                        <div class="bg-gray-50 p-4 text-center font-semibold text-gray-700">Tue</div>
+                        <div class="bg-gray-50 p-4 text-center font-semibold text-gray-700">Wed</div>
+                        <div class="bg-gray-50 p-4 text-center font-semibold text-gray-700">Thu</div>
+                        <div class="bg-gray-50 p-4 text-center font-semibold text-gray-700">Fri</div>
+                        <div class="bg-gray-50 p-4 text-center font-semibold text-gray-700">Sat</div>
+
+                        <!-- Calendar days would be populated here -->
+                        <div class="bg-white p-4 min-h-[120px] text-gray-400">26</div>
+                        <div class="bg-white p-4 min-h-[120px] text-gray-400">27</div>
+                        <div class="bg-white p-4 min-h-[120px] text-gray-400">28</div>
+                        <div class="bg-white p-4 min-h-[120px] text-gray-400">29</div>
+                        <div class="bg-white p-4 min-h-[120px] text-gray-400">30</div>
+                        <div class="bg-white p-4 min-h-[120px]">1</div>
+                        <div class="bg-white p-4 min-h-[120px]">2</div>
+
+                        <!-- More days would continue... -->
+                        <div class="bg-white p-4 min-h-[120px] relative">
+                            <div class="text-gray-900 mb-1">3</div>
+                            <div class="space-y-1">
+                                <div class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded truncate">Team Meeting
+                                </div>
+                                <div class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded truncate">Design
+                                    Review</div>
+                            </div>
+                        </div>
+                        <!-- More calendar days... -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Chat Page -->
+            <div id="chat-page" class="page hidden">
+                <div class="flex h-[calc(100vh-150px)] bg-white rounded-xl border border-gray-200 overflow-hidden">
+                    <!-- Chat Sidebar -->
+                    <div class="w-80 border-r border-gray-200 flex flex-col">
+                        <div class="p-4 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">Team Chat</h2>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                                <input type="text"
+                                    class="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                    placeholder="Search conversations...">
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-y-auto">
+                            <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                                        DT</div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-center">
+                                            <h3 class="font-semibold text-gray-900">Design Team</h3>
+                                            <span class="text-xs text-gray-500">2:30 PM</span>
+                                        </div>
+                                        <p class="text-sm text-gray-500 truncate">Mike: Can we review the latest
+                                            mockups?</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 bg-blue-50">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-semibold">
+                                        DT</div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-center">
+                                            <h3 class="font-semibold text-gray-900">Dev Team</h3>
+                                            <span class="text-xs text-gray-500">1:15 PM</span>
+                                        </div>
+                                        <p class="text-sm text-gray-500 truncate">Sarah: API integration is complete</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- More chat channels would be listed here -->
+                        </div>
+                    </div>
+
+                    <!-- Chat Main Area -->
+                    <div class="flex-1 flex flex-col">
+                        <div class="p-4 border-b border-gray-200">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-semibold">
+                                    DT</div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Dev Team</h3>
+                                    <p class="text-sm text-gray-500">5 members, 3 online</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 p-4 overflow-y-auto space-y-4">
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold">
+                                    MJ</div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-semibold text-gray-900">Mike Johnson</span>
+                                        <span class="text-xs text-gray-500">2:30 PM</span>
+                                    </div>
+                                    <p class="text-gray-700 bg-gray-100 p-3 rounded-xl rounded-tl-none">Has anyone
+                                        reviewed the API documentation yet?</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-sm font-semibold">
+                                    SM</div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-semibold text-gray-900">Sarah Mitchell</span>
+                                        <span class="text-xs text-gray-500">2:32 PM</span>
+                                    </div>
+                                    <p class="text-gray-700 bg-primary/10 p-3 rounded-xl rounded-tl-none">Yes, I went
+                                        through it this morning. Looks good overall, but I have a few questions about
+                                        the authentication flow.</p>
+                                </div>
+                            </div>
+                            <!-- More messages would appear here -->
+                        </div>
+
+                        <div class="p-4 border-t border-gray-200">
+                            <div class="flex gap-3">
+                                <input type="text"
+                                    class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                    placeholder="Type a message...">
+                                <button
+                                    class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all">
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Page -->
+            <div id="team-page" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-4xl font-bold text-gray-900 mb-1">Team Members</h1>
+                        <p class="text-gray-500">24 team members across 5 departments</p>
+                    </div>
+                    <button onclick="openCreateModal('member')"
+                        class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all flex items-center gap-2">
+                        <span>➕</span>
+                        <span>Add Member</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex justify-between items-center pb-4 mb-5 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">All Team Members</h2>
+                        <div class="flex gap-3">
+                            <button
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                All
+                            </button>
+                            <button
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                Design
+                            </button>
+                            <button
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                Development
+                            </button>
+                            <button
+                                class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                Marketing
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <div
+                            class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:border-primary hover:shadow-lg transition-all">
+                            <div
+                                class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                                SM</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900">Sarah Mitchell</h3>
+                                <p class="text-sm text-gray-500">Project Manager</p>
+                                <div class="flex items-center gap-1 mt-1">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                    <span class="text-xs text-gray-500">Online</span>
+                                </div>
+                            </div>
+                            <button
+                                class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                💬
+                            </button>
+                        </div>
+                        <!-- More team members would be listed here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div id="reports-page" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-4xl font-bold text-gray-900 mb-1">Reports & Analytics</h1>
+                        <p class="text-gray-500">Track performance and insights</p>
+                    </div>
+                    <button onclick="exportReports()"
+                        class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all flex items-center gap-2">
+                        <span>📥</span>
+                        <span>Export Report</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white rounded-xl border border-gray-200 p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-6">Task Completion Rate</h2>
+                        <div class="h-64 flex items-center justify-center text-gray-400">
+                            [Chart: Task completion rate over time]
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-200 p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-6">Project Progress</h2>
+                        <div class="h-64 flex items-center justify-center text-gray-400">
+                            [Chart: Project progress breakdown]
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Team Performance</h2>
+                    <div class="h-64 flex items-center justify-center text-gray-400">
+                        [Chart: Team member performance metrics]
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings-page" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-4xl font-bold text-gray-900 mb-1">Settings</h1>
+                        <p class="text-gray-500">Manage your preferences</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-6">Profile Settings</h2>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
+                                        <input type="text" value="Sarah"
+                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
+                                        <input type="text" value="Mitchell"
+                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                                    <input type="email" value="sarah.mitchell@company.com"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+                                    <input type="text" value="Project Manager"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                </div>
+                                <div class="pt-4">
+                                    <button
+                                        class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all">
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-6">Notification Preferences</h2>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">Email Notifications</h3>
+                                        <p class="text-sm text-gray-500">Receive updates via email</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div
+                                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">Push Notifications</h3>
+                                        <p class="text-sm text-gray-500">Receive browser notifications</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div
+                                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                        </div>
+                                    </label>
+                                </div>
+                                <!-- More notification settings -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-6">Account</h2>
+                            <div class="space-y-4">
+                                <button
+                                    class="w-full text-left px-4 py-3 rounded-xl border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                                    Change Password
+                                </button>
+                                <button
+                                    class="w-full text-left px-4 py-3 rounded-xl border-2 border-gray-200 hover:border-warning hover:text-warning transition-all">
+                                    Privacy Settings
+                                </button>
+                                <button
+                                    class="w-full text-left px-4 py-3 rounded-xl border-2 border-gray-200 hover:border-danger hover:text-danger transition-all">
+                                    Delete Account
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">Workspace</h2>
+                            <p class="text-sm text-gray-500 mb-4">Current plan: <span
+                                    class="font-semibold text-primary">Pro</span></p>
+                            <button
+                                class="w-full gradient-primary text-white px-4 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all">
+                                Manage Subscription
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Task Modal -->
+    <div id="createModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="flex justify-between items-center p-8 border-b border-gray-200">
+                <h2 id="modalTitle" class="text-2xl font-semibold text-gray-900">Create New Task</h2>
+                <button onclick="closeModal()"
+                    class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                    ✕
+                </button>
+            </div>
+
+            <div class="p-8 space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                    <input type="text" id="taskTitle"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                        placeholder="Enter task title...">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                    <textarea id="taskDescription" rows="4"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all resize-none"
+                        placeholder="Enter description..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Priority</label>
+                        <select id="taskPriority"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Due Date</label>
+                        <input type="date" id="taskDueDate"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Project</label>
+                    <select id="taskProject"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                        <option value="1">Website Redesign</option>
+                        <option value="2">Mobile App Launch</option>
+                        <option value="3">CRM Migration</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-3 justify-end p-6 border-t border-gray-200">
+                <button onclick="closeModal()"
+                    class="px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                    Cancel
+                </button>
+                <button onclick="createTask()"
+                    class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all">
+                    Create Task
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="hidden fixed top-24 right-8 bg-white p-4 rounded-xl shadow-2xl z-[60] min-w-[300px] border-l-4 animate-slide-in">
+        <div id="toastMessage" class="text-sm font-medium text-gray-900"></div>
+    </div>
+
+    <script>
+        // Data Storage
+        let tasks = [
+            { id: 1, title: 'Design homepage mockup', project: 'Website Redesign', priority: 'high', dueDate: new Date().toISOString().split('T')[0], completed: false },
+            { id: 2, title: 'Complete API integration', project: 'Mobile App Launch', priority: 'medium', dueDate: new Date().toISOString().split('T')[0], completed: false },
+            { id: 3, title: 'Review QA test results', project: 'CRM Migration', priority: 'low', dueDate: new Date().toISOString().split('T')[0], completed: false },
+        ];
+
+        let projects = [
+            { id: 1, name: 'Website Redesign', progress: 68, tasks: 34, icon: '🌐', color: '#667eea', description: 'Complete redesign of company website with modern UI/UX', dueDate: '2025-12-15' },
+            { id: 2, name: 'Mobile App Launch', progress: 42, tasks: 28, icon: '📱', color: '#4facfe', description: 'Development and launch of new mobile application', dueDate: '2025-11-30' },
+            { id: 3, name: 'CRM Migration', progress: 25, tasks: 18, icon: '🗄️', color: '#43e97b', description: 'Migration from legacy CRM to new cloud-based system', dueDate: '2026-01-20' }
+        ];
+
+        let currentFilter = 'all';
+        let currentProjectFilter = 'all';
+        let currentProjectId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            navigateTo('dashboard');
+            updateStats();
+            renderTodayTasks();
+            renderAllTasks();
+            renderProjects();
+            renderDashboardProjects();
+            setupSearch();
+            document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
+        });
+
+        function navigateTo(page, projectId = null) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById(page + '-page').classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.dataset.page === page) {
+                    item.classList.remove('text-gray-600', 'hover:bg-gray-100', 'hover:text-primary');
+                    item.classList.add('gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
+                } else {
+                    item.classList.add('text-gray-600', 'hover:bg-gray-100', 'hover:text-primary');
+                    item.classList.remove('gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
+                }
+            });
+
+            if (page === 'tasks') renderAllTasks();
+            if (page === 'projects') renderProjects();
+            if (page === 'project-detail' && projectId) viewProjectDetail(projectId);
+        }
+
+        function updateStats() {
+            document.getElementById('totalTasks').textContent = tasks.length;
+            document.getElementById('inProgressTasks').textContent = tasks.filter(t => !t.completed).length;
+            document.getElementById('completedTasks').textContent = tasks.filter(t => t.completed).length;
+            document.getElementById('overdueTasks').textContent = tasks.filter(t => !t.completed && new Date(t.dueDate) < new Date()).length;
+            document.getElementById('taskCount').textContent = tasks.length;
+        }
+
+        function renderTodayTasks() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayTasks = tasks.filter(t => t.dueDate === today);
+            const container = document.getElementById('todayTasks');
+
+            if (todayTasks.length === 0) {
+                container.innerHTML = '<div class="text-center py-12 text-gray-400">🎉 No tasks due today!</div>';
+                return;
+            }
+
+            container.innerHTML = todayTasks.map(task => {
+                const badgeClass = task.priority === 'high' ? 'bg-red-100 text-red-700' :
+                    task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700';
+                return `
+                    <div class="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-xl hover:border-primary hover:shadow-lg transition-all cursor-pointer">
+                        <div onclick="event.stopPropagation(); toggleTask(${task.id})" 
+                            class="w-5 h-5 rounded-md border-2 ${task.completed ? 'bg-green-500 border-green-500' : 'border-gray-300'} flex items-center justify-center cursor-pointer flex-shrink-0 hover:border-primary transition-colors">
+                            ${task.completed ? '<span class="text-white text-xs">✓</span>' : ''}
+                        </div>
+                        <div class="flex-1" onclick="viewTask(${task.id})">
+                            <div class="font-medium text-gray-900 ${task.completed ? 'line-through text-gray-400' : ''}">${task.title}</div>
+                            <div class="text-sm text-gray-500 mt-1">📁 ${task.project} • ⏰ Due today</div>
+                        </div>
+                        <span class="px-3 py-1 rounded-lg text-xs font-semibold uppercase ${badgeClass}">
+                            ${task.priority}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAllTasks() {
+            const container = document.getElementById('allTasks');
+            let filteredTasks = currentFilter === 'all' ? tasks :
+                currentFilter === 'active' ? tasks.filter(t => !t.completed) :
+                    tasks.filter(t => t.completed);
+
+            if (filteredTasks.length === 0) {
+                container.innerHTML = '<div class="text-center py-12 text-gray-400">No tasks found</div>';
+                return;
+            }
+
+            container.innerHTML = filteredTasks.map(task => {
+                const badgeClass = task.priority === 'high' ? 'bg-red-100 text-red-700' :
+                    task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700';
+                return `
+                    <div class="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-xl hover:border-primary hover:shadow-lg transition-all">
+                        <div onclick="toggleTask(${task.id})" 
+                            class="w-5 h-5 rounded-md border-2 ${task.completed ? 'bg-green-500 border-green-500' : 'border-gray-300'} flex items-center justify-center cursor-pointer flex-shrink-0 hover:border-primary transition-colors">
+                            ${task.completed ? '<span class="text-white text-xs">✓</span>' : ''}
+                        </div>
+                        <div class="flex-1 cursor-pointer" onclick="viewTask(${task.id})">
+                            <div class="font-medium text-gray-900 ${task.completed ? 'line-through text-gray-400' : ''}">${task.title}</div>
+                            <div class="text-sm text-gray-500 mt-1">📁 ${task.project} • ⏰ ${formatDate(task.dueDate)}</div>
+                        </div>
+                        <span class="px-3 py-1 rounded-lg text-xs font-semibold uppercase ${badgeClass}">
+                            ${task.priority}
+                        </span>
+                        <button onclick="deleteTask(${task.id})" 
+                            class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-all">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('projectsList');
+            container.innerHTML = projects.map(project => `
+                <div onclick="viewProjectDetail(${project.id})" 
+                    class="bg-white border border-gray-200 rounded-xl p-6 cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-primary transition-all">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-3xl" 
+                            style="background: ${project.color}20;">
+                            ${project.icon}
+                        </div>
+                        <span class="px-3 py-1 rounded-lg text-xs font-semibold uppercase bg-green-100 text-green-700">Active</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">${project.name}</h3>
+                    <p class="text-sm text-gray-500 mb-4">${project.tasks} tasks • ${project.progress}% complete</p>
+                    <div class="bg-gray-100 h-2 rounded-full overflow-hidden mb-3">
+                        <div class="h-full rounded-full transition-all" style="width: ${project.progress}%; background: ${project.color};"></div>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <span class="font-semibold text-gray-900">${project.progress}%</span> complete
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderDashboardProjects() {
+            const container = document.getElementById('dashboardProjects');
+            container.innerHTML = projects.map(project => `
+                <div onclick="viewProjectDetail(${project.id})" 
+                    class="bg-white border border-gray-200 rounded-xl p-6 cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-primary transition-all">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-3xl" 
+                            style="background: ${project.color}20;">
+                            ${project.icon}
+                        </div>
+                        <span class="px-3 py-1 rounded-lg text-xs font-semibold uppercase bg-green-100 text-green-700">Active</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">${project.name}</h3>
+                    <p class="text-sm text-gray-500 mb-4">${project.tasks} tasks • ${project.progress}% complete</p>
+                    <div class="bg-gray-100 h-2 rounded-full overflow-hidden mb-3">
+                        <div class="h-full rounded-full transition-all" style="width: ${project.progress}%; background: ${project.color};"></div>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <span class="font-semibold text-gray-900">${project.progress}%</span> complete
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewProjectDetail(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                currentProjectId = projectId;
+
+                document.getElementById('projectDetailTitle').textContent = project.name;
+                document.getElementById('projectDetailDescription').textContent = project.description;
+                document.getElementById('projectDetailName').textContent = project.name;
+                document.getElementById('projectDetailIcon').innerHTML = project.icon;
+                document.getElementById('projectDetailIcon').style.backgroundColor = `${project.color}20`;
+                document.getElementById('projectDetailFullDescription').textContent = project.description;
+                document.getElementById('projectDetailProgress').textContent = project.progress;
+                document.getElementById('projectDetailProgressBar').style.width = `${project.progress}%`;
+                document.getElementById('projectDetailProgressBar').style.backgroundColor = project.color;
+                document.getElementById('projectDetailTaskCount').textContent = project.tasks;
+                document.getElementById('projectDetailDueDate').textContent = formatDate(project.dueDate);
+
+                renderProjectTasks(projectId);
+                navigateTo('project-detail');
+            }
+        }
+
+        function renderProjectTasks(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            const projectTasks = tasks.filter(t => t.project === project.name);
+            const container = document.getElementById('projectTasks');
+
+            let filteredTasks = currentProjectFilter === 'all' ? projectTasks :
+                currentProjectFilter === 'active' ? projectTasks.filter(t => !t.completed) :
+                    projectTasks.filter(t => t.completed);
+
+            if (filteredTasks.length === 0) {
+                container.innerHTML = '<div class="text-center py-12 text-gray-400">No tasks found for this project</div>';
+                return;
+            }
+
+            container.innerHTML = filteredTasks.map(task => {
+                const badgeClass = task.priority === 'high' ? 'bg-red-100 text-red-700' :
+                    task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700';
+                return `
+                    <div class="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-xl hover:border-primary hover:shadow-lg transition-all">
+                        <div onclick="toggleTask(${task.id})" 
+                            class="w-5 h-5 rounded-md border-2 ${task.completed ? 'bg-green-500 border-green-500' : 'border-gray-300'} flex items-center justify-center cursor-pointer flex-shrink-0 hover:border-primary transition-colors">
+                            ${task.completed ? '<span class="text-white text-xs">✓</span>' : ''}
+                        </div>
+                        <div class="flex-1 cursor-pointer" onclick="viewTask(${task.id})">
+                            <div class="font-medium text-gray-900 ${task.completed ? 'line-through text-gray-400' : ''}">${task.title}</div>
+                            <div class="text-sm text-gray-500 mt-1">⏰ ${formatDate(task.dueDate)}</div>
+                        </div>
+                        <span class="px-3 py-1 rounded-lg text-xs font-semibold uppercase ${badgeClass}">
+                            ${task.priority}
+                        </span>
+                        <button onclick="deleteTask(${task.id})" 
+                            class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-all">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterProjectTasks(filter) {
+            currentProjectFilter = filter;
+            if (currentProjectId) {
+                renderProjectTasks(currentProjectId);
+            }
+        }
+
+        function toggleTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                updateStats();
+                renderTodayTasks();
+                renderAllTasks();
+                if (currentProjectId) {
+                    renderProjectTasks(currentProjectId);
+                }
+                showToast(task.completed ? '✅ Task completed!' : '↩️ Task marked as incomplete', 'success');
+            }
+        }
+
+        function filterTasks(filter) {
+            currentFilter = filter;
+            renderAllTasks();
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                updateStats();
+                renderTodayTasks();
+                renderAllTasks();
+                if (currentProjectId) {
+                    renderProjectTasks(currentProjectId);
+                }
+                showToast('🗑️ Task deleted successfully', 'success');
+            }
+        }
+
+        function viewTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                showToast(`📝 Opening task: ${task.title}`, 'success');
+            }
+        }
+
+        function openCreateModal(type = 'task') {
+            const modal = document.getElementById('createModal');
+            const title = document.getElementById('modalTitle');
+
+            if (type === 'project') {
+                title.textContent = 'Create New Project';
+                showToast('🚧 Project creation form coming soon!', 'success');
+                return;
+            } else {
+                title.textContent = 'Create New Task';
+            }
+
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDescription').value = '';
+            document.getElementById('taskPriority').value = 'medium';
+            document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('createModal').classList.add('hidden');
+        }
+
+        function createTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const priority = document.getElementById('taskPriority').value;
+            const projectId = document.getElementById('taskProject').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+
+            if (!title) {
+                showToast('❌ Please enter a task title', 'error');
+                return;
+            }
+
+            const projectNames = {
+                '1': 'Website Redesign',
+                '2': 'Mobile App Launch',
+                '3': 'CRM Migration'
+            };
+
+            const newTask = {
+                id: tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1,
+                title: title,
+                description: description,
+                project: projectNames[projectId],
+                priority: priority,
+                dueDate: dueDate,
+                completed: false
+            };
+
+            tasks.push(newTask);
+            updateStats();
+            renderTodayTasks();
+            renderAllTasks();
+            if (currentProjectId) {
+                renderProjectTasks(currentProjectId);
+            }
+            closeModal();
+            showToast('✅ Task created successfully!', 'success');
+            navigateTo('tasks');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toast.classList.remove('hidden', 'border-green-500', 'border-red-500');
+            toast.classList.add(type === 'success' ? 'border-green-500' : 'border-red-500');
+            toastMessage.textContent = message;
+
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+
+            if (date.toDateString() === today.toDateString()) {
+                return 'Today';
+            } else if (date.toDateString() === tomorrow.toDateString()) {
+                return 'Tomorrow';
+            } else {
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+        }
+
+        function setupSearch() {
+            const searchInput = document.getElementById('globalSearch');
+            searchInput.addEventListener('input', function (e) {
+                const query = e.target.value.toLowerCase();
+                if (query.length < 2) return;
+
+                const results = tasks.filter(task =>
+                    task.title.toLowerCase().includes(query) ||
+                    task.project.toLowerCase().includes(query)
+                );
+
+                if (results.length > 0) {
+                    showToast(`🔍 Found ${results.length} result(s)`, 'success');
+                }
+            });
+        }
+
+        function toggleNotifications() {
+            showToast('🔔 Notifications panel coming soon!', 'success');
+        }
+
+        function editProject() {
+            showToast('✏️ Edit project functionality coming soon!', 'success');
+        }
+
+        function archiveProject() {
+            if (confirm('Are you sure you want to archive this project?')) {
+                showToast('📦 Project archived successfully', 'success');
+            }
+        }
+
+        function exportReports() {
+            showToast('📊 Report export functionality coming soon!', 'success');
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('globalSearch').focus();
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                openCreateModal('task');
+            }
+
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        document.getElementById('createModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Demo helpers
+        window.demoHelpers = {
+            addSampleTasks: () => {
+                const sampleTasks = [
+                    { title: 'Review design mockups', project: 'Website Redesign', priority: 'high', dueDate: '2025-10-27' },
+                    { title: 'Update API documentation', project: 'Mobile App Launch', priority: 'medium', dueDate: '2025-10-28' },
+                    { title: 'Database backup check', project: 'CRM Migration', priority: 'low', dueDate: '2025-10-29' }
+                ];
+
+                sampleTasks.forEach(task => {
+                    tasks.push({
+                        id: tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1,
+                        ...task,
+                        completed: false
+                    });
+                });
+
+                updateStats();
+                renderTodayTasks();
+                renderAllTasks();
+                showToast('✨ Added 3 sample tasks', 'success');
+            },
+            exportTasks: () => {
+                const dataStr = JSON.stringify(tasks, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'tasks-export.json';
+                link.click();
+                URL.revokeObjectURL(url);
+                showToast('📥 Tasks exported successfully', 'success');
+            },
+            showAllTasks: () => console.table(tasks),
+            clearCompleted: () => {
+                tasks = tasks.filter(t => !t.completed);
+                updateStats();
+                renderTodayTasks();
+                renderAllTasks();
+                showToast('🧹 Completed tasks cleared', 'success');
+            },
+            resetDemo: () => {
+                if (confirm('Reset all data? This will reload the page.')) {
+                    location.reload();
+                }
+            }
+        };
+
+        console.log('%c🎉 Welcome to ProjectHub Complete UI Wireframe!', 'font-size: 20px; font-weight: bold; color: #667eea;');
+        console.log('%cAvailable demo helpers:', 'font-size: 14px; color: #64748b;');
+        console.log('• demoHelpers.addSampleTasks() - Add 3 sample tasks');
+        console.log('• demoHelpers.exportTasks() - Export tasks as JSON');
+        console.log('• demoHelpers.showAllTasks() - Display all tasks in table');
+        console.log('• demoHelpers.clearCompleted() - Remove completed tasks');
+        console.log('• demoHelpers.resetDemo() - Reset all data');
+        console.log('\n%cKeyboard Shortcuts:', 'font-size: 14px; color: #64748b;');
+        console.log('• Ctrl/Cmd + K - Focus search');
+        console.log('• Ctrl/Cmd + N - Create new task');
+        console.log('• Escape - Close modal');
+    </script>
+</body>
+
+</html>

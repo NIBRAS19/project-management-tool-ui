@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectHub - Settings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        secondary: '#764ba2',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        info: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .gradient-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .animate-slide-in {
+                animation: slideIn 0.3s ease-out;
+            }
+            .scrollbar-thin {
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 #f1f5f9;
+            }
+            .scrollbar-thin::-webkit-scrollbar {
+                width: 6px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 3px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 3px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+            .settings-tab.active {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.2), 0 2px 4px -1px rgba(102, 126, 234, 0.1);
+            }
+            .toggle-bg {
+                background-color: #d1d5db;
+            }
+            .toggle-bg:after {
+                content: '';
+                @apply absolute top-0.5 left-0.5 bg-white border border-gray-300 rounded-full h-5 w-5 transition shadow-sm;
+            }
+            input:checked + .toggle-bg {
+                background-color: #667eea;
+            }
+            input:checked + .toggle-bg:after {
+                transform: translateX(100%);
+                border-color: white;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Top Navigation -->
+    <nav
+        class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-[70px] flex items-center justify-between px-8 z-50">
+        <div
+            class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent cursor-pointer">
+            ProjectHub
+        </div>
+
+        <div class="flex-1 max-w-md mx-10">
+            <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><i
+                        class="fas fa-search"></i></span>
+                <input type="text"
+                    class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="Search projects, tasks, or people...">
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button
+                class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button
+                class="relative w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                <i class="fas fa-bell"></i>
+                <span
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-5 h-5 rounded-full flex items-center justify-center">3</span>
+            </button>
+            <div
+                class="w-11 h-11 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold text-sm cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/30 transition-all">
+                SM
+            </div>
+        </div>
+    </nav>
+
+    <!-- App Layout -->
+    <div class="flex mt-[70px]">
+        <!-- Sidebar -->
+        <aside
+            class="fixed left-0 w-64 h-[calc(100vh-70px)] bg-white border-r border-gray-200 p-6 overflow-y-auto scrollbar-thin">
+            <div class="mb-8">
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-chart-bar w-5 text-center"></i>
+                    <span class="font-medium">Dashboard</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-tasks w-5 text-center"></i>
+                    <span class="font-medium">Tasks</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-folder w-5 text-center"></i>
+                    <span class="font-medium">Projects</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-users w-5 text-center"></i>
+                    <span class="font-medium">Team</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-comments w-5 text-center"></i>
+                    <span class="font-medium">Team Chat</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-calendar w-5 text-center"></i>
+                    <span class="font-medium">Calendar</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-clock w-5 text-center"></i>
+                    <span class="font-medium">Time Tracker</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-chart-pie w-5 text-center"></i>
+                    <span class="font-medium">Reports</span>
+                </div>
+                <div
+                    class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 gradient-primary text-white shadow-lg shadow-primary/20">
+                    <i class="fas fa-cog w-5 text-center"></i>
+                    <span class="font-medium">Settings</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ml-64 flex-1 p-0">
+            <!-- Settings Module -->
+            <div class="h-[calc(100vh-70px)]">
+                <div class="flex h-full bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <!-- Settings Sidebar -->
+                    <div class="w-80 border-r border-gray-200 p-6 overflow-y-auto scrollbar-thin">
+                        <div class="mb-8">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-6">Settings</h2>
+
+                            <!-- Settings Tabs -->
+                            <div class="space-y-1">
+                                <button
+                                    class="settings-tab active w-full text-left px-4 py-3 rounded-lg transition-all flex items-center gap-3"
+                                    data-tab="profile">
+                                    <i class="fas fa-user w-5 text-center"></i>
+                                    <span>Profile Settings</span>
+                                </button>
+                                <button
+                                    class="settings-tab w-full text-left px-4 py-3 rounded-lg transition-all flex items-center gap-3"
+                                    data-tab="notifications">
+                                    <i class="fas fa-bell w-5 text-center"></i>
+                                    <span>Notifications</span>
+                                </button>
+                                <button
+                                    class="settings-tab w-full text-left px-4 py-3 rounded-lg transition-all flex items-center gap-3"
+                                    data-tab="preferences">
+                                    <i class="fas fa-palette w-5 text-center"></i>
+                                    <span>Preferences</span>
+                                </button>
+                                <button
+                                    class="settings-tab w-full text-left px-4 py-3 rounded-lg transition-all flex items-center gap-3"
+                                    data-tab="security">
+                                    <i class="fas fa-shield-alt w-5 text-center"></i>
+                                    <span>Security</span>
+                                </button>
+                                <button
+                                    class="settings-tab w-full text-left px-4 py-3 rounded-lg transition-all flex items-center gap-3"
+                                    data-tab="integrations">
+                                    <i class="fas fa-plug w-5 text-center"></i>
+                                    <span>Integrations</span>
+                                </button>
+                                <button
+                                    class="settings-tab w-full text-left px-4 py-3 rounded-lg transition-all flex items-center gap-3"
+                                    data-tab="billing">
+                                    <i class="fas fa-credit-card w-5 text-center"></i>
+                                    <span>Billing</span>
+                                    <span
+                                        class="ml-auto px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded">Admin</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Account Status -->
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div
+                                    class="w-10 h-10 rounded-full gradient-primary text-white flex items-center justify-center font-semibold">
+                                    SM</div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Sarah Mitchell</div>
+                                    <div class="text-xs text-gray-500">Administrator</div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                <div class="flex items-center gap-1 mb-1">
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                    <span>Account verified</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-shield-alt text-blue-500"></i>
+                                    <span>2FA enabled</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Content Area -->
+                    <div class="flex-1 flex flex-col">
+                        <!-- Settings Header -->
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h1 id="settingsTitle" class="text-2xl font-bold text-gray-900">Profile Settings
+                                    </h1>
+                                    <p id="settingsDescription" class="text-gray-500">Manage your personal information
+                                        and account settings</p>
+                                </div>
+                                <button
+                                    class="px-4 py-2 gradient-primary text-white rounded-lg hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 transition-all">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Settings Content -->
+                        <div class="flex-1 overflow-auto p-6">
+                            <!-- Profile Settings -->
+                            <div id="profile-tab" class="settings-content">
+                                <div class="max-w-2xl space-y-8">
+                                    <!-- Profile Picture -->
+                                    <div class="flex items-center gap-6">
+                                        <div class="relative">
+                                            <div
+                                                class="w-24 h-24 rounded-full gradient-primary text-white flex items-center justify-center text-2xl font-semibold">
+                                                SM
+                                            </div>
+                                            <button
+                                                class="absolute bottom-0 right-0 w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors">
+                                                <i class="fas fa-camera text-gray-600 text-xs"></i>
+                                            </button>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-medium text-gray-900">Profile Picture</h3>
+                                            <p class="text-sm text-gray-500 mb-2">JPG, GIF or PNG. Max size 2MB.</p>
+                                            <button
+                                                class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                                                Change Photo
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Personal Information -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">First
+                                                Name</label>
+                                            <input type="text"
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                                value="Sarah">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Last
+                                                Name</label>
+                                            <input type="text"
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                                value="Mitchell">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Email
+                                                Address</label>
+                                            <input type="email"
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                                value="sarah.mitchell@company.com">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Job
+                                                Title</label>
+                                            <input type="text"
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                                value="Product Designer">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                                            <select
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                                <option>Design</option>
+                                                <option>Engineering</option>
+                                                <option>Marketing</option>
+                                                <option>Sales</option>
+                                                <option>Operations</option>
+                                            </select>
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
+                                            <select
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                                <option>(GMT-08:00) Pacific Time</option>
+                                                <option>(GMT-07:00) Mountain Time</option>
+                                                <option>(GMT-06:00) Central Time</option>
+                                                <option>(GMT-05:00) Eastern Time</option>
+                                                <option>(GMT+00:00) London</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bio -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                                        <textarea rows="4"
+                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all resize-none">Senior product designer with 8+ years of experience in creating user-centered digital products. Currently leading design initiatives for our flagship web application.</textarea>
+                                        <p class="text-sm text-gray-500 mt-1">Brief description for your profile.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Notifications Settings -->
+                            <div id="notifications-tab" class="settings-content hidden">
+                                <div class="max-w-2xl space-y-8">
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Notification Preferences</h3>
+                                        <div class="space-y-4">
+                                            <!-- Email Notifications -->
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">Email Notifications</div>
+                                                    <div class="text-sm text-gray-500">Receive notifications via email
+                                                    </div>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div
+                                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                                    </div>
+                                                </label>
+                                            </div>
+
+                                            <!-- Push Notifications -->
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">Push Notifications</div>
+                                                    <div class="text-sm text-gray-500">Receive browser notifications
+                                                    </div>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div
+                                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                                    </div>
+                                                </label>
+                                            </div>
+
+                                            <!-- SMS Notifications -->
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">SMS Notifications</div>
+                                                    <div class="text-sm text-gray-500">Receive text message alerts</div>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer">
+                                                    <div
+                                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Notification Types</h3>
+                                        <div class="space-y-4">
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">Task Assignments</div>
+                                                    <div class="text-sm text-gray-500">When you're assigned to a new
+                                                        task</div>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div
+                                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                                    </div>
+                                                </label>
+                                            </div>
+
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">Due Date Reminders</div>
+                                                    <div class="text-sm text-gray-500">24 hours before task deadlines
+                                                    </div>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div
+                                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                                    </div>
+                                                </label>
+                                            </div>
+
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">Mentions & Comments</div>
+                                                    <div class="text-sm text-gray-500">When someone mentions you</div>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div
+                                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                                    </div>
+                                                </label>
+                                            </div>
+
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">Project Updates</div>
+                                                    <div class="text-sm text-gray-500">Major changes to your projects
+                                                    </div>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer">
+                                                    <div
+                                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Preferences Settings -->
+                            <div id="preferences-tab" class="settings-content hidden">
+                                <div class="max-w-2xl space-y-8">
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Appearance</h3>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div
+                                                class="border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-primary transition-colors">
+                                                <div class="flex items-center gap-3 mb-2">
+                                                    <div class="w-6 h-6 rounded-full bg-white border-2 border-gray-300">
+                                                    </div>
+                                                    <span class="font-medium">Light</span>
+                                                </div>
+                                                <p class="text-sm text-gray-500">Default light theme</p>
+                                            </div>
+                                            <div
+                                                class="border-2 border-primary rounded-xl p-4 cursor-pointer bg-primary/5">
+                                                <div class="flex items-center gap-3 mb-2">
+                                                    <div
+                                                        class="w-6 h-6 rounded-full bg-gray-800 border-2 border-primary">
+                                                    </div>
+                                                    <span class="font-medium">Dark</span>
+                                                </div>
+                                                <p class="text-sm text-gray-500">Dark mode theme</p>
+                                            </div>
+                                            <div
+                                                class="border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-primary transition-colors">
+                                                <div class="flex items-center gap-3 mb-2">
+                                                    <div
+                                                        class="w-6 h-6 rounded-full bg-blue-500 border-2 border-gray-300">
+                                                    </div>
+                                                    <span class="font-medium">Auto</span>
+                                                </div>
+                                                <p class="text-sm text-gray-500">Follow system setting</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                                            <select
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                                <option>English</option>
+                                                <option>Spanish</option>
+                                                <option>French</option>
+                                                <option>German</option>
+                                                <option>Chinese</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Date
+                                                Format</label>
+                                            <select
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                                <option>MM/DD/YYYY</option>
+                                                <option>DD/MM/YYYY</option>
+                                                <option>YYYY-MM-DD</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Time
+                                                Format</label>
+                                            <select
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                                <option>12-hour</option>
+                                                <option>24-hour</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Week Starts
+                                                On</label>
+                                            <select
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                                <option>Sunday</option>
+                                                <option>Monday</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Dashboard Preferences</h3>
+                                        <div class="space-y-4">
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">Compact View</div>
+                                                    <div class="text-sm text-gray-500">Show more content in less space
+                                                    </div>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer">
+                                                    <div
+                                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                                    </div>
+                                                </label>
+                                            </div>
+
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">Show Avatars</div>
+                                                    <div class="text-sm text-gray-500">Display profile pictures</div>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div
+                                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Security Settings -->
+                            <div id="security-tab" class="settings-content hidden">
+                                <div class="max-w-2xl space-y-8">
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Password</h3>
+                                        <div class="space-y-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Current
+                                                    Password</label>
+                                                <input type="password"
+                                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                                    placeholder="Enter current password">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">New
+                                                    Password</label>
+                                                <input type="password"
+                                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                                    placeholder="Enter new password">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New
+                                                    Password</label>
+                                                <input type="password"
+                                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                                    placeholder="Confirm new password">
+                                            </div>
+                                            <button
+                                                class="px-4 py-2 bg-white border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors">
+                                                Update Password
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Two-Factor Authentication
+                                        </h3>
+                                        <div class="p-6 bg-green-50 border border-green-200 rounded-xl">
+                                            <div class="flex items-center gap-3 mb-3">
+                                                <i class="fas fa-shield-alt text-green-500"></i>
+                                                <span class="font-medium text-green-800">2FA is enabled</span>
+                                            </div>
+                                            <p class="text-sm text-green-700 mb-4">Your account is protected with
+                                                two-factor authentication. You'll need to enter a verification code from
+                                                your authenticator app when signing in.</p>
+                                            <div class="flex gap-2">
+                                                <button
+                                                    class="px-4 py-2 bg-white border border-green-500 text-green-600 rounded-lg hover:bg-green-500 hover:text-white transition-colors">
+                                                    Change Method
+                                                </button>
+                                                <button
+                                                    class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                                                    Disable 2FA
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Active Sessions</h3>
+                                        <div class="space-y-4">
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">Chrome on Windows</div>
+                                                    <div class="text-sm text-gray-500">New York, USA • Current session
+                                                    </div>
+                                                </div>
+                                                <span
+                                                    class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Active</span>
+                                            </div>
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">Safari on Mac</div>
+                                                    <div class="text-sm text-gray-500">San Francisco, USA • 2 days ago
+                                                    </div>
+                                                </div>
+                                                <button class="text-red-600 hover:text-red-700 text-sm font-medium">
+                                                    Revoke
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Integrations Settings -->
+                            <div id="integrations-tab" class="settings-content hidden">
+                                <div class="max-w-2xl space-y-8">
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Connected Apps</h3>
+                                        <div class="space-y-4">
+                                            <!-- Google Integration -->
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div class="flex items-center gap-4">
+                                                    <div
+                                                        class="w-12 h-12 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                                                        <i class="fab fa-google text-red-500 text-xl"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">Google Workspace</div>
+                                                        <div class="text-sm text-gray-500">Calendar & Drive integration
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Connected</span>
+                                                    <button class="text-red-600 hover:text-red-700 text-sm font-medium">
+                                                        Disconnect
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Slack Integration -->
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div class="flex items-center gap-4">
+                                                    <div
+                                                        class="w-12 h-12 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                                                        <i class="fab fa-slack text-purple-500 text-xl"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">Slack</div>
+                                                        <div class="text-sm text-gray-500">Team notifications</div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Connected</span>
+                                                    <button class="text-red-600 hover:text-red-700 text-sm font-medium">
+                                                        Disconnect
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- GitHub Integration -->
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div class="flex items-center gap-4">
+                                                    <div
+                                                        class="w-12 h-12 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                                                        <i class="fab fa-github text-gray-800 text-xl"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">GitHub</div>
+                                                        <div class="text-sm text-gray-500">Code repository sync</div>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                                    Connect
+                                                </button>
+                                            </div>
+
+                                            <!-- Figma Integration -->
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div class="flex items-center gap-4">
+                                                    <div
+                                                        class="w-12 h-12 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                                                        <i class="fab fa-figma text-purple-600 text-xl"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">Figma</div>
+                                                        <div class="text-sm text-gray-500">Design file integration</div>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                                    Connect
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">API Access</h3>
+                                        <div class="p-4 bg-gray-50 rounded-lg">
+                                            <div class="flex items-center justify-between mb-3">
+                                                <div class="font-medium text-gray-900">API Keys</div>
+                                                <button
+                                                    class="px-4 py-2 gradient-primary text-white rounded-lg hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 transition-all text-sm">
+                                                    Generate New Key
+                                                </button>
+                                            </div>
+                                            <p class="text-sm text-gray-500 mb-4">Use API keys to integrate ProjectHub
+                                                with your custom applications and workflows.</p>
+                                            <div class="space-y-2">
+                                                <div
+                                                    class="flex items-center justify-between p-3 bg-white rounded border">
+                                                    <div>
+                                                        <div class="font-medium text-sm">Production Key</div>
+                                                        <div class="text-xs text-gray-500">Created Oct 15, 2025</div>
+                                                    </div>
+                                                    <button class="text-red-600 hover:text-red-700 text-sm">
+                                                        Revoke
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Billing Settings -->
+                            <div id="billing-tab" class="settings-content hidden">
+                                <div class="max-w-2xl space-y-8">
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Current Plan</h3>
+                                        <div
+                                            class="p-6 bg-gradient-to-r from-primary to-secondary rounded-xl text-white">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <div>
+                                                    <div class="text-xl font-bold">Business Plan</div>
+                                                    <div class="text-primary-100">$29 per user/month</div>
+                                                </div>
+                                                <span class="px-3 py-1 bg-white/20 rounded-full text-sm">Active</span>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fas fa-check"></i>
+                                                    <span>Unlimited Projects</span>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fas fa-check"></i>
+                                                    <span>Advanced Analytics</span>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fas fa-check"></i>
+                                                    <span>Priority Support</span>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fas fa-check"></i>
+                                                    <span>Custom Fields</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Billing
+                                                Cycle</label>
+                                            <select
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                                <option>Monthly</option>
+                                                <option>Annual (Save 20%)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Next Billing
+                                                Date</label>
+                                            <div class="px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50">
+                                                <span class="text-gray-900">November 15, 2025</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Payment Method</h3>
+                                        <div class="p-4 bg-gray-50 rounded-lg">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <div class="flex items-center gap-3">
+                                                    <div
+                                                        class="w-10 h-6 bg-blue-500 rounded flex items-center justify-center">
+                                                        <i class="fab fa-cc-visa text-white text-xs"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">Visa ending in 4242</div>
+                                                        <div class="text-sm text-gray-500">Expires 12/2026</div>
+                                                    </div>
+                                                </div>
+                                                <span
+                                                    class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Default</span>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <button
+                                                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                                    Update Card
+                                                </button>
+                                                <button
+                                                    class="px-4 py-2 bg-white border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Billing History</h3>
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">October 2025</div>
+                                                    <div class="text-sm text-gray-500">10 users • Business Plan</div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="font-medium text-gray-900">$290.00</div>
+                                                    <div class="text-sm text-green-600">Paid</div>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                    <div class="font-medium text-gray-900">September 2025</div>
+                                                    <div class="text-sm text-gray-500">8 users • Business Plan</div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="font-medium text-gray-900">$232.00</div>
+                                                    <div class="text-sm text-green-600">Paid</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button
+                                            class="w-full mt-4 py-2 border border-dashed border-gray-300 rounded-lg text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
+                                            View Full History
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="hidden fixed top-24 right-8 bg-white p-4 rounded-xl shadow-2xl z-[60] min-w-[300px] border-l-4 border-green-500 animate-slide-in">
+        <div class="flex items-center gap-3">
+            <i id="toastIcon" class="fas fa-check-circle text-green-500"></i>
+            <div class="text-sm font-medium text-gray-900" id="toastMessage">Settings saved successfully</div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            setupEventListeners();
+        });
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Settings tab switching
+            document.querySelectorAll('.settings-tab').forEach(tab => {
+                tab.addEventListener('click', function () {
+                    const tabId = this.dataset.tab;
+
+                    // Update active tab
+                    document.querySelectorAll('.settings-tab').forEach(t => {
+                        t.classList.remove('active', 'gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
+                        t.classList.add('text-gray-600', 'hover:bg-gray-100');
+                    });
+                    this.classList.remove('text-gray-600', 'hover:bg-gray-100');
+                    this.classList.add('active', 'gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
+
+                    // Update content
+                    document.querySelectorAll('.settings-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(`${tabId}-tab`).classList.remove('hidden');
+
+                    // Update header
+                    updateSettingsHeader(tabId);
+                });
+            });
+
+            // Save changes button
+            document.querySelector('button:contains("Save Changes")').addEventListener('click', function () {
+                showToast('Settings saved successfully', 'success');
+            });
+
+            // Toggle switches
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const label = this.closest('label');
+                    if (this.checked) {
+                        showToast('Setting enabled', 'info');
+                    } else {
+                        showToast('Setting disabled', 'info');
+                    }
+                });
+            });
+        }
+
+        // Update settings header based on active tab
+        function updateSettingsHeader(tabId) {
+            const titles = {
+                'profile': 'Profile Settings',
+                'notifications': 'Notification Settings',
+                'preferences': 'Preferences',
+                'security': 'Security Settings',
+                'integrations': 'Integrations',
+                'billing': 'Billing & Subscription'
+            };
+
+            const descriptions = {
+                'profile': 'Manage your personal information and account settings',
+                'notifications': 'Configure how and when you receive notifications',
+                'preferences': 'Customize your app experience and appearance',
+                'security': 'Manage password, 2FA, and security settings',
+                'integrations': 'Connect with your favorite tools and services',
+                'billing': 'Manage your subscription and payment methods'
+            };
+
+            document.getElementById('settingsTitle').textContent = titles[tabId];
+            document.getElementById('settingsDescription').textContent = descriptions[tabId];
+        }
+
+        // Utility Functions
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.textContent = message;
+
+            // Set icon based on type
+            const icons = {
+                success: 'fa-check-circle text-green-500',
+                error: 'fa-exclamation-circle text-red-500',
+                warning: 'fa-exclamation-triangle text-yellow-500',
+                info: 'fa-info-circle text-blue-500'
+            };
+
+            // Set border color based on type
+            const borderColors = {
+                success: 'border-green-500',
+                error: 'border-red-500',
+                warning: 'border-yellow-500',
+                info: 'border-blue-500'
+            };
+
+            toastIcon.className = `fas ${icons[type] || icons.info}`;
+            toast.className = `hidden fixed top-24 right-8 bg-white p-4 rounded-xl shadow-2xl z-[60] min-w-[300px] border-l-4 ${borderColors[type] || borderColors.info} animate-slide-in`;
+
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

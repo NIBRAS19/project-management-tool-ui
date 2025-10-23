@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectHub - Tasks Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        secondary: '#764ba2',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        info: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .gradient-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .gradient-success {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            }
+            .gradient-warning {
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            }
+            .gradient-danger {
+                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            }
+            .gradient-info {
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            }
+            .animate-slide-in {
+                animation: slideIn 0.3s ease-out;
+            }
+            .widget {
+                transition: all 0.2s ease;
+            }
+            .widget:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            .widget-dragging {
+                opacity: 0.8;
+                transform: rotate(3deg);
+            }
+            .kanban-column {
+                min-height: 500px;
+            }
+            .task-card {
+                transition: all 0.2s ease;
+            }
+            .task-card:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+            .task-card-dragging {
+                opacity: 0.6;
+                transform: rotate(5deg);
+            }
+            .wip-limit-exceeded {
+                border: 2px solid #ef4444;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            .scrollbar-thin {
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 #f1f5f9;
+            }
+            .scrollbar-thin::-webkit-scrollbar {
+                width: 6px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 3px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 3px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Top Navigation -->
+    <nav
+        class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-[70px] flex items-center justify-between px-8 z-50">
+        <div class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent cursor-pointer"
+            onclick="navigateTo('dashboard')">
+            ProjectHub
+        </div>
+
+        <div class="flex-1 max-w-md mx-10">
+            <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                <input type="text" id="globalSearch"
+                    class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="Search projects, tasks, or people...">
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button onclick="openCreateModal('task')"
+                class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                ➕
+            </button>
+            <button onclick="toggleNotifications()"
+                class="relative w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                🔔
+                <span id="notifCount"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-5 h-5 rounded-full flex items-center justify-center">3</span>
+            </button>
+            <div onclick="navigateTo('settings')"
+                class="w-11 h-11 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold text-sm cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/30 transition-all">
+                SM
+            </div>
+        </div>
+    </nav>
+
+    <!-- App Layout -->
+    <div class="flex mt-[70px]">
+        <!-- Sidebar -->
+        <aside
+            class="fixed left-0 w-64 h-[calc(100vh-70px)] bg-white border-r border-gray-200 p-6 overflow-y-auto scrollbar-thin">
+            <div class="mb-8">
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="dashboard" onclick="navigateTo('dashboard')">
+                    <span>📊</span>
+                    <span class="font-medium">Dashboard</span>
+                </div>
+                <div class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 gradient-primary text-white shadow-lg shadow-primary/20"
+                    data-page="tasks" onclick="navigateTo('tasks')">
+                    <span>✅</span>
+                    <span class="font-medium">My Tasks</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="projects" onclick="navigateTo('projects')">
+                    <span>📁</span>
+                    <span class="font-medium">Projects</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="calendar" onclick="navigateTo('calendar')">
+                    <span>📅</span>
+                    <span class="font-medium">Calendar</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="reports" onclick="navigateTo('reports')">
+                    <span>📈</span>
+                    <span class="font-medium">Reports</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="chat" onclick="navigateTo('chat')">
+                    <span>💬</span>
+                    <span class="font-medium">Team Chat</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider px-4 mb-3">Workspaces</div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="team" onclick="navigateTo('team')">
+                    <span>👥</span>
+                    <span class="font-medium">Team</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="settings" onclick="navigateTo('settings')">
+                    <span>⚙️</span>
+                    <span class="font-medium">Settings</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ml-64 flex-1 p-8">
+            <!-- Tasks Module -->
+            <div id="tasks-page" class="page">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-4xl font-bold text-gray-900 mb-1">My Tasks</h1>
+                        <p class="text-gray-500"><span id="taskCount">0</span> tasks assigned to you</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="toggleViewMode()" id="toggleViewBtn"
+                            class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                            Switch to Kanban
+                        </button>
+                        <button onclick="openCreateModal('task')"
+                            class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all flex items-center gap-2">
+                            <span>➕</span>
+                            <span>Create Task</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions Toolbar -->
+                <div id="bulkActionsToolbar"
+                    class="hidden bg-white rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <span id="selectedCount" class="font-medium text-gray-900">0 tasks selected</span>
+                            <div class="flex gap-2">
+                                <select id="bulkAction" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                    <option value="">Bulk Actions</option>
+                                    <option value="assign">Assign to...</option>
+                                    <option value="status">Change Status</option>
+                                    <option value="priority">Change Priority</option>
+                                    <option value="delete">Delete Tasks</option>
+                                </select>
+                                <button onclick="applyBulkAction()"
+                                    class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                                    Apply
+                                </button>
+                            </div>
+                        </div>
+                        <button onclick="clearSelection()" class="text-gray-500 hover:text-gray-700">
+                            ✕ Clear Selection
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter & Sort Toolbar -->
+                <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-700">View:</span>
+                            <select id="viewFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                onchange="filterTasks()">
+                                <option value="all">All Tasks</option>
+                                <option value="my-tasks">My Tasks</option>
+                                <option value="overdue">Overdue</option>
+                                <option value="due-soon">Due Soon</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-700">Project:</span>
+                            <select id="projectFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                onchange="filterTasks()">
+                                <option value="all">All Projects</option>
+                                <option value="website-redesign">Website Redesign</option>
+                                <option value="mobile-app">Mobile App Launch</option>
+                                <option value="crm-migration">CRM Migration</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-700">Priority:</span>
+                            <select id="priorityFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                onchange="filterTasks()">
+                                <option value="all">All Priorities</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-700">Sort by:</span>
+                            <select id="sortBy" class="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                onchange="sortTasks()">
+                                <option value="due-date">Due Date</option>
+                                <option value="priority">Priority</option>
+                                <option value="title">Title</option>
+                                <option value="project">Project</option>
+                            </select>
+                        </div>
+                        <button onclick="clearFilters()" class="ml-auto text-sm text-gray-500 hover:text-gray-700">
+                            Clear Filters
+                        </button>
+                    </div>
+                </div>
+
+                <!-- List View -->
+                <div id="listView" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-200 sticky top-0">
+                                <tr>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8">
+                                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                    </th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Title</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Project</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Assignee</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Priority</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Due Date</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="taskList" class="bg-white divide-y divide-gray-200">
+                                <!-- Task rows will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Kanban View -->
+                <div id="kanbanView" class="hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- To Do Column -->
+                        <div class="kanban-column bg-gray-50 rounded-xl p-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-semibold text-gray-900">To Do</h3>
+                                <span class="text-sm text-gray-500 bg-white px-2 py-1 rounded-lg" id="todoCount">0
+                                    tasks</span>
+                            </div>
+                            <div id="todo-column" class="space-y-3 min-h-[200px]">
+                                <!-- To Do tasks will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- In Progress Column -->
+                        <div class="kanban-column bg-blue-50 rounded-xl p-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-semibold text-gray-900">In Progress</h3>
+                                <span class="text-sm text-gray-500 bg-white px-2 py-1 rounded-lg" id="inProgressCount">0
+                                    tasks</span>
+                            </div>
+                            <div id="inprogress-column" class="space-y-3 min-h-[200px]">
+                                <!-- In Progress tasks will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Review Column -->
+                        <div class="kanban-column bg-yellow-50 rounded-xl p-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-semibold text-gray-900">Review</h3>
+                                <span class="text-sm text-gray-500 bg-white px-2 py-1 rounded-lg" id="reviewCount">0
+                                    tasks</span>
+                            </div>
+                            <div id="review-column" class="space-y-3 min-h-[200px]">
+                                <!-- Review tasks will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Done Column -->
+                        <div class="kanban-column bg-green-50 rounded-xl p-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-semibold text-gray-900">Done</h3>
+                                <span class="text-sm text-gray-500 bg-white px-2 py-1 rounded-lg" id="doneCount">0
+                                    tasks</span>
+                            </div>
+                            <div id="done-column" class="space-y-3 min-h-[200px]">
+                                <!-- Done tasks will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Pages (simplified) -->
+            <div id="dashboard-page" class="page hidden">
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
+                <p class="text-gray-500 mb-8">Your project overview</p>
+                <div class="bg-white rounded-xl border border-gray-200 p-20 text-center text-gray-400">
+                    📊 Dashboard interface...
+                </div>
+            </div>
+
+            <!-- Other pages would be implemented similarly -->
+        </main>
+    </div>
+
+    <!-- Task Detail Drawer -->
+    <div id="taskDetailDrawer" class="hidden fixed inset-0 bg-black/50 z-50 flex justify-end">
+        <div class="bg-white w-full max-w-2xl h-full overflow-y-auto scrollbar-thin">
+            <div class="flex justify-between items-center p-6 border-b border-gray-200 sticky top-0 bg-white">
+                <h2 class="text-2xl font-semibold text-gray-900" id="taskDetailTitle">Task Details</h2>
+                <button onclick="closeTaskDetail()"
+                    class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                    ✕
+                </button>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Title & Description -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                    <h3 class="text-xl font-bold text-gray-900" id="detailTaskTitle">Task Title</h3>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                    <div class="prose max-w-none" id="detailTaskDescription">
+                        <p>Task description goes here...</p>
+                    </div>
+                </div>
+
+                <!-- Task Metadata -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Project</label>
+                        <div class="flex items-center gap-2" id="detailTaskProject">
+                            <span>📁</span>
+                            <span>Project Name</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Assignee</label>
+                        <div class="flex items-center gap-2" id="detailTaskAssignee">
+                            <div
+                                class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-semibold">
+                                SM</div>
+                            <span>Sarah Mitchell</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Priority</label>
+                        <span id="detailTaskPriority"
+                            class="px-3 py-1 rounded-lg text-xs font-semibold uppercase">Medium</span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Due Date</label>
+                        <div id="detailTaskDueDate" class="text-gray-900">Oct 25, 2025</div>
+                    </div>
+                </div>
+
+                <!-- Subtasks -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="block text-sm font-semibold text-gray-700">Subtasks</label>
+                        <button class="text-primary text-sm font-medium">+ Add Subtask</button>
+                    </div>
+                    <div class="space-y-2" id="detailSubtasks">
+                        <!-- Subtasks will be populated here -->
+                    </div>
+                    <div class="mt-2">
+                        <div class="flex justify-between text-sm text-gray-500 mb-1">
+                            <span>Progress</span>
+                            <span id="subtaskProgress">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="subtaskProgressBar" class="bg-green-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attachments -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="block text-sm font-semibold text-gray-700">Attachments</label>
+                        <button class="text-primary text-sm font-medium">+ Upload File</button>
+                    </div>
+                    <div class="space-y-2" id="detailAttachments">
+                        <!-- Attachments will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Comments -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-4">Comments</label>
+                    <div class="space-y-4 mb-4 max-h-60 overflow-y-auto scrollbar-thin" id="detailComments">
+                        <!-- Comments will be populated here -->
+                    </div>
+                    <div class="flex gap-3">
+                        <input type="text"
+                            class="flex-1 px-4 py-2 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                            placeholder="Add a comment...">
+                        <button class="gradient-primary text-white px-4 py-2 rounded-xl font-semibold">
+                            Send
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Time Tracking -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-4">Time Tracking</label>
+                    <div class="flex items-center gap-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900" id="timeTracked">0h 0m</div>
+                            <div class="text-sm text-gray-500">Total Time</div>
+                        </div>
+                        <button id="timerButton" class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold">
+                            ▶ Start Timer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Activity Log -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-4">Activity Log</label>
+                    <div class="space-y-3" id="detailActivityLog">
+                        <!-- Activity log will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 justify-end p-6 border-t border-gray-200 sticky bottom-0 bg-white">
+                <button onclick="closeTaskDetail()"
+                    class="px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                    Close
+                </button>
+                <button onclick="editTask()"
+                    class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all">
+                    Edit Task
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Task Modal -->
+    <div id="createModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="flex justify-between items-center p-8 border-b border-gray-200">
+                <h2 id="modalTitle" class="text-2xl font-semibold text-gray-900">Create New Task</h2>
+                <button onclick="closeModal()"
+                    class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                    ✕
+                </button>
+            </div>
+
+            <div class="p-8 space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                    <input type="text" id="taskTitle"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                        placeholder="Enter task title...">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                    <textarea id="taskDescription" rows="4"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all resize-none"
+                        placeholder="Enter description..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Priority</label>
+                        <select id="taskPriority"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Due Date</label>
+                        <input type="date" id="taskDueDate"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Project</label>
+                        <select id="taskProject"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                            <option value="website-redesign">Website Redesign</option>
+                            <option value="mobile-app">Mobile App Launch</option>
+                            <option value="crm-migration">CRM Migration</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Assignee</label>
+                        <select id="taskAssignee"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                            <option value="sm">Sarah Mitchell</option>
+                            <option value="mj">Mike Johnson</option>
+                            <option value="al">Alex Lee</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                    <select id="taskStatus"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                        <option value="todo">To Do</option>
+                        <option value="inprogress">In Progress</option>
+                        <option value="review">Review</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-3 justify-end p-6 border-t border-gray-200">
+                <button onclick="closeModal()"
+                    class="px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                    Cancel
+                </button>
+                <button onclick="createTask()"
+                    class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all">
+                    Create Task
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="hidden fixed top-24 right-8 bg-white p-4 rounded-xl shadow-2xl z-[60] min-w-[300px] border-l-4 animate-slide-in">
+        <div id="toastMessage" class="text-sm font-medium text-gray-900"></div>
+    </div>
+
+    <script>
+        // Tasks Data
+        let tasks = [
+            {
+                id: 1,
+                title: 'Design Login Screen',
+                project: 'Website Redesign',
+                assignee: { id: 'mj', name: 'Mike Johnson', avatar: 'MJ' },
+                priority: 'high',
+                status: 'inprogress',
+                dueDate: '2025-10-25',
+                description: 'Create modern login screen with responsive design',
+                subtasks: [
+                    { id: 1, title: 'Create wireframes', completed: true },
+                    { id: 2, title: 'Design UI mockups', completed: true },
+                    { id: 3, title: 'Implement responsive design', completed: false }
+                ],
+                attachments: [
+                    { id: 1, name: 'login-wireframe.pdf', type: 'pdf' },
+                    { id: 2, name: 'design-specs.docx', type: 'doc' }
+                ],
+                comments: [
+                    { id: 1, user: 'SM', text: 'Looks great! Can we add social login options?', timestamp: '2 hours ago' },
+                    { id: 2, user: 'MJ', text: 'Yes, working on that now.', timestamp: '1 hour ago' }
+                ],
+                timeTracked: 240, // minutes
+                activity: [
+                    { action: 'created', user: 'SM', timestamp: '2025-10-20' },
+                    { action: 'assigned', user: 'MJ', timestamp: '2025-10-21' },
+                    { action: 'status_changed', user: 'MJ', timestamp: '2025-10-22' }
+                ]
+            },
+            {
+                id: 2,
+                title: 'API Integration',
+                project: 'Mobile App Launch',
+                assignee: { id: 'al', name: 'Alex Lee', avatar: 'AL' },
+                priority: 'medium',
+                status: 'todo',
+                dueDate: '2025-10-28',
+                description: 'Integrate backend API with mobile application',
+                subtasks: [],
+                attachments: [],
+                comments: [],
+                timeTracked: 0,
+                activity: []
+            },
+            {
+                id: 3,
+                title: 'Database Migration',
+                project: 'CRM Migration',
+                assignee: { id: 'sm', name: 'Sarah Mitchell', avatar: 'SM' },
+                priority: 'high',
+                status: 'review',
+                dueDate: '2025-10-22',
+                description: 'Migrate customer data to new CRM system',
+                subtasks: [
+                    { id: 1, title: 'Backup existing data', completed: true },
+                    { id: 2, title: 'Test migration script', completed: true }
+                ],
+                attachments: [
+                    { id: 1, name: 'migration-script.sql', type: 'sql' }
+                ],
+                comments: [],
+                timeTracked: 180,
+                activity: []
+            },
+            {
+                id: 4,
+                title: 'User Testing',
+                project: 'Website Redesign',
+                assignee: { id: 'sm', name: 'Sarah Mitchell', avatar: 'SM' },
+                priority: 'low',
+                status: 'done',
+                dueDate: '2025-10-15',
+                description: 'Conduct user testing sessions and gather feedback',
+                subtasks: [
+                    { id: 1, title: 'Recruit participants', completed: true },
+                    { id: 2, title: 'Prepare test scenarios', completed: true },
+                    { id: 3, title: 'Conduct sessions', completed: true },
+                    { id: 4, title: 'Analyze results', completed: true }
+                ],
+                attachments: [],
+                comments: [],
+                timeTracked: 320,
+                activity: []
+            }
+        ];
+
+        let selectedTasks = new Set();
+        let currentView = 'list';
+        let timerInterval = null;
+        let currentTimerTask = null;
+        let timerStartTime = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            navigateTo('tasks');
+            renderTasks();
+            setupKanbanDragAndDrop();
+            document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
+        });
+
+        // Navigation
+        function navigateTo(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById(page + '-page').classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.dataset.page === page) {
+                    item.classList.remove('text-gray-600', 'hover:bg-gray-100', 'hover:text-primary');
+                    item.classList.add('gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
+                } else {
+                    item.classList.add('text-gray-600', 'hover:bg-gray-100', 'hover:text-primary');
+                    item.classList.remove('gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
+                }
+            });
+        }
+
+        // View Toggle
+        function toggleViewMode() {
+            const listView = document.getElementById('listView');
+            const kanbanView = document.getElementById('kanbanView');
+            const toggleBtn = document.getElementById('toggleViewBtn');
+
+            if (currentView === 'list') {
+                listView.classList.add('hidden');
+                kanbanView.classList.remove('hidden');
+                toggleBtn.textContent = 'Switch to List';
+                currentView = 'kanban';
+                renderKanbanView();
+            } else {
+                listView.classList.remove('hidden');
+                kanbanView.classList.add('hidden');
+                toggleBtn.textContent = 'Switch to Kanban';
+                currentView = 'list';
+                renderListView();
+            }
+        }
+
+        // Render Tasks
+        function renderTasks() {
+            renderListView();
+            renderKanbanView();
+            updateTaskCount();
+        }
+
+        function renderListView() {
+            const container = document.getElementById('taskList');
+            container.innerHTML = tasks.map(task => `
+                <tr class="hover:bg-gray-50 transition-colors ${selectedTasks.has(task.id) ? 'bg-blue-50' : ''}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" value="${task.id}" ${selectedTasks.has(task.id) ? 'checked' : ''} onchange="toggleTaskSelection(${task.id})">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="text-sm font-medium text-gray-900 cursor-pointer hover:text-primary" onclick="openTaskDetail(${task.id})">
+                                ${task.title}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${task.project}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-semibold">
+                                ${task.assignee.avatar}
+                            </div>
+                            <div class="ml-2 text-sm text-gray-900">${task.assignee.name}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${getPriorityClass(task.priority)}">
+                            ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClass(task.status)}">
+                            ${getStatusText(task.status)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${formatDate(task.dueDate)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="openTaskDetail(${task.id})" class="text-primary hover:text-secondary mr-3">View</button>
+                        <button onclick="deleteTask(${task.id})" class="text-red-600 hover:text-red-900">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderKanbanView() {
+            const columns = {
+                'todo': document.getElementById('todo-column'),
+                'inprogress': document.getElementById('inprogress-column'),
+                'review': document.getElementById('review-column'),
+                'done': document.getElementById('done-column')
+            };
+
+            // Clear all columns
+            Object.values(columns).forEach(column => column.innerHTML = '');
+
+            // Count tasks per status
+            const counts = { todo: 0, inprogress: 0, review: 0, done: 0 };
+
+            tasks.forEach(task => {
+                counts[task.status]++;
+                const taskElement = createKanbanCard(task);
+                columns[task.status].appendChild(taskElement);
+            });
+
+            // Update counts
+            document.getElementById('todoCount').textContent = `${counts.todo} tasks`;
+            document.getElementById('inProgressCount').textContent = `${counts.inprogress} tasks`;
+            document.getElementById('reviewCount').textContent = `${counts.review} tasks`;
+            document.getElementById('doneCount').textContent = `${counts.done} tasks`;
+
+            // Apply WIP limits (example: highlight if more than 5 tasks)
+            if (counts.inprogress > 5) {
+                document.getElementById('inprogress-column').parentElement.classList.add('wip-limit-exceeded');
+            }
+        }
+
+        function createKanbanCard(task) {
+            const card = document.createElement('div');
+            card.className = 'task-card bg-white p-4 rounded-lg border border-gray-200 cursor-pointer';
+            card.setAttribute('data-task-id', task.id);
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-medium text-gray-900">${task.title}</h4>
+                    <div class="w-2 h-2 rounded-full ${getPriorityColor(task.priority)}"></div>
+                </div>
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                    <div class="flex items-center gap-1">
+                        <div class="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-semibold">
+                            ${task.assignee.avatar}
+                        </div>
+                        <span>${task.assignee.name}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span>⏰</span>
+                        <span>${formatDate(task.dueDate)}</span>
+                    </div>
+                </div>
+                ${task.priority === 'high' ? '<div class="mt-2 text-xs text-red-600 font-semibold">🔺High Priority</div>' : ''}
+            `;
+            card.addEventListener('click', () => openTaskDetail(task.id));
+            return card;
+        }
+
+        function setupKanbanDragAndDrop() {
+            const columns = ['todo-column', 'inprogress-column', 'review-column', 'done-column'];
+
+            columns.forEach(columnId => {
+                const column = document.getElementById(columnId);
+                Sortable.create(column, {
+                    group: 'tasks',
+                    animation: 150,
+                    ghostClass: 'task-card-dragging',
+                    onEnd: function (evt) {
+                        const taskId = parseInt(evt.item.getAttribute('data-task-id'));
+                        const newStatus = columnId.split('-')[0];
+                        updateTaskStatus(taskId, newStatus);
+                    }
+                });
+            });
+        }
+
+        function updateTaskStatus(taskId, newStatus) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = newStatus;
+                showToast(`✅ Task moved to ${getStatusText(newStatus)}`, 'success');
+                renderListView();
+            }
+        }
+
+        // Task Selection & Bulk Actions
+        function toggleTaskSelection(taskId) {
+            if (selectedTasks.has(taskId)) {
+                selectedTasks.delete(taskId);
+            } else {
+                selectedTasks.add(taskId);
+            }
+            updateBulkActionsToolbar();
+        }
+
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('#taskList input[type="checkbox"]');
+
+            if (selectAll.checked) {
+                tasks.forEach(task => selectedTasks.add(task.id));
+            } else {
+                selectedTasks.clear();
+            }
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+
+            updateBulkActionsToolbar();
+        }
+
+        function updateBulkActionsToolbar() {
+            const toolbar = document.getElementById('bulkActionsToolbar');
+            const selectedCount = document.getElementById('selectedCount');
+
+            if (selectedTasks.size > 0) {
+                toolbar.classList.remove('hidden');
+                selectedCount.textContent = `${selectedTasks.size} tasks selected`;
+            } else {
+                toolbar.classList.add('hidden');
+            }
+        }
+
+        function clearSelection() {
+            selectedTasks.clear();
+            document.getElementById('selectAll').checked = false;
+            const checkboxes = document.querySelectorAll('#taskList input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+            updateBulkActionsToolbar();
+        }
+
+        function applyBulkAction() {
+            const action = document.getElementById('bulkAction').value;
+            if (!action) {
+                showToast('❌ Please select an action', 'error');
+                return;
+            }
+
+            showToast(`🔄 Applying ${action} to ${selectedTasks.size} tasks`, 'success');
+            clearSelection();
+        }
+
+        // Task Detail Management
+        function openTaskDetail(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            // Populate task details
+            document.getElementById('detailTaskTitle').textContent = task.title;
+            document.getElementById('taskDetailTitle').textContent = task.title;
+            document.getElementById('detailTaskDescription').innerHTML = `<p>${task.description}</p>`;
+            document.getElementById('detailTaskProject').innerHTML = `<span>📁</span><span>${task.project}</span>`;
+            document.getElementById('detailTaskAssignee').innerHTML = `
+                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-semibold">${task.assignee.avatar}</div>
+                <span>${task.assignee.name}</span>
+            `;
+            document.getElementById('detailTaskPriority').textContent = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+            document.getElementById('detailTaskPriority').className = `px-3 py-1 rounded-lg text-xs font-semibold uppercase ${getPriorityClass(task.priority)}`;
+            document.getElementById('detailTaskDueDate').textContent = formatDate(task.dueDate);
+
+            // Populate subtasks
+            const subtasksContainer = document.getElementById('detailSubtasks');
+            subtasksContainer.innerHTML = task.subtasks.map(subtask => `
+                <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                    <input type="checkbox" ${subtask.completed ? 'checked' : ''} onchange="toggleSubtask(${task.id}, ${subtask.id})">
+                    <span class="${subtask.completed ? 'line-through text-gray-500' : 'text-gray-900'}">${subtask.title}</span>
+                </div>
+            `).join('');
+
+            updateSubtaskProgress(task);
+
+            // Populate attachments
+            const attachmentsContainer = document.getElementById('detailAttachments');
+            attachmentsContainer.innerHTML = task.attachments.map(attachment => `
+                <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                    <span class="text-lg">${getFileIcon(attachment.type)}</span>
+                    <span class="text-sm text-gray-900">${attachment.name}</span>
+                </div>
+            `).join('');
+
+            // Populate comments
+            const commentsContainer = document.getElementById('detailComments');
+            commentsContainer.innerHTML = task.comments.map(comment => `
+                <div class="flex gap-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold">${comment.user}</div>
+                    <div class="flex-1">
+                        <div class="bg-gray-100 p-3 rounded-lg">
+                            <p class="text-sm text-gray-900">${comment.text}</p>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">${comment.timestamp}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            // Populate time tracking
+            document.getElementById('timeTracked').textContent = formatTime(task.timeTracked);
+            const timerBtn = document.getElementById('timerButton');
+            timerBtn.textContent = currentTimerTask === task.id ? '⏸ Stop Timer' : '▶ Start Timer';
+            timerBtn.onclick = () => toggleTimer(task.id);
+
+            // Populate activity log
+            const activityContainer = document.getElementById('detailActivityLog');
+            activityContainer.innerHTML = task.activity.map(activity => `
+                <div class="flex items-center gap-3 text-sm text-gray-600">
+                    <span class="w-2 h-2 bg-primary rounded-full"></span>
+                    <span>${activity.user} ${activity.action} this task</span>
+                    <span class="text-gray-400">${formatDate(activity.timestamp)}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('taskDetailDrawer').classList.remove('hidden');
+        }
+
+        function closeTaskDetail() {
+            document.getElementById('taskDetailDrawer').classList.add('hidden');
+            if (timerInterval && currentTimerTask) {
+                stopTimer(currentTimerTask);
+            }
+        }
+
+        function toggleSubtask(taskId, subtaskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                const subtask = task.subtasks.find(s => s.id === subtaskId);
+                if (subtask) {
+                    subtask.completed = !subtask.completed;
+                    updateSubtaskProgress(task);
+                    showToast(`✅ Subtask ${subtask.completed ? 'completed' : 'marked incomplete'}`, 'success');
+                }
+            }
+        }
+
+        function updateSubtaskProgress(task) {
+            const completed = task.subtasks.filter(s => s.completed).length;
+            const total = task.subtasks.length;
+            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('subtaskProgress').textContent = `${progress}%`;
+            document.getElementById('subtaskProgressBar').style.width = `${progress}%`;
+        }
+
+        function toggleTimer(taskId) {
+            if (currentTimerTask === taskId) {
+                stopTimer(taskId);
+            } else {
+                if (currentTimerTask) {
+                    stopTimer(currentTimerTask);
+                }
+                startTimer(taskId);
+            }
+        }
+
+        function startTimer(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            currentTimerTask = taskId;
+            timerStartTime = Date.now();
+            const timerBtn = document.getElementById('timerButton');
+            timerBtn.textContent = '⏸ Stop Timer';
+            timerBtn.className = 'gradient-danger text-white px-6 py-3 rounded-xl font-semibold';
+
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - timerStartTime) / 1000 / 60);
+                document.getElementById('timeTracked').textContent = formatTime(task.timeTracked + elapsed);
+            }, 1000);
+
+            showToast('⏱ Timer started', 'success');
+        }
+
+        function stopTimer(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task && timerStartTime) {
+                const elapsed = Math.floor((Date.now() - timerStartTime) / 1000 / 60);
+                task.timeTracked += elapsed;
+
+                const timerBtn = document.getElementById('timerButton');
+                timerBtn.textContent = '▶ Start Timer';
+                timerBtn.className = 'gradient-primary text-white px-6 py-3 rounded-xl font-semibold';
+
+                document.getElementById('timeTracked').textContent = formatTime(task.timeTracked);
+
+                clearInterval(timerInterval);
+                timerInterval = null;
+                currentTimerTask = null;
+                timerStartTime = null;
+
+                showToast(`⏱ Timer stopped. ${elapsed} minutes logged`, 'success');
+            }
+        }
+
+        // Task Management
+        function createTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const priority = document.getElementById('taskPriority').value;
+            const project = document.getElementById('taskProject').value;
+            const assignee = document.getElementById('taskAssignee').value;
+            const status = document.getElementById('taskStatus').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+
+            if (!title) {
+                showToast('❌ Please enter a task title', 'error');
+                return;
+            }
+
+            const newTask = {
+                id: tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1,
+                title,
+                project: getProjectName(project),
+                assignee: getAssignee(assignee),
+                priority,
+                status,
+                dueDate,
+                description,
+                subtasks: [],
+                attachments: [],
+                comments: [],
+                timeTracked: 0,
+                activity: [{ action: 'created', user: 'SM', timestamp: new Date().toISOString().split('T')[0] }]
+            };
+
+            tasks.push(newTask);
+            renderTasks();
+            closeModal();
+            showToast('✅ Task created successfully!', 'success');
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                selectedTasks.delete(taskId);
+                renderTasks();
+                showToast('🗑️ Task deleted successfully', 'success');
+            }
+        }
+
+        function editTask() {
+            showToast('✏️ Edit task functionality coming soon!', 'success');
+        }
+
+        // Filtering & Sorting
+        function filterTasks() {
+            // In a real app, this would filter the tasks array
+            showToast('🔍 Filters applied', 'success');
+        }
+
+        function sortTasks() {
+            // In a real app, this would sort the tasks array
+            showToast('📊 Tasks sorted', 'success');
+        }
+
+        function clearFilters() {
+            document.getElementById('viewFilter').value = 'all';
+            document.getElementById('projectFilter').value = 'all';
+            document.getElementById('priorityFilter').value = 'all';
+            document.getElementById('sortBy').value = 'due-date';
+            showToast('🧹 Filters cleared', 'success');
+        }
+
+        // Utility Functions
+        function getPriorityClass(priority) {
+            switch (priority) {
+                case 'high': return 'bg-red-100 text-red-700';
+                case 'medium': return 'bg-yellow-100 text-yellow-700';
+                case 'low': return 'bg-blue-100 text-blue-700';
+                default: return 'bg-gray-100 text-gray-700';
+            }
+        }
+
+        function getPriorityColor(priority) {
+            switch (priority) {
+                case 'high': return 'bg-red-500';
+                case 'medium': return 'bg-yellow-500';
+                case 'low': return 'bg-blue-500';
+                default: return 'bg-gray-500';
+            }
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'todo': return 'bg-gray-100 text-gray-700';
+                case 'inprogress': return 'bg-blue-100 text-blue-700';
+                case 'review': return 'bg-yellow-100 text-yellow-700';
+                case 'done': return 'bg-green-100 text-green-700';
+                default: return 'bg-gray-100 text-gray-700';
+            }
+        }
+
+        function getStatusText(status) {
+            switch (status) {
+                case 'todo': return 'To Do';
+                case 'inprogress': return 'In Progress';
+                case 'review': return 'Review';
+                case 'done': return 'Done';
+                default: return status;
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function formatTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours}h ${mins}m`;
+        }
+
+        function getFileIcon(type) {
+            switch (type) {
+                case 'pdf': return '📄';
+                case 'doc': return '📝';
+                case 'sql': return '🗄️';
+                default: return '📎';
+            }
+        }
+
+        function getProjectName(key) {
+            const projects = {
+                'website-redesign': 'Website Redesign',
+                'mobile-app': 'Mobile App Launch',
+                'crm-migration': 'CRM Migration'
+            };
+            return projects[key] || key;
+        }
+
+        function getAssignee(key) {
+            const assignees = {
+                'sm': { id: 'sm', name: 'Sarah Mitchell', avatar: 'SM' },
+                'mj': { id: 'mj', name: 'Mike Johnson', avatar: 'MJ' },
+                'al': { id: 'al', name: 'Alex Lee', avatar: 'AL' }
+            };
+            return assignees[key] || { id: 'sm', name: 'Sarah Mitchell', avatar: 'SM' };
+        }
+
+        function updateTaskCount() {
+            document.getElementById('taskCount').textContent = tasks.length;
+        }
+
+        function openCreateModal(type) {
+            const modal = document.getElementById('createModal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('createModal').classList.add('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toast.classList.remove('hidden', 'border-green-500', 'border-red-500', 'border-blue-500');
+            toast.classList.add(
+                type === 'success' ? 'border-green-500' :
+                    type === 'error' ? 'border-red-500' : 'border-blue-500'
+            );
+            toastMessage.textContent = message;
+
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        function toggleNotifications() {
+            showToast('🔔 Notifications panel coming soon!', 'success');
+        }
+
+        // Demo helpers
+        window.demoHelpers = {
+            addSampleTask: () => {
+                const sampleTask = {
+                    id: tasks.length + 1,
+                    title: 'New Sample Task',
+                    project: 'Website Redesign',
+                    assignee: { id: 'sm', name: 'Sarah Mitchell', avatar: 'SM' },
+                    priority: 'medium',
+                    status: 'todo',
+                    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    description: 'This is a sample task created for demonstration',
+                    subtasks: [],
+                    attachments: [],
+                    comments: [],
+                    timeTracked: 0,
+                    activity: []
+                };
+                tasks.push(sampleTask);
+                renderTasks();
+                showToast('✨ Added sample task', 'success');
+            },
+            exportTasks: () => {
+                const dataStr = JSON.stringify(tasks, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'tasks-export.json';
+                link.click();
+                URL.revokeObjectURL(url);
+                showToast('📥 Tasks exported successfully', 'success');
+            },
+            showAllTasks: () => console.table(tasks.map(t => ({
+                id: t.id,
+                title: t.title,
+                project: t.project,
+                assignee: t.assignee.name,
+                priority: t.priority,
+                status: t.status,
+                dueDate: t.dueDate
+            }))),
+            resetDemo: () => {
+                if (confirm('Reset all demo data?')) {
+                    location.reload();
+                }
+            }
+        };
+
+        console.log('%c🎉 ProjectHub Tasks Module Loaded!', 'font-size: 20px; font-weight: bold; color: #667eea;');
+        console.log('%cAvailable demo helpers:', 'font-size: 14px; color: #64748b;');
+        console.log('• demoHelpers.addSampleTask() - Add a sample task');
+        console.log('• demoHelpers.exportTasks() - Export tasks as JSON');
+        console.log('• demoHelpers.showAllTasks() - Display all tasks in console');
+        console.log('• demoHelpers.resetDemo() - Reset all data');
+    </script>
+</body>
+
+</html>

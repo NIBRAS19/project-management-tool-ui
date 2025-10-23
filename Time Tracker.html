@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectHub - Time Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        secondary: '#764ba2',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        info: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .gradient-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .animate-slide-in {
+                animation: slideIn 0.3s ease-out;
+            }
+            .scrollbar-thin {
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 #f1f5f9;
+            }
+            .scrollbar-thin::-webkit-scrollbar {
+                width: 6px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 3px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 3px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+            .time-tracker-active {
+                box-shadow: 0 0 0 2px #667eea;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            .pulse-timer {
+                animation: pulse 2s infinite;
+            }
+            @keyframes pulse {
+                0% { opacity: 1; }
+                50% { opacity: 0.7; }
+                100% { opacity: 1; }
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Top Navigation -->
+    <nav
+        class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-[70px] flex items-center justify-between px-8 z-50">
+        <div
+            class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent cursor-pointer">
+            ProjectHub
+        </div>
+
+        <div class="flex-1 max-w-md mx-10">
+            <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><i
+                        class="fas fa-search"></i></span>
+                <input type="text"
+                    class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="Search projects, tasks, or people...">
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button
+                class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button
+                class="relative w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                <i class="fas fa-bell"></i>
+                <span
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-5 h-5 rounded-full flex items-center justify-center">3</span>
+            </button>
+            <div
+                class="w-11 h-11 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold text-sm cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/30 transition-all">
+                SM
+            </div>
+        </div>
+    </nav>
+
+    <!-- App Layout -->
+    <div class="flex mt-[70px]">
+        <!-- Sidebar -->
+        <aside
+            class="fixed left-0 w-64 h-[calc(100vh-70px)] bg-white border-r border-gray-200 p-6 overflow-y-auto scrollbar-thin">
+            <div class="mb-8">
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-chart-bar w-5 text-center"></i>
+                    <span class="font-medium">Dashboard</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-tasks w-5 text-center"></i>
+                    <span class="font-medium">Tasks</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-folder w-5 text-center"></i>
+                    <span class="font-medium">Projects</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-users w-5 text-center"></i>
+                    <span class="font-medium">Team</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-comments w-5 text-center"></i>
+                    <span class="font-medium">Team Chat</span>
+                </div>
+                <div
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary">
+                    <i class="fas fa-calendar w-5 text-center"></i>
+                    <span class="font-medium">Calendar</span>
+                </div>
+                <div
+                    class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 gradient-primary text-white shadow-lg shadow-primary/20">
+                    <i class="fas fa-clock w-5 text-center"></i>
+                    <span class="font-medium">Time Tracker</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ml-64 flex-1 p-0">
+            <!-- Time Tracker Page -->
+            <div class="h-[calc(100vh-70px)]">
+                <div class="flex h-full bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <!-- Main Content Area -->
+                    <div class="flex-1 flex flex-col">
+                        <!-- Page Header -->
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h1 class="text-2xl font-bold text-gray-900">Time Tracker</h1>
+                                    <p class="text-gray-500">Track and manage your work hours</p>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <button id="manualEntryBtn"
+                                        class="px-4 py-2 bg-white border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors flex items-center gap-2">
+                                        <i class="fas fa-plus"></i>
+                                        <span>Manual Entry</span>
+                                    </button>
+                                    <button
+                                        class="px-4 py-2 gradient-primary text-white rounded-lg hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 transition-all flex items-center gap-2">
+                                        <i class="fas fa-download"></i>
+                                        <span>Export Report</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Active Timer Section -->
+                            <div id="activeTimerSection"
+                                class="bg-gradient-to-r from-primary to-secondary rounded-xl p-6 text-white mb-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h2 class="text-xl font-semibold">Currently Tracking</h2>
+                                        <p id="activeTaskName" class="text-primary-100">No active timer</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div id="timerStatus"
+                                            class="hidden w-3 h-3 rounded-full bg-red-500 pulse-timer"></div>
+                                        <span id="timerStatusText" class="text-sm font-medium">Not running</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-end justify-between">
+                                    <div id="timerDisplay" class="text-4xl font-bold">00:00:00</div>
+                                    <div class="flex gap-2">
+                                        <button id="startTimerBtn"
+                                            class="px-6 py-3 bg-white text-primary rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2">
+                                            <i class="fas fa-play"></i>
+                                            <span>Start</span>
+                                        </button>
+                                        <button id="stopTimerBtn"
+                                            class="px-6 py-3 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors flex items-center gap-2"
+                                            disabled>
+                                            <i class="fas fa-stop"></i>
+                                            <span>Stop</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Content Area -->
+                        <div class="flex-1 overflow-auto p-6">
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <!-- Left Column - Daily Logs -->
+                                <div class="lg:col-span-2">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h2 class="text-lg font-semibold text-gray-900">Daily Time Logs</h2>
+                                        <div class="flex items-center gap-2">
+                                            <button
+                                                class="px-3 py-1 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                                <i class="fas fa-chevron-left"></i>
+                                            </button>
+                                            <span class="text-sm font-medium">Oct 23 - 29, 2025</span>
+                                            <button
+                                                class="px-3 py-1 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                                <i class="fas fa-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Time Logs List -->
+                                    <div class="space-y-4">
+                                        <!-- Example Card -->
+                                        <div
+                                            class="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                                            <div class="flex items-start justify-between">
+                                                <div class="flex items-start gap-3">
+                                                    <div
+                                                        class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                                                        <i class="fas fa-paint-brush"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex items-center gap-2 mb-1">
+                                                            <span class="font-medium text-gray-900">Design Landing
+                                                                Page</span>
+                                                            <span
+                                                                class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">Website
+                                                                Redesign</span>
+                                                        </div>
+                                                        <div class="flex items-center gap-4 text-sm text-gray-500 mb-2">
+                                                            <span>Oct 24, 2025</span>
+                                                            <span>🕒 2h 45m</span>
+                                                        </div>
+                                                        <p class="text-sm text-gray-700">Notes: Finalized hero section
+                                                            and updated CTAs based on client feedback</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex gap-1">
+                                                    <button
+                                                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                                        <i class="fas fa-edit text-gray-600 text-sm"></i>
+                                                    </button>
+                                                    <button
+                                                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                                        <i class="fas fa-trash text-gray-600 text-sm"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- More log entries -->
+                                        <div
+                                            class="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                                            <div class="flex items-start justify-between">
+                                                <div class="flex items-start gap-3">
+                                                    <div
+                                                        class="w-10 h-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0">
+                                                        <i class="fas fa-code"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex items-center gap-2 mb-1">
+                                                            <span class="font-medium text-gray-900">API
+                                                                Integration</span>
+                                                            <span
+                                                                class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded">Mobile
+                                                                App</span>
+                                                        </div>
+                                                        <div class="flex items-center gap-4 text-sm text-gray-500 mb-2">
+                                                            <span>Oct 24, 2025</span>
+                                                            <span>🕒 1h 30m</span>
+                                                        </div>
+                                                        <p class="text-sm text-gray-700">Notes: Connected user
+                                                            authentication endpoints</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex gap-1">
+                                                    <button
+                                                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                                        <i class="fas fa-edit text-gray-600 text-sm"></i>
+                                                    </button>
+                                                    <button
+                                                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                                        <i class="fas fa-trash text-gray-600 text-sm"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            class="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                                            <div class="flex items-start justify-between">
+                                                <div class="flex items-start gap-3">
+                                                    <div
+                                                        class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
+                                                        <i class="fas fa-users"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex items-center gap-2 mb-1">
+                                                            <span class="font-medium text-gray-900">Team Meeting</span>
+                                                            <span
+                                                                class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded">General</span>
+                                                        </div>
+                                                        <div class="flex items-center gap-4 text-sm text-gray-500 mb-2">
+                                                            <span>Oct 24, 2025</span>
+                                                            <span>🕒 45m</span>
+                                                        </div>
+                                                        <p class="text-sm text-gray-700">Notes: Weekly sprint planning
+                                                            and progress review</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex gap-1">
+                                                    <button
+                                                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                                        <i class="fas fa-edit text-gray-600 text-sm"></i>
+                                                    </button>
+                                                    <button
+                                                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                                        <i class="fas fa-trash text-gray-600 text-sm"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            class="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                                            <div class="flex items-start justify-between">
+                                                <div class="flex items-start gap-3">
+                                                    <div
+                                                        class="w-10 h-10 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center flex-shrink-0">
+                                                        <i class="fas fa-bug"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex items-center gap-2 mb-1">
+                                                            <span class="font-medium text-gray-900">Bug Fixing</span>
+                                                            <span
+                                                                class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded">Website
+                                                                Redesign</span>
+                                                        </div>
+                                                        <div class="flex items-center gap-4 text-sm text-gray-500 mb-2">
+                                                            <span>Oct 23, 2025</span>
+                                                            <span>🕒 1h 15m</span>
+                                                        </div>
+                                                        <p class="text-sm text-gray-700">Notes: Fixed responsive issues
+                                                            on mobile devices</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex gap-1">
+                                                    <button
+                                                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                                        <i class="fas fa-edit text-gray-600 text-sm"></i>
+                                                    </button>
+                                                    <button
+                                                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                                        <i class="fas fa-trash text-gray-600 text-sm"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column - Weekly Chart & Stats -->
+                                <div class="space-y-6">
+                                    <!-- Weekly Bar Chart -->
+                                    <div class="bg-white border border-gray-200 rounded-xl p-6">
+                                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Weekly Time Distribution
+                                        </h2>
+                                        <div class="h-64">
+                                            <canvas id="weeklyChart"></canvas>
+                                        </div>
+                                    </div>
+
+                                    <!-- Weekly Summary -->
+                                    <div class="bg-white border border-gray-200 rounded-xl p-6">
+                                        <h2 class="text-lg font-semibold text-gray-900 mb-4">This Week's Summary</h2>
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-gray-700">Total Time</span>
+                                                <span class="font-semibold text-primary">18h 30m</span>
+                                            </div>
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-gray-700">Average Daily</span>
+                                                <span class="font-semibold">3h 42m</span>
+                                            </div>
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-gray-700">Most Active Day</span>
+                                                <span class="font-semibold">Wednesday</span>
+                                            </div>
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-gray-700">Tasks Completed</span>
+                                                <span class="font-semibold">12</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Project Distribution -->
+                                    <div class="bg-white border border-gray-200 rounded-xl p-6">
+                                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Time by Project</h2>
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                                                    <span class="text-sm">Website Redesign</span>
+                                                </div>
+                                                <span class="text-sm font-medium">8h 15m</span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                                    <span class="text-sm">Mobile App</span>
+                                                </div>
+                                                <span class="text-sm font-medium">6h 30m</span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-3 h-3 rounded-full bg-purple-500"></div>
+                                                    <span class="text-sm">Meetings</span>
+                                                </div>
+                                                <span class="text-sm font-medium">2h 45m</span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                                    <span class="text-sm">Bug Fixing</span>
+                                                </div>
+                                                <span class="text-sm font-medium">1h 00m</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Manual Entry Modal -->
+    <div id="manualEntryModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl w-full max-w-md animate-slide-in">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-900">Add Time Entry</h2>
+                    <button id="closeManualEntry"
+                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                        <i class="fas fa-times text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <form id="manualEntryForm">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Task/Project</label>
+                            <select
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                                <option>Select a task or project</option>
+                                <option>Design Landing Page - Website Redesign</option>
+                                <option>API Integration - Mobile App</option>
+                                <option>Team Meeting - General</option>
+                                <option>Bug Fixing - Website Redesign</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                <input type="date"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                    value="2025-10-24">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                                <div class="flex gap-2">
+                                    <input type="number"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                        placeholder="Hours" min="0" max="24">
+                                    <input type="number"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                        placeholder="Minutes" min="0" max="59">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                            <textarea rows="3"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all resize-none"
+                                placeholder="Add notes about this time entry..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 mt-6">
+                        <button type="button" id="cancelManualEntry"
+                            class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="flex-1 py-3 gradient-primary text-white rounded-lg hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 transition-all">
+                            Save Entry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="hidden fixed top-24 right-8 bg-white p-4 rounded-xl shadow-2xl z-[60] min-w-[300px] border-l-4 border-green-500 animate-slide-in">
+        <div class="flex items-center gap-3">
+            <i id="toastIcon" class="fas fa-check-circle text-green-500"></i>
+            <div class="text-sm font-medium text-gray-900" id="toastMessage">Timer started successfully</div>
+        </div>
+    </div>
+
+    <script>
+        // Timer state
+        let timerActive = false;
+        let timerStartTime = null;
+        let timerInterval = null;
+        let elapsedSeconds = 0;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            setupEventListeners();
+            initializeWeeklyChart();
+        });
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Timer controls
+            document.getElementById('startTimerBtn').addEventListener('click', startTimer);
+            document.getElementById('stopTimerBtn').addEventListener('click', stopTimer);
+
+            // Manual entry modal
+            document.getElementById('manualEntryBtn').addEventListener('click', openManualEntryModal);
+            document.getElementById('closeManualEntry').addEventListener('click', closeManualEntryModal);
+            document.getElementById('cancelManualEntry').addEventListener('click', closeManualEntryModal);
+            document.getElementById('manualEntryForm').addEventListener('submit', saveManualEntry);
+
+            // Close modal when clicking outside
+            document.getElementById('manualEntryModal').addEventListener('click', function (e) {
+                if (e.target.id === 'manualEntryModal') {
+                    closeManualEntryModal();
+                }
+            });
+        }
+
+        // Timer Functions
+        function startTimer() {
+            if (timerActive) return;
+
+            timerActive = true;
+            timerStartTime = new Date();
+
+            // Update UI
+            document.getElementById('startTimerBtn').disabled = true;
+            document.getElementById('stopTimerBtn').disabled = false;
+            document.getElementById('timerStatus').classList.remove('hidden');
+            document.getElementById('timerStatusText').textContent = 'Running';
+            document.getElementById('activeTaskName').textContent = 'Design Landing Page - Website Redesign';
+
+            // Start timer interval
+            timerInterval = setInterval(updateTimerDisplay, 1000);
+
+            showToast('Timer started successfully', 'success');
+        }
+
+        function stopTimer() {
+            if (!timerActive) return;
+
+            timerActive = false;
+            clearInterval(timerInterval);
+
+            // Calculate final time
+            const endTime = new Date();
+            const duration = Math.floor((endTime - timerStartTime) / 1000);
+            elapsedSeconds += duration;
+
+            // Update UI
+            document.getElementById('startTimerBtn').disabled = false;
+            document.getElementById('stopTimerBtn').disabled = true;
+            document.getElementById('timerStatus').classList.add('hidden');
+            document.getElementById('timerStatusText').textContent = 'Not running';
+
+            showToast(`Timer stopped. Recorded ${formatTime(duration)}`, 'info');
+        }
+
+        function updateTimerDisplay() {
+            if (!timerActive) return;
+
+            const currentTime = new Date();
+            const totalSeconds = Math.floor((currentTime - timerStartTime) / 1000) + elapsedSeconds;
+
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            document.getElementById('timerDisplay').textContent =
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+
+            if (hours > 0) {
+                return `${hours}h ${minutes}m`;
+            } else {
+                return `${minutes}m`;
+            }
+        }
+
+        // Manual Entry Modal
+        function openManualEntryModal() {
+            document.getElementById('manualEntryModal').classList.remove('hidden');
+        }
+
+        function closeManualEntryModal() {
+            document.getElementById('manualEntryModal').classList.add('hidden');
+        }
+
+        function saveManualEntry(e) {
+            e.preventDefault();
+
+            // In a real app, this would save to a database
+            showToast('Time entry saved successfully', 'success');
+            closeManualEntryModal();
+
+            // Reset form
+            document.getElementById('manualEntryForm').reset();
+        }
+
+        // Weekly Chart
+        function initializeWeeklyChart() {
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+
+            // Sample data for the chart
+            const weeklyData = {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Hours Worked',
+                    data: [3.5, 4.2, 5.1, 3.8, 4.5, 0, 0],
+                    backgroundColor: '#667eea',
+                    borderColor: '#764ba2',
+                    borderWidth: 2,
+                    borderRadius: 4,
+                    borderSkipped: false,
+                }]
+            };
+
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: weeklyData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 8,
+                            ticks: {
+                                callback: function (value) {
+                                    return value + 'h';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `Hours: ${context.parsed.y}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Utility Functions
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.textContent = message;
+
+            // Set icon based on type
+            const icons = {
+                success: 'fa-check-circle text-green-500',
+                error: 'fa-exclamation-circle text-red-500',
+                warning: 'fa-exclamation-triangle text-yellow-500',
+                info: 'fa-info-circle text-blue-500'
+            };
+
+            // Set border color based on type
+            const borderColors = {
+                success: 'border-green-500',
+                error: 'border-red-500',
+                warning: 'border-yellow-500',
+                info: 'border-blue-500'
+            };
+
+            toastIcon.className = `fas ${icons[type] || icons.info}`;
+            toast.className = `hidden fixed top-24 right-8 bg-white p-4 rounded-xl shadow-2xl z-[60] min-w-[300px] border-l-4 ${borderColors[type] || borderColors.info} animate-slide-in`;
+
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

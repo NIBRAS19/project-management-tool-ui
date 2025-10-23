@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectHub - Enhanced Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        secondary: '#764ba2',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        info: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .gradient-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .gradient-success {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            }
+            .gradient-warning {
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            }
+            .gradient-danger {
+                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            }
+            .gradient-info {
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            }
+            .animate-slide-in {
+                animation: slideIn 0.3s ease-out;
+            }
+            .widget {
+                transition: all 0.2s ease;
+            }
+            .widget:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            .widget-dragging {
+                opacity: 0.8;
+                transform: rotate(3deg);
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            .scrollbar-thin {
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 #f1f5f9;
+            }
+            .scrollbar-thin::-webkit-scrollbar {
+                width: 6px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 3px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 3px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Top Navigation -->
+    <nav
+        class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-[70px] flex items-center justify-between px-8 z-50">
+        <div class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent cursor-pointer"
+            onclick="navigateTo('dashboard')">
+            ProjectHub
+        </div>
+
+        <div class="flex-1 max-w-md mx-10">
+            <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                <input type="text" id="globalSearch"
+                    class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="Search projects, tasks, or people...">
+                <div id="searchSuggestions"
+                    class="hidden absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-40">
+                    <div class="p-2 text-xs font-semibold text-gray-500 border-b border-gray-100">Recent Searches</div>
+                    <div class="p-2 hover:bg-gray-50 cursor-pointer">Website redesign</div>
+                    <div class="p-2 hover:bg-gray-50 cursor-pointer">Mobile app launch</div>
+                    <div class="p-2 hover:bg-gray-50 cursor-pointer">CRM migration</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <div class="relative" id="quickAddContainer">
+                <button onclick="toggleQuickAdd()"
+                    class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                    ➕
+                </button>
+                <div id="quickAddMenu"
+                    class="hidden absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-40">
+                    <div class="p-2 text-xs font-semibold text-gray-500 border-b border-gray-100">Quick Add</div>
+                    <div class="p-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+                        onclick="openCreateModal('task')">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">✅</span>
+                        <span>New Task</span>
+                    </div>
+                    <div class="p-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+                        onclick="openCreateModal('project')">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">📁</span>
+                        <span>New Project</span>
+                    </div>
+                    <div class="p-3 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+                        onclick="openCreateModal('event')">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">📅</span>
+                        <span>New Event</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative" id="notificationsContainer">
+                <button onclick="toggleNotifications()"
+                    class="relative w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                    🔔
+                    <span id="notifCount"
+                        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-5 h-5 rounded-full flex items-center justify-center">3</span>
+                </button>
+                <div id="notificationsMenu"
+                    class="hidden absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-40 max-h-96 overflow-y-auto scrollbar-thin">
+                    <div
+                        class="p-3 text-sm font-semibold text-gray-900 border-b border-gray-100 flex justify-between items-center">
+                        <span>Notifications</span>
+                        <button class="text-xs text-primary font-medium">Mark all as read</button>
+                    </div>
+                    <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                        <div class="flex gap-3">
+                            <div
+                                class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold">
+                                MJ</div>
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-900"><span class="font-semibold">Mike Johnson</span>
+                                    assigned you a task</p>
+                                <p class="text-xs text-gray-500 mt-1">Design homepage mockup</p>
+                                <p class="text-xs text-gray-400 mt-1">10 minutes ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                        <div class="flex gap-3">
+                            <div
+                                class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-sm font-semibold">
+                                AL</div>
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-900"><span class="font-semibold">Alex Lee</span> commented
+                                    on your task</p>
+                                <p class="text-xs text-gray-500 mt-1">"Looks good, but needs more contrast"</p>
+                                <p class="text-xs text-gray-400 mt-1">1 hour ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3 hover:bg-gray-50 cursor-pointer">
+                        <div class="flex gap-3">
+                            <div
+                                class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-sm font-semibold">
+                                SM</div>
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-900"><span class="font-semibold">System</span> Project
+                                    deadline approaching</p>
+                                <p class="text-xs text-gray-500 mt-1">Website Redesign due in 3 days</p>
+                                <p class="text-xs text-gray-400 mt-1">2 hours ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative" id="profileContainer">
+                <div onclick="toggleProfileMenu()"
+                    class="w-11 h-11 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold text-sm cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/30 transition-all">
+                    SM
+                </div>
+                <div id="profileMenu"
+                    class="hidden absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-40">
+                    <div class="p-3 border-b border-gray-100">
+                        <div class="font-semibold text-gray-900">Sarah Mitchell</div>
+                        <div class="text-sm text-gray-500">sarah@company.com</div>
+                    </div>
+                    <div class="p-2 hover:bg-gray-50 cursor-pointer" onclick="navigateTo('profile')">👤 My Profile</div>
+                    <div class="p-2 hover:bg-gray-50 cursor-pointer" onclick="navigateTo('settings')">⚙️ Settings</div>
+                    <div class="p-2 hover:bg-gray-50 cursor-pointer border-t border-gray-100 text-red-500"
+                        onclick="logout()">🚪 Logout</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- App Layout -->
+    <div class="flex mt-[70px]">
+        <!-- Left Sidebar -->
+        <aside
+            class="fixed left-0 w-64 h-[calc(100vh-70px)] bg-white border-r border-gray-200 p-6 overflow-y-auto scrollbar-thin">
+            <div class="mb-8">
+                <div class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 gradient-primary text-white shadow-lg shadow-primary/20"
+                    data-page="dashboard" onclick="navigateTo('dashboard')">
+                    <span>📊</span>
+                    <span class="font-medium">Dashboard</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="tasks" onclick="navigateTo('tasks')">
+                    <span>✅</span>
+                    <span class="font-medium">My Tasks</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="projects" onclick="navigateTo('projects')">
+                    <span>📁</span>
+                    <span class="font-medium">Projects</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="calendar" onclick="navigateTo('calendar')">
+                    <span>📅</span>
+                    <span class="font-medium">Calendar</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="time-tracker" onclick="navigateTo('time-tracker')">
+                    <span>🕒</span>
+                    <span class="font-medium">Time Tracker</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="reports" onclick="navigateTo('reports')">
+                    <span>📈</span>
+                    <span class="font-medium">Reports</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="chat" onclick="navigateTo('chat')">
+                    <span>💬</span>
+                    <span class="font-medium">Team Chat</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="files" onclick="navigateTo('files')">
+                    <span>📎</span>
+                    <span class="font-medium">Files</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider px-4 mb-3">Workspaces</div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="team" onclick="navigateTo('team')">
+                    <span>👥</span>
+                    <span class="font-medium">Team</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="settings" onclick="navigateTo('settings')">
+                    <span>⚙️</span>
+                    <span class="font-medium">Settings</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="admin" onclick="navigateTo('admin')">
+                    <span>🔐</span>
+                    <span class="font-medium">Admin</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ml-64 flex-1 p-8">
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-4xl font-bold text-gray-900 mb-1">Welcome back, Sarah! 👋</h1>
+                        <p class="text-gray-500">Here's what's happening with your projects today</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="resetDashboardLayout()"
+                            class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
+                            Reset Layout
+                        </button>
+                        <button onclick="openCreateModal('project')"
+                            class="gradient-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all flex items-center gap-2">
+                            <span>➕</span>
+                            <span>Create Project</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Widgets Grid -->
+                <div id="dashboardWidgets" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <!-- My Tasks Widget -->
+                    <div class="widget bg-white rounded-xl border border-gray-200 p-6" data-widget="my-tasks">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">🧾</span>
+                                My Tasks
+                            </h2>
+                            <div class="flex gap-1">
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                    onclick="toggleWidgetSettings('my-tasks')">⚙️</button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors widget-handle cursor-move">⋮⋮</button>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-8 bg-blue-500 rounded-full"></div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Due Today</div>
+                                        <div class="text-sm text-gray-500">5 tasks need your attention</div>
+                                    </div>
+                                </div>
+                                <button class="text-blue-600 font-medium text-sm" onclick="navigateTo('tasks')">View
+                                    All</button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-8 bg-red-500 rounded-full"></div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Overdue</div>
+                                        <div class="text-sm text-gray-500">2 tasks past deadline</div>
+                                    </div>
+                                </div>
+                                <button class="text-red-600 font-medium text-sm" onclick="navigateTo('tasks')">View
+                                    All</button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-8 bg-yellow-500 rounded-full"></div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Upcoming</div>
+                                        <div class="text-sm text-gray-500">8 tasks in next 7 days</div>
+                                    </div>
+                                </div>
+                                <button class="text-yellow-600 font-medium text-sm" onclick="navigateTo('tasks')">View
+                                    All</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Projects Widget -->
+                    <div class="widget bg-white rounded-xl border border-gray-200 p-6" data-widget="my-projects">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">📦</span>
+                                My Projects
+                            </h2>
+                            <div class="flex gap-1">
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                    onclick="toggleWidgetSettings('my-projects')">⚙️</button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors widget-handle cursor-move">⋮⋮</button>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                                        🌐</div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Website Redesign</div>
+                                        <div class="text-sm text-gray-500">75% complete • 12 tasks remaining</div>
+                                    </div>
+                                </div>
+                                <span
+                                    class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">Active</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
+                                        📱</div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Mobile App Launch</div>
+                                        <div class="text-sm text-gray-500">42% complete • 18 tasks remaining</div>
+                                    </div>
+                                </div>
+                                <span
+                                    class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">Active</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                                        🗄️</div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">CRM Migration</div>
+                                        <div class="text-sm text-gray-500">25% complete • 22 tasks remaining</div>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded">On
+                                    Hold</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Time Tracker Widget -->
+                    <div class="widget bg-white rounded-xl border border-gray-200 p-6" data-widget="time-tracker">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">🕒</span>
+                                Time Tracker
+                            </h2>
+                            <div class="flex gap-1">
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                    onclick="toggleWidgetSettings('time-tracker')">⚙️</button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors widget-handle cursor-move">⋮⋮</button>
+                            </div>
+                        </div>
+                        <div class="text-center py-4">
+                            <div class="text-4xl font-bold text-gray-900 mb-2">26h</div>
+                            <div class="text-sm text-gray-500">Total hours logged this week</div>
+                        </div>
+                        <div class="h-32 flex items-end justify-center gap-2 mt-4">
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-blue-500 rounded-t" style="height: 40px;"></div>
+                                <div class="text-xs text-gray-500 mt-1">Mon</div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-blue-500 rounded-t" style="height: 60px;"></div>
+                                <div class="text-xs text-gray-500 mt-1">Tue</div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-blue-500 rounded-t" style="height: 35px;"></div>
+                                <div class="text-xs text-gray-500 mt-1">Wed</div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-blue-500 rounded-t" style="height: 70px;"></div>
+                                <div class="text-xs text-gray-500 mt-1">Thu</div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-blue-500 rounded-t" style="height: 45px;"></div>
+                                <div class="text-xs text-gray-500 mt-1">Fri</div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-blue-300 rounded-t" style="height: 20px;"></div>
+                                <div class="text-xs text-gray-500 mt-1">Sat</div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-blue-300 rounded-t" style="height: 10px;"></div>
+                                <div class="text-xs text-gray-500 mt-1">Sun</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Deadlines Widget -->
+                    <div class="widget bg-white rounded-xl border border-gray-200 p-6" data-widget="upcoming-deadlines">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">📅</span>
+                                Upcoming Deadlines
+                            </h2>
+                            <div class="flex gap-1">
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                    onclick="toggleWidgetSettings('upcoming-deadlines')">⚙️</button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors widget-handle cursor-move">⋮⋮</button>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div
+                                class="flex items-center justify-between p-3 bg-white border border-orange-200 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
+                                        📝</div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Design Mockup Review</div>
+                                        <div class="text-sm text-gray-500">Due in 2 days</div>
+                                    </div>
+                                </div>
+                                <span
+                                    class="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded">High</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-3 bg-white border border-blue-200 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                                        🔧</div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">API Integration</div>
+                                        <div class="text-sm text-gray-500">Due in 4 days</div>
+                                    </div>
+                                </div>
+                                <span
+                                    class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">Medium</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-3 bg-white border border-green-200 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
+                                        📊</div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Q3 Report</div>
+                                        <div class="text-sm text-gray-500">Due in 6 days</div>
+                                    </div>
+                                </div>
+                                <span
+                                    class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">Low</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Overview Widget -->
+                    <div class="widget bg-white rounded-xl border border-gray-200 p-6" data-widget="team-overview">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">👥</span>
+                                Team Overview
+                            </h2>
+                            <div class="flex gap-1">
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                    onclick="toggleWidgetSettings('team-overview')">⚙️</button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors widget-handle cursor-move">⋮⋮</button>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-semibold">
+                                        MJ</div>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-900">Mike Johnson</div>
+                                        <div class="text-sm text-gray-500">12 tasks • 6 overdue</div>
+                                    </div>
+                                </div>
+                                <div class="w-20 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 80%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm font-semibold">
+                                        AL</div>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-900">Alex Lee</div>
+                                        <div class="text-sm text-gray-500">8 tasks • 1 overdue</div>
+                                    </div>
+                                </div>
+                                <div class="w-20 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 60%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-semibold">
+                                        SM</div>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-900">Sarah Mitchell</div>
+                                        <div class="text-sm text-gray-500">15 tasks • 2 overdue</div>
+                                    </div>
+                                </div>
+                                <div class="w-20 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 70%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Feed Widget -->
+                    <div class="widget bg-white rounded-xl border border-gray-200 p-6" data-widget="activity-feed">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center">🔔</span>
+                                Activity Feed
+                            </h2>
+                            <div class="flex gap-1">
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                    onclick="toggleWidgetSettings('activity-feed')">⚙️</button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors widget-handle cursor-move">⋮⋮</button>
+                            </div>
+                        </div>
+                        <div class="space-y-4 max-h-80 overflow-y-auto scrollbar-thin">
+                            <div class="flex gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold">
+                                    MJ</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900"><span class="font-semibold">Mike Johnson</span>
+                                        updated status of <span class="font-medium">"Design homepage mockup"</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">2 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-sm font-semibold">
+                                    AL</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900"><span class="font-semibold">Alex Lee</span>
+                                        commented on <span class="font-medium">"Mobile App Launch"</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">5 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-sm font-semibold">
+                                    SM</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900"><span class="font-semibold">You</span> created
+                                        project <span class="font-medium">"CRM Migration"</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">Yesterday</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 text-sm font-semibold">
+                                    TJ</div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900"><span class="font-semibold">Taylor Jones</span>
+                                        completed task <span class="font-medium">"API documentation"</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">Yesterday</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Progress Widget -->
+                    <div class="widget bg-white rounded-xl border border-gray-200 p-6" data-widget="project-progress">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center">📊</span>
+                                Project Progress
+                            </h2>
+                            <div class="flex gap-1">
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                    onclick="toggleWidgetSettings('project-progress')">⚙️</button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors widget-handle cursor-move">⋮⋮</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center h-48">
+                            <div class="relative w-40 h-40">
+                                <!-- Pie chart visualization -->
+                                <div class="absolute inset-0 rounded-full border-8 border-blue-500"
+                                    style="clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);"></div>
+                                <div class="absolute inset-0 rounded-full border-8 border-green-500"
+                                    style="clip-path: polygon(50% 0, 100% 0, 100% 50%, 50% 50%); transform: rotate(144deg);">
+                                </div>
+                                <div class="absolute inset-0 rounded-full border-8 border-yellow-500"
+                                    style="clip-path: polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%); transform: rotate(216deg);">
+                                </div>
+                                <div class="absolute inset-0 rounded-full border-8 border-red-500"
+                                    style="clip-path: polygon(0 50%, 50% 50%, 50% 100%, 0 100%); transform: rotate(288deg);">
+                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-gray-900">40%</div>
+                                        <div class="text-xs text-gray-500">Done</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700">Done (40%)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700">In Progress (30%)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700">In Review (20%)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700">Not Started (10%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Pages (simplified for demo) -->
+            <div id="tasks-page" class="page hidden">
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">My Tasks</h1>
+                <p class="text-gray-500 mb-8">Manage your tasks and deadlines</p>
+                <div class="bg-white rounded-xl border border-gray-200 p-20 text-center text-gray-400">
+                    ✅ Tasks interface coming soon...
+                </div>
+            </div>
+
+            <div id="projects-page" class="page hidden">
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">Projects</h1>
+                <p class="text-gray-500 mb-8">Manage and track all your projects</p>
+                <div class="bg-white rounded-xl border border-gray-200 p-20 text-center text-gray-400">
+                    📁 Projects interface coming soon...
+                </div>
+            </div>
+
+            <!-- Other pages would be implemented similarly -->
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="hidden fixed top-24 right-8 bg-white p-4 rounded-xl shadow-2xl z-[60] min-w-[300px] border-l-4 animate-slide-in">
+        <div id="toastMessage" class="text-sm font-medium text-gray-900"></div>
+    </div>
+
+    <script>
+        // Dashboard Widgets Management
+        let dashboardLayout = JSON.parse(localStorage.getItem('dashboardLayout')) || [
+            'my-tasks', 'my-projects', 'time-tracker', 'upcoming-deadlines',
+            'team-overview', 'activity-feed', 'project-progress'
+        ];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeDashboard();
+            setupSearch();
+            setupDropdowns();
+            setupWidgetDragAndDrop();
+        });
+
+        function initializeDashboard() {
+            const container = document.getElementById('dashboardWidgets');
+            // Reorder widgets based on saved layout
+            dashboardLayout.forEach(widgetId => {
+                const widget = document.querySelector(`[data-widget="${widgetId}"]`);
+                if (widget) {
+                    container.appendChild(widget);
+                }
+            });
+        }
+
+        function setupWidgetDragAndDrop() {
+            const container = document.getElementById('dashboardWidgets');
+            Sortable.create(container, {
+                animation: 150,
+                handle: '.widget-handle',
+                ghostClass: 'widget-dragging',
+                onEnd: function (evt) {
+                    // Update layout order
+                    dashboardLayout = Array.from(container.children).map(child =>
+                        child.getAttribute('data-widget')
+                    );
+                    localStorage.setItem('dashboardLayout', JSON.stringify(dashboardLayout));
+                    showToast('🔧 Dashboard layout updated', 'success');
+                }
+            });
+        }
+
+        function resetDashboardLayout() {
+            if (confirm('Reset dashboard to default layout?')) {
+                localStorage.removeItem('dashboardLayout');
+                location.reload();
+            }
+        }
+
+        function toggleWidgetSettings(widgetId) {
+            showToast(`⚙️ ${widgetId.replace('-', ' ')} settings coming soon`, 'success');
+        }
+
+        // Navigation
+        function navigateTo(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById(page + '-page').classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.dataset.page === page) {
+                    item.classList.remove('text-gray-600', 'hover:bg-gray-100', 'hover:text-primary');
+                    item.classList.add('gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
+                } else {
+                    item.classList.add('text-gray-600', 'hover:bg-gray-100', 'hover:text-primary');
+                    item.classList.remove('gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
+                }
+            });
+        }
+
+        // Dropdown Management
+        function setupDropdowns() {
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('#quickAddContainer')) {
+                    document.getElementById('quickAddMenu').classList.add('hidden');
+                }
+                if (!e.target.closest('#notificationsContainer')) {
+                    document.getElementById('notificationsMenu').classList.add('hidden');
+                }
+                if (!e.target.closest('#profileContainer')) {
+                    document.getElementById('profileMenu').classList.add('hidden');
+                }
+                if (!e.target.closest('#globalSearch')) {
+                    document.getElementById('searchSuggestions').classList.add('hidden');
+                }
+            });
+        }
+
+        function toggleQuickAdd() {
+            const menu = document.getElementById('quickAddMenu');
+            menu.classList.toggle('hidden');
+            // Close other menus
+            document.getElementById('notificationsMenu').classList.add('hidden');
+            document.getElementById('profileMenu').classList.add('hidden');
+        }
+
+        function toggleNotifications() {
+            const menu = document.getElementById('notificationsMenu');
+            menu.classList.toggle('hidden');
+            // Close other menus
+            document.getElementById('quickAddMenu').classList.add('hidden');
+            document.getElementById('profileMenu').classList.add('hidden');
+
+            // Mark as read (demo)
+            document.getElementById('notifCount').classList.add('hidden');
+        }
+
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('hidden');
+            // Close other menus
+            document.getElementById('quickAddMenu').classList.add('hidden');
+            document.getElementById('notificationsMenu').classList.add('hidden');
+        }
+
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('globalSearch');
+            const suggestions = document.getElementById('searchSuggestions');
+
+            searchInput.addEventListener('focus', function () {
+                suggestions.classList.remove('hidden');
+            });
+
+            searchInput.addEventListener('input', function (e) {
+                const query = e.target.value.toLowerCase();
+                if (query.length < 2) return;
+
+                // In a real app, this would be an API call
+                const results = [
+                    'Website redesign project',
+                    'Mobile app launch tasks',
+                    'CRM migration documents'
+                ].filter(item => item.toLowerCase().includes(query));
+
+                if (results.length > 0) {
+                    showToast(`🔍 Found ${results.length} result(s) for "${query}"`, 'success');
+                }
+            });
+        }
+
+        // Modal Management
+        function openCreateModal(type = 'task') {
+            showToast(`➕ Create ${type} form coming soon`, 'success');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toast.classList.remove('hidden', 'border-green-500', 'border-red-500', 'border-blue-500');
+            toast.classList.add(
+                type === 'success' ? 'border-green-500' :
+                    type === 'error' ? 'border-red-500' : 'border-blue-500'
+            );
+            toastMessage.textContent = message;
+
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        // Demo functions
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                showToast('👋 Logged out successfully', 'success');
+                setTimeout(() => {
+                    // In a real app, this would redirect to login
+                    alert('Redirecting to login page...');
+                }, 1000);
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('globalSearch').focus();
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                openCreateModal('task');
+            }
+
+            if (e.key === 'Escape') {
+                document.getElementById('quickAddMenu').classList.add('hidden');
+                document.getElementById('notificationsMenu').classList.add('hidden');
+                document.getElementById('profileMenu').classList.add('hidden');
+                document.getElementById('searchSuggestions').classList.add('hidden');
+            }
+        });
+
+        // Demo helpers
+        window.demoHelpers = {
+            addSampleData: () => {
+                showToast('✨ Added sample data to dashboard', 'success');
+            },
+            exportDashboard: () => {
+                const dataStr = JSON.stringify(dashboardLayout, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'dashboard-layout.json';
+                link.click();
+                URL.revokeObjectURL(url);
+                showToast('📥 Dashboard layout exported', 'success');
+            },
+            simulateLiveUpdate: () => {
+                // Simulate WebSocket update
+                const randomWidgets = ['my-tasks', 'time-tracker', 'activity-feed'];
+                const randomWidget = randomWidgets[Math.floor(Math.random() * randomWidgets.length)];
+                showToast(`🔄 Live update: ${randomWidget.replace('-', ' ')} updated`, 'info');
+            },
+            resetDemo: () => {
+                if (confirm('Reset all demo data?')) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            }
+        };
+
+        console.log('%c🎉 ProjectHub Enhanced Dashboard Loaded!', 'font-size: 20px; font-weight: bold; color: #667eea;');
+        console.log('%cAvailable demo helpers:', 'font-size: 14px; color: #64748b;');
+        console.log('• demoHelpers.addSampleData() - Add sample data');
+        console.log('• demoHelpers.exportDashboard() - Export dashboard layout');
+        console.log('• demoHelpers.simulateLiveUpdate() - Simulate live updates');
+        console.log('• demoHelpers.resetDemo() - Reset all data');
+        console.log('\n%cKeyboard Shortcuts:', 'font-size: 14px; color: #64748b;');
+        console.log('• Ctrl/Cmd + K - Focus search');
+        console.log('• Ctrl/Cmd + N - Create new task');
+        console.log('• Escape - Close all menus');
+    </script>
+</body>
+
+</html>

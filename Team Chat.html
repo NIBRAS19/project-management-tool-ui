@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectHub - Team Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        secondary: '#764ba2',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        info: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .gradient-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .animate-slide-in {
+                animation: slideIn 0.3s ease-out;
+            }
+            .chat-message:hover .message-actions {
+                opacity: 1;
+            }
+            .typing-indicator {
+                display: inline-flex;
+                align-items: center;
+            }
+            .typing-dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background-color: #9ca3af;
+                margin: 0 1px;
+                animation: typingAnimation 1.4s infinite ease-in-out;
+            }
+            .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+            .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+            @keyframes typingAnimation {
+                0%, 80%, 100% { transform: scale(0); }
+                40% { transform: scale(1); }
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            .scrollbar-thin {
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 #f1f5f9;
+            }
+            .scrollbar-thin::-webkit-scrollbar {
+                width: 6px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 3px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 3px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+            .mention-suggestion {
+                cursor: pointer;
+            }
+            .mention-suggestion:hover {
+                background-color: #f3f4f6;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Top Navigation -->
+    <nav
+        class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-[70px] flex items-center justify-between px-8 z-50">
+        <div class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent cursor-pointer"
+            onclick="navigateTo('dashboard')">
+            ProjectHub
+        </div>
+
+        <div class="flex-1 max-w-md mx-10">
+            <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><i
+                        class="fas fa-search"></i></span>
+                <input type="text" id="globalSearch"
+                    class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="Search projects, tasks, or people...">
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button onclick="openCreateModal('task')"
+                class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button onclick="toggleNotifications()"
+                class="relative w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
+                <i class="fas fa-bell"></i>
+                <span id="notifCount"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-5 h-5 rounded-full flex items-center justify-center">3</span>
+            </button>
+            <div onclick="navigateTo('settings')"
+                class="w-11 h-11 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold text-sm cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/30 transition-all">
+                SM
+            </div>
+        </div>
+    </nav>
+
+    <!-- App Layout -->
+    <div class="flex mt-[70px]">
+        <!-- Sidebar -->
+        <aside
+            class="fixed left-0 w-64 h-[calc(100vh-70px)] bg-white border-r border-gray-200 p-6 overflow-y-auto scrollbar-thin">
+            <div class="mb-8">
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="dashboard" onclick="navigateTo('dashboard')">
+                    <i class="fas fa-chart-bar w-5 text-center"></i>
+                    <span class="font-medium">Dashboard</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="tasks" onclick="navigateTo('tasks')">
+                    <i class="fas fa-tasks w-5 text-center"></i>
+                    <span class="font-medium">Tasks</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="projects" onclick="navigateTo('projects')">
+                    <i class="fas fa-folder w-5 text-center"></i>
+                    <span class="font-medium">Projects</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="team" onclick="navigateTo('team')">
+                    <i class="fas fa-users w-5 text-center"></i>
+                    <span class="font-medium">Team</span>
+                </div>
+                <div class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 gradient-primary text-white shadow-lg shadow-primary/20"
+                    data-page="chat" onclick="navigateTo('chat')">
+                    <i class="fas fa-comments w-5 text-center"></i>
+                    <span class="font-medium">Team Chat</span>
+                </div>
+                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
+                    data-page="calendar" onclick="navigateTo('calendar')">
+                    <i class="fas fa-calendar w-5 text-center"></i>
+                    <span class="font-medium">Calendar</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ml-64 flex-1 p-0">
+            <!-- Team Chat Module -->
+            <div id="chat-page" class="page h-[calc(100vh-70px)]">
+                <div class="flex h-full bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <!-- Left Panel - Channels -->
+                    <div class="w-80 border-r border-gray-200 flex flex-col">
+                        <!-- Chat Header -->
+                        <div class="p-4 border-b border-gray-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-xl font-semibold text-gray-900">Team Chat</h2>
+                                <button onclick="createNewChannel()"
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                    <i class="fas fa-plus text-gray-600"></i>
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><i
+                                        class="fas fa-search"></i></span>
+                                <input type="text" id="channelSearch"
+                                    class="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                    placeholder="Search channels...">
+                            </div>
+                        </div>
+
+                        <!-- Channels List -->
+                        <div class="flex-1 overflow-y-auto scrollbar-thin">
+                            <!-- Pinned Messages -->
+                            <div class="p-3">
+                                <div
+                                    class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                    <i class="fas fa-thumbtack"></i>
+                                    Pinned Messages
+                                </div>
+                                <div class="space-y-1">
+                                    <div
+                                        class="p-2 rounded-lg bg-yellow-50 border border-yellow-200 cursor-pointer hover:bg-yellow-100 transition-colors">
+                                        <div class="text-sm font-medium text-gray-900 truncate">Final wireframes
+                                            uploaded</div>
+                                        <div class="text-xs text-gray-500">#general • 10:45 AM</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Channels -->
+                            <div class="p-3">
+                                <div
+                                    class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                    <i class="fas fa-hashtag"></i>
+                                    Channels
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="channel-item active flex items-center gap-3 p-2 rounded-lg bg-primary/10 text-primary cursor-pointer transition-colors"
+                                        data-channel="general">
+                                        <i class="fas fa-hashtag w-4 text-center"></i>
+                                        <span class="font-medium">general</span>
+                                        <span
+                                            class="ml-auto text-xs bg-primary text-white px-1.5 py-0.5 rounded-full">24</span>
+                                    </div>
+                                    <div class="channel-item flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                        data-channel="website-redesign">
+                                        <i class="fas fa-hashtag w-4 text-center"></i>
+                                        <span class="font-medium">website-redesign</span>
+                                        <span
+                                            class="ml-auto text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full">12</span>
+                                    </div>
+                                    <div class="channel-item flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                        data-channel="mobile-app">
+                                        <i class="fas fa-hashtag w-4 text-center"></i>
+                                        <span class="font-medium">mobile-app</span>
+                                        <span
+                                            class="ml-auto text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full">8</span>
+                                    </div>
+                                    <div class="channel-item flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                        data-channel="random">
+                                        <i class="fas fa-hashtag w-4 text-center"></i>
+                                        <span class="font-medium">random</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Direct Messages -->
+                            <div class="p-3">
+                                <div
+                                    class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                    <i class="fas fa-user"></i>
+                                    Direct Messages
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="dm-item flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                        data-user="mj">
+                                        <div class="relative">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-semibold">
+                                                MJ</div>
+                                            <div
+                                                class="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-500 border border-white rounded-full">
+                                            </div>
+                                        </div>
+                                        <span class="font-medium">Mike Johnson</span>
+                                    </div>
+                                    <div class="dm-item flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                        data-user="al">
+                                        <div class="relative">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-xs font-semibold">
+                                                AL</div>
+                                            <div
+                                                class="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-yellow-500 border border-white rounded-full">
+                                            </div>
+                                        </div>
+                                        <span class="font-medium">Alex Lee</span>
+                                    </div>
+                                    <div class="dm-item flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                        data-user="tj">
+                                        <div class="relative">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center text-xs font-semibold">
+                                                TJ</div>
+                                            <div
+                                                class="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-gray-400 border border-white rounded-full">
+                                            </div>
+                                        </div>
+                                        <span class="font-medium">Taylor Jones</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Status -->
+                        <div class="p-4 border-t border-gray-200">
+                            <div class="flex items-center gap-3">
+                                <div class="relative">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold">
+                                        SM</div>
+                                    <div
+                                        class="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-500 border border-white rounded-full">
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900">Sarah Mitchell</div>
+                                    <div class="text-xs text-gray-500">Online</div>
+                                </div>
+                                <button onclick="toggleUserStatus()"
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                    <i class="fas fa-ellipsis-h text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Panel - Chat Messages -->
+                    <div class="flex-1 flex flex-col border-r border-gray-200">
+                        <!-- Chat Header -->
+                        <div class="p-4 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-hashtag text-gray-400"></i>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">general</h3>
+                                        <p class="text-sm text-gray-500">Company-wide announcements and work-related
+                                            matters</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleThreadPanel()"
+                                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                        <i class="fas fa-comment-alt text-gray-600"></i>
+                                    </button>
+                                    <button onclick="toggleFilePanel()"
+                                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                        <i class="fas fa-paperclip text-gray-600"></i>
+                                    </button>
+                                    <button onclick="showChannelMembers()"
+                                        class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                        <i class="fas fa-user-friends text-gray-600"></i>
+                                    </button>
+                                    <div class="w-px h-6 bg-gray-200"></div>
+                                    <input type="text"
+                                        class="w-48 px-3 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
+                                        placeholder="Search messages...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Messages Area -->
+                        <div id="messagesContainer" class="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4">
+                            <!-- Messages will be populated here -->
+                        </div>
+
+                        <!-- Typing Indicator -->
+                        <div id="typingIndicator" class="hidden px-4 py-2 bg-yellow-50 border-t border-yellow-200">
+                            <div class="flex items-center gap-2 text-sm text-gray-600">
+                                <div class="typing-indicator">
+                                    <div class="typing-dot"></div>
+                                    <div class="typing-dot"></div>
+                                    <div class="typing-dot"></div>
+                                </div>
+                                <span id="typingUsers">Mike is typing...</span>
+                            </div>
+                        </div>
+
+                        <!-- Message Input -->
+                        <div class="p-4 border-t border-gray-200">
+                            <!-- File Upload Preview -->
+                            <div id="filePreview" class="hidden mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fas fa-file text-gray-400"></i>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900" id="fileName">document.pdf
+                                            </div>
+                                            <div class="text-xs text-gray-500">2.4 MB</div>
+                                        </div>
+                                    </div>
+                                    <button onclick="removeFilePreview()" class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Message Input Area -->
+                            <div class="flex gap-3">
+                                <div class="flex gap-1">
+                                    <button onclick="openEmojiPicker()"
+                                        class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                        <i class="fas fa-smile text-gray-600"></i>
+                                    </button>
+                                    <button onclick="triggerFileUpload()"
+                                        class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                        <i class="fas fa-paperclip text-gray-600"></i>
+                                    </button>
+                                </div>
+                                <div class="flex-1 relative">
+                                    <textarea id="messageInput" rows="1"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all resize-none scrollbar-thin"
+                                        placeholder="Message #general"
+                                        oninput="autoResize(this); handleMentions(this)"></textarea>
+
+                                    <!-- Mention Suggestions -->
+                                    <div id="mentionSuggestions"
+                                        class="hidden absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto">
+                                        <!-- Mention suggestions will be populated here -->
+                                    </div>
+                                </div>
+                                <button onclick="sendMessage()"
+                                    class="w-10 h-10 rounded-lg gradient-primary text-white flex items-center justify-center shadow-lg shadow-primary/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/40 transition-all">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+
+                            <!-- Quick Actions -->
+                            <div class="flex gap-4 mt-2 text-xs text-gray-500">
+                                <span>Press <kbd
+                                        class="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Enter</kbd>
+                                    to send</span>
+                                <span>Press <kbd
+                                        class="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Shift +
+                                        Enter</kbd> for new line</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Panel - Thread/File Panel -->
+                    <div id="rightPanel" class="w-96 border-l border-gray-200 flex flex-col hidden">
+                        <!-- Panel Header -->
+                        <div class="p-4 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 id="panelTitle" class="font-semibold text-gray-900">Thread</h3>
+                                <button onclick="toggleRightPanel()"
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                    <i class="fas fa-times text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Thread Content -->
+                        <div id="threadContent" class="flex-1 overflow-y-auto scrollbar-thin p-4">
+                            <!-- Thread messages will be populated here -->
+                        </div>
+
+                        <!-- File Panel Content -->
+                        <div id="filePanelContent" class="flex-1 overflow-y-auto scrollbar-thin p-4 hidden">
+                            <!-- Files will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Pages (simplified) -->
+            <div id="dashboard-page" class="page hidden">
+                <div class="p-8">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
+                    <p class="text-gray-500 mb-8">Your project overview</p>
+                    <div class="bg-white rounded-xl border border-gray-200 p-20 text-center text-gray-400">
+                        <i class="fas fa-chart-bar text-4xl mb-3 opacity-50"></i>
+                        <p>Dashboard interface...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Emoji Picker Modal -->
+    <div id="emojiPicker"
+        class="hidden fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 w-80 max-h-64 overflow-y-auto">
+        <div class="p-4">
+            <div class="grid grid-cols-8 gap-2">
+                <!-- Emojis will be populated here -->
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😀')">😀</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😃')">😃</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😄')">😄</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😁')">😁</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😆')">😆</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😅')">😅</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😂')">😂</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('🤣')">🤣</button>
+
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😊')">😊</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😇')">😇</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('🙂')">🙂</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('🙃')">🙃</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😉')">😉</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😌')">😌</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('😍')">😍</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('🥰')">🥰</button>
+
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('👍')">👍</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('👎')">👎</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('❤️')">❤️</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('🎉')">🎉</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('🔥')">🔥</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('⭐')">⭐</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('🚀')">🚀</button>
+                <button class="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
+                    onclick="addEmoji('💯')">💯</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="hidden fixed top-24 right-8 bg-white p-4 rounded-xl shadow-2xl z-[60] min-w-[300px] border-l-4 animate-slide-in">
+        <div class="flex items-center gap-3">
+            <i id="toastIcon" class="fas fa-check-circle text-green-500"></i>
+            <div id="toastMessage" class="text-sm font-medium text-gray-900"></div>
+        </div>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input type="file" id="fileUpload" class="hidden" onchange="handleFileUpload(this.files)">
+
+    <script>
+        // Chat Data
+        const channels = {
+            'general': [
+                {
+                    id: 1,
+                    user: { id: 'mj', name: 'Mike Johnson', avatar: 'MJ', color: '#3b82f6' },
+                    timestamp: '2025-10-25T10:45:00',
+                    content: 'Hey team, final wireframes uploaded! 🔗 [View File]',
+                    type: 'message',
+                    files: [{ name: 'wireframes-v2.pdf', type: 'pdf', size: '2.4 MB' }],
+                    reactions: { '👍': 3, '🎉': 2 },
+                    readBy: ['sm', 'al', 'tj'],
+                    thread: [
+                        {
+                            id: 101,
+                            user: { id: 'al', name: 'Alex Lee', avatar: 'AL', color: '#10b981' },
+                            timestamp: '2025-10-25T10:47:00',
+                            content: 'These look great! Love the new dashboard design 🚀',
+                            type: 'reply'
+                        },
+                        {
+                            id: 102,
+                            user: { id: 'sm', name: 'Sarah Mitchell', avatar: 'SM', color: '#667eea' },
+                            timestamp: '2025-10-25T10:48:00',
+                            content: 'Agreed! The mobile layouts are much cleaner now.',
+                            type: 'reply'
+                        }
+                    ]
+                },
+                {
+                    id: 2,
+                    user: { id: 'tj', name: 'Taylor Jones', avatar: 'TJ', color: '#8b5cf6' },
+                    timestamp: '2025-10-25T11:20:00',
+                    content: 'Has anyone reviewed the API documentation yet? I have some questions about the authentication flow.',
+                    type: 'message',
+                    reactions: { '👀': 1 },
+                    readBy: ['sm', 'mj'],
+                    mentions: ['al']
+                },
+                {
+                    id: 3,
+                    user: { id: 'kr', name: 'Kim Rivera', avatar: 'KR', color: '#f59e0b' },
+                    timestamp: '2025-10-25T11:45:00',
+                    content: 'The QA environment is now updated with the latest build. Please test your features when you get a chance!',
+                    type: 'message',
+                    readBy: ['sm']
+                }
+            ],
+            'website-redesign': [
+                {
+                    id: 4,
+                    user: { id: 'mj', name: 'Mike Johnson', avatar: 'MJ', color: '#3b82f6' },
+                    timestamp: '2025-10-25T09:30:00',
+                    content: 'I need feedback on the homepage hero section. Which version do you prefer?',
+                    type: 'message',
+                    files: [
+                        { name: 'hero-option-a.jpg', type: 'image', size: '1.2 MB' },
+                        { name: 'hero-option-b.jpg', type: 'image', size: '1.3 MB' }
+                    ],
+                    readBy: ['sm', 'al']
+                }
+            ]
+        };
+
+        const teamMembers = [
+            { id: 'sm', name: 'Sarah Mitchell', avatar: 'SM', color: '#667eea', status: 'online' },
+            { id: 'mj', name: 'Mike Johnson', avatar: 'MJ', color: '#3b82f6', status: 'online' },
+            { id: 'al', name: 'Alex Lee', avatar: 'AL', color: '#10b981', status: 'away' },
+            { id: 'tj', name: 'Taylor Jones', avatar: 'TJ', color: '#8b5cf6', status: 'online' },
+            { id: 'kr', name: 'Kim Rivera', avatar: 'KR', color: '#f59e0b', status: 'offline' }
+        ];
+
+        let currentChannel = 'general';
+        let currentUser = 'sm';
+        let rightPanelType = 'thread'; // 'thread' or 'files'
+        let isTyping = false;
+        let typingTimeout = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            navigateTo('chat');
+            loadChannel('general');
+            setupEventListeners();
+        });
+
+        // Navigation
+        function navigateTo(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById(page + '-page').classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.dataset.page === page) {
+                    item.classList.remove('text-gray-600', 'hover:bg-gray-100', 'hover:text-primary');
+                    item.classList.add('gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
+                } else {
+                    item.classList.add('text-gray-600', 'hover:bg-gray-100', 'hover:text-primary');
+                    item.classList.remove('gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
+                }
+            });
+        }
+
+        // Channel Management
+        function loadChannel(channelName) {
+            currentChannel = channelName;
+
+            // Update channel selection
+            document.querySelectorAll('.channel-item').forEach(item => {
+                item.classList.remove('active', 'bg-primary/10', 'text-primary');
+                if (item.dataset.channel === channelName) {
+                    item.classList.add('active', 'bg-primary/10', 'text-primary');
+                } else {
+                    item.classList.add('hover:bg-gray-100');
+                }
+            });
+
+            // Load messages
+            const messages = channels[channelName] || [];
+            renderMessages(messages);
+        }
+
+        function renderMessages(messages) {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = messages.map(message => `
+                <div class="chat-message group" data-message-id="${message.id}">
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0" style="background: ${message.user.color};">
+                            ${message.user.avatar}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-baseline gap-2 mb-1">
+                                <span class="font-semibold text-gray-900">${message.user.name}</span>
+                                <span class="text-xs text-gray-500">${formatTime(message.timestamp)}</span>
+                            </div>
+                            <div class="text-gray-800 whitespace-pre-wrap">${formatMessageContent(message.content)}</div>
+                            
+                            ${message.files ? `
+                                <div class="mt-2 space-y-2">
+                                    ${message.files.map(file => `
+                                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 max-w-md">
+                                            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                                                <i class="fas fa-file"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="font-medium text-gray-900 truncate">${file.name}</div>
+                                                <div class="text-sm text-gray-500">${file.size}</div>
+                                            </div>
+                                            <button onclick="downloadFile('${file.name}')" class="text-gray-400 hover:text-gray-600">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            
+                            ${message.reactions ? `
+                                <div class="flex gap-1 mt-2">
+                                    ${Object.entries(message.reactions).map(([emoji, count]) => `
+                                        <button onclick="toggleReaction(${message.id}, '${emoji}')" class="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm hover:bg-gray-200 transition-colors">
+                                            <span>${emoji}</span>
+                                            <span class="text-xs text-gray-600">${count}</span>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            
+                            <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                <button onclick="startThread(${message.id})" class="hover:text-primary transition-colors">
+                                    <i class="fas fa-comment-alt mr-1"></i>Reply
+                                </button>
+                                <button onclick="pinMessage(${message.id})" class="hover:text-primary transition-colors">
+                                    <i class="fas fa-thumbtack mr-1"></i>Pin
+                                </button>
+                                <div class="message-actions opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                                    <button onclick="addReaction(${message.id})" class="hover:text-primary">
+                                        <i class="fas fa-smile"></i>
+                                    </button>
+                                    <button onclick="copyMessage(${message.id})" class="hover:text-primary">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                ${message.readBy && message.readBy.length > 0 ? `
+                                    <div class="ml-auto flex items-center gap-1">
+                                        <span>${message.readBy.length} read</span>
+                                        <div class="flex -space-x-1">
+                                            ${message.readBy.map(userId => {
+                const user = teamMembers.find(m => m.id === userId);
+                return user ? `<div class="w-4 h-4 rounded-full border border-white" style="background: ${user.color};" title="${user.name}"></div>` : '';
+            }).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function formatMessageContent(content) {
+            // Convert @mentions to styled spans
+            return content.replace(/@(\w+)/g, '<span class="bg-blue-100 text-blue-700 px-1 rounded">@$1</span>');
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Message Functions
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const content = messageInput.value.trim();
+
+            if (!content) return;
+
+            const newMessage = {
+                id: Date.now(),
+                user: teamMembers.find(m => m.id === currentUser),
+                timestamp: new Date().toISOString(),
+                content: content,
+                type: 'message',
+                readBy: [currentUser]
+            };
+
+            if (!channels[currentChannel]) {
+                channels[currentChannel] = [];
+            }
+            channels[currentChannel].push(newMessage);
+
+            renderMessages(channels[currentChannel]);
+            messageInput.value = '';
+            autoResize(messageInput);
+
+            // Show typing indicator briefly
+            showTypingIndicator([teamMembers.find(m => m.id !== currentUser).name]);
+            setTimeout(() => hideTypingIndicator(), 1000);
+
+            showToast('Message sent successfully', 'success');
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        // Typing Indicator
+        function showTypingIndicator(users) {
+            const indicator = document.getElementById('typingIndicator');
+            const usersText = document.getElementById('typingUsers');
+
+            usersText.textContent = users.length === 1 ? `${users[0]} is typing...` : `${users.join(', ')} are typing...`;
+            indicator.classList.remove('hidden');
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').classList.add('hidden');
+        }
+
+        // Emoji Picker
+        function openEmojiPicker() {
+            const picker = document.getElementById('emojiPicker');
+            picker.classList.toggle('hidden');
+        }
+
+        function addEmoji(emoji) {
+            const messageInput = document.getElementById('messageInput');
+            messageInput.value += emoji;
+            messageInput.focus();
+            document.getElementById('emojiPicker').classList.add('hidden');
+        }
+
+        // File Upload
+        function triggerFileUpload() {
+            document.getElementById('fileUpload').click();
+        }
+
+        function handleFileUpload(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                const preview = document.getElementById('filePreview');
+                const fileName = document.getElementById('fileName');
+
+                fileName.textContent = file.name;
+                preview.classList.remove('hidden');
+
+                showToast('File ready to send', 'info');
+            }
+        }
+
+        function removeFilePreview() {
+            document.getElementById('filePreview').classList.add('hidden');
+            document.getElementById('fileUpload').value = '';
+        }
+
+        function downloadFile(filename) {
+            showToast(`Downloading ${filename}`, 'info');
+        }
+
+        // Reactions
+        function toggleReaction(messageId, emoji) {
+            const channel = channels[currentChannel];
+            const message = channel.find(m => m.id === messageId);
+
+            if (!message.reactions) {
+                message.reactions = {};
+            }
+
+            if (message.reactions[emoji]) {
+                message.reactions[emoji]++;
+            } else {
+                message.reactions[emoji] = 1;
+            }
+
+            renderMessages(channel);
+        }
+
+        function addReaction(messageId) {
+            // In a real app, this would open a reaction picker
+            toggleReaction(messageId, '👍');
+        }
+
+        // Threads
+        function startThread(messageId) {
+            toggleRightPanel();
+            rightPanelType = 'thread';
+            document.getElementById('panelTitle').textContent = 'Thread';
+            document.getElementById('threadContent').classList.remove('hidden');
+            document.getElementById('filePanelContent').classList.add('hidden');
+
+            const message = channels[currentChannel].find(m => m.id === messageId);
+            const threadContent = document.getElementById('threadContent');
+
+            threadContent.innerHTML = `
+                <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-baseline gap-2 mb-1">
+                        <span class="font-semibold text-gray-900">${message.user.name}</span>
+                        <span class="text-xs text-gray-500">${formatTime(message.timestamp)}</span>
+                    </div>
+                    <div class="text-gray-800">${message.content}</div>
+                </div>
+                <div class="space-y-4">
+                    ${message.thread ? message.thread.map(reply => `
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style="background: ${reply.user.color};">
+                                ${reply.user.avatar}
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-baseline gap-2 mb-1">
+                                    <span class="font-semibold text-gray-900">${reply.user.name}</span>
+                                    <span class="text-xs text-gray-500">${formatTime(reply.timestamp)}</span>
+                                </div>
+                                <div class="text-gray-800">${reply.content}</div>
+                            </div>
+                        </div>
+                    `).join('') : ''}
+                </div>
+                <div class="mt-6">
+                    <textarea class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all resize-none" rows="2" placeholder="Reply to thread..."></textarea>
+                    <div class="flex justify-end mt-2">
+                        <button class="px-4 py-2 gradient-primary text-white rounded-lg hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 transition-all">
+                            Reply
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Pinning Messages
+        function pinMessage(messageId) {
+            showToast('Message pinned to channel', 'success');
+        }
+
+        // Copy Message
+        function copyMessage(messageId) {
+            const message = channels[currentChannel].find(m => m.id === messageId);
+            navigator.clipboard.writeText(message.content);
+            showToast('Message copied to clipboard', 'success');
+        }
+
+        // Right Panel Toggle
+        function toggleRightPanel() {
+            const panel = document.getElementById('rightPanel');
+            panel.classList.toggle('hidden');
+        }
+
+        function toggleThreadPanel() {
+            toggleRightPanel();
+            rightPanelType = 'thread';
+            document.getElementById('panelTitle').textContent = 'Thread';
+            document.getElementById('threadContent').classList.remove('hidden');
+            document.getElementById('filePanelContent').classList.add('hidden');
+        }
+
+        function toggleFilePanel() {
+            toggleRightPanel();
+            rightPanelType = 'files';
+            document.getElementById('panelTitle').textContent = 'Files';
+            document.getElementById('threadContent').classList.add('hidden');
+            document.getElementById('filePanelContent').classList.remove('hidden');
+
+            const filePanel = document.getElementById('filePanelContent');
+            const files = channels[currentChannel].flatMap(m => m.files || []);
+
+            filePanel.innerHTML = files.length > 0 ? files.map(file => `
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 mb-2">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                        <i class="fas fa-file"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-gray-900 truncate">${file.name}</div>
+                        <div class="text-sm text-gray-500">${file.size} • ${file.type}</div>
+                    </div>
+                    <button onclick="downloadFile('${file.name}')" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            `).join('') : '<p class="text-gray-500 text-center py-8">No files in this channel yet</p>';
+        }
+
+        // Mentions
+        function handleMentions(textarea) {
+            const value = textarea.value;
+            const cursorPos = textarea.selectionStart;
+            const textBeforeCursor = value.substring(0, cursorPos);
+            const atSymbolIndex = textBeforeCursor.lastIndexOf('@');
+
+            if (atSymbolIndex !== -1) {
+                const textAfterAt = textBeforeCursor.substring(atSymbolIndex + 1);
+                if (!textAfterAt.includes(' ')) {
+                    showMentionSuggestions(textAfterAt, textarea);
+                    return;
+                }
+            }
+
+            document.getElementById('mentionSuggestions').classList.add('hidden');
+        }
+
+        function showMentionSuggestions(query, textarea) {
+            const suggestions = teamMembers.filter(member =>
+                member.name.toLowerCase().includes(query.toLowerCase())
+            );
+
+            const suggestionsContainer = document.getElementById('mentionSuggestions');
+            suggestionsContainer.innerHTML = suggestions.map(member => `
+                <div class="mention-suggestion flex items-center gap-3 p-3" onclick="selectMention('${member.id}', '${member.name}', this)">
+                    <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold" style="background: ${member.color};">
+                        ${member.avatar}
+                    </div>
+                    <span class="font-medium">${member.name}</span>
+                </div>
+            `).join('');
+
+            suggestionsContainer.classList.remove('hidden');
+        }
+
+        function selectMention(userId, userName, element) {
+            const messageInput = document.getElementById('messageInput');
+            const value = messageInput.value;
+            const cursorPos = messageInput.selectionStart;
+            const textBeforeCursor = value.substring(0, cursorPos);
+            const atSymbolIndex = textBeforeCursor.lastIndexOf('@');
+
+            const newValue = value.substring(0, atSymbolIndex) + '@' + userName + ' ' + value.substring(cursorPos);
+            messageInput.value = newValue;
+            messageInput.focus();
+
+            document.getElementById('mentionSuggestions').classList.add('hidden');
+        }
+
+        // Toast Notifications
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.textContent = message;
+
+            // Set icon based on type
+            const icons = {
+                success: 'fa-check-circle text-green-500',
+                error: 'fa-exclamation-circle text-red-500',
+                warning: 'fa-exclamation-triangle text-yellow-500',
+                info: 'fa-info-circle text-blue-500'
+            };
+
+            toastIcon.className = `fas ${icons[type] || icons.info}`;
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Utility Functions
+        function createNewChannel() {
+            showToast('Create new channel feature coming soon', 'info');
+        }
+
+        function toggleUserStatus() {
+            showToast('User status updated', 'success');
+        }
+
+        function showChannelMembers() {
+            showToast('Channel members list', 'info');
+        }
+
+        function setupEventListeners() {
+            // Channel click events
+            document.querySelectorAll('.channel-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    loadChannel(item.dataset.channel);
+                });
+            });
+
+            // DM click events
+            document.querySelectorAll('.dm-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    showToast(`Opening DM with ${item.querySelector('span').textContent}`, 'info');
+                });
+            });
+
+            // Close emoji picker when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#emojiPicker') && !e.target.closest('.fa-smile')) {
+                    document.getElementById('emojiPicker').classList.add('hidden');
+                }
+            });
+
+            // Handle Enter key for sending messages
+            document.getElementById('messageInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+
+        // Demo functions for other navigation
+        function openCreateModal(type) {
+            showToast(`Create new ${type} feature coming soon`, 'info');
+        }
+
+        function toggleNotifications() {
+            showToast('Notifications panel', 'info');
+        }
+    </script>
+</body>
+
+</html>
