@@ -4,1996 +4,731 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProjectHub - Enhanced Tasks Module</title>
+    <title>Project Management tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#667eea',
-                        secondary: '#764ba2',
-                        success: '#10b981',
-                        warning: '#f59e0b',
-                        danger: '#ef4444',
-                        info: '#3b82f6',
-                    }
-                }
-            }
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            transition: background-color 0.3s ease;
         }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .gradient-primary {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            }
-            .gradient-success {
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            }
-            .gradient-warning {
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            }
-            .gradient-danger {
-                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            }
-            .gradient-info {
-                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            }
-            .animate-slide-in {
-                animation: slideIn 0.3s ease-out;
-            }
-            .kanban-column {
-                min-height: 500px;
-            }
-            .task-card {
-                transition: all 0.2s ease;
-            }
-            .task-card:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            }
-            .task-card-dragging {
-                opacity: 0.6;
-                transform: rotate(5deg);
-            }
-            .wip-limit-exceeded {
-                border: 2px solid #ef4444;
-            }
-            .subtask-item:hover .subtask-actions {
-                opacity: 1;
-            }
-            .comment-item:hover .comment-actions {
-                opacity: 1;
-            }
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            .scrollbar-thin {
-                scrollbar-width: thin;
-                scrollbar-color: #cbd5e1 #f1f5f9;
-            }
-            .scrollbar-thin::-webkit-scrollbar {
-                width: 6px;
-            }
-            .scrollbar-thin::-webkit-scrollbar-track {
-                background: #f1f5f9;
-                border-radius: 3px;
-            }
-            .scrollbar-thin::-webkit-scrollbar-thumb {
-                background: #cbd5e1;
-                border-radius: 3px;
-            }
-            .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-                background: #94a3b8;
-            }
-            .rich-text-editor {
-                min-height: 120px;
-            }
-            .rich-text-editor:focus {
-                outline: none;
-            }
-            .rich-text-toolbar {
-                border-bottom: 1px solid #e5e7eb;
-            }
-            .custom-field {
-                border-left: 3px solid #667eea;
-            }
+
+        body.dark {
+            background-color: #1a1a1a;
+        }
+
+        body.dark .bg-white {
+            background-color: #2d2d2d !important;
+        }
+
+        body.dark .bg-gray-50 {
+            background-color: #242424 !important;
+        }
+
+        body.dark .bg-gray-100 {
+            background-color: #333333 !important;
+        }
+
+        body.dark .text-gray-800 {
+            color: #e5e5e5 !important;
+        }
+
+        body.dark .text-gray-700 {
+            color: #d1d1d1 !important;
+        }
+
+        body.dark .text-gray-600 {
+            color: #b0b0b0 !important;
+        }
+
+        body.dark .text-gray-500 {
+            color: #8a8a8a !important;
+        }
+
+        body.dark .border-gray-200 {
+            border-color: #404040 !important;
+        }
+
+        body.dark .border-gray-100 {
+            border-color: #353535 !important;
+        }
+
+        body.dark .border-gray-300 {
+            border-color: #4a4a4a !important;
+        }
+
+        .sidebar-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .task-row:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        body.dark .task-row:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .task-name:hover {
+            color: #2563eb;
+        }
+
+        .modal {
+            display: none;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .subtask-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .subtask-container.expanded {
+            max-height: 2000px;
+        }
+
+        .editable-field {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .editable-field:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark .editable-field:hover {
+            background-color: rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 
 <body class="bg-gray-50">
-    <!-- Top Navigation -->
-    <nav
-        class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-[70px] flex items-center justify-between px-8 z-50">
-        <div class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent cursor-pointer"
-            onclick="navigateTo('dashboard')">
-            ProjectHub
+    <!-- Top Header -->
+    <div class="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
+        <!-- Left Section -->
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-teal-500 rounded flex items-center justify-center text-white font-bold">
+                <i class="fas fa-check"></i>
+            </div>
+            <span class="font-semibold text-gray-800">Project Management</span>
         </div>
-
-        <div class="flex-1 max-w-md mx-10">
-            <div class="relative">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><i
-                        class="fas fa-search"></i></span>
-                <input type="text" id="globalSearch"
-                    class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                    placeholder="Search tasks, projects, or people...">
+    
+        <!-- Center Section (Search Bar) -->
+        <div class="flex-1 flex justify-center">
+            <div class="relative w-full max-w-xs">
+                <input type="text" placeholder="Search Ctrl + K"
+                    class="bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                <i class="fas fa-search absolute right-3 top-2 text-gray-400 dark:text-gray-300"></i>
             </div>
         </div>
-
-        <div class="flex items-center gap-4">
-            <button onclick="openCreateModal('task')"
-                class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
-                <i class="fas fa-plus"></i>
+    
+        <!-- Right Section -->
+        <div class="flex items-center space-x-4">
+            <button id="themeToggle"
+                class="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors">
+                <i class="fas fa-moon text-gray-600 dark:text-yellow-400"></i>
             </button>
-            <button onclick="toggleNotifications()"
-                class="relative w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-indigo-100 hover:text-primary transition-all hover:-translate-y-0.5">
-                <i class="fas fa-bell"></i>
-                <span id="notifCount"
-                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-5 h-5 rounded-full flex items-center justify-center">3</span>
-            </button>
-            <div onclick="navigateTo('settings')"
-                class="w-11 h-11 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold text-sm cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-primary/30 transition-all">
-                SM
+            <div
+                class="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                M
             </div>
         </div>
-    </nav>
-
-    <!-- App Layout -->
-    <div class="flex mt-[70px]">
-        <!-- Sidebar -->
-        <aside
-            class="fixed left-0 w-64 h-[calc(100vh-70px)] bg-white border-r border-gray-200 p-6 overflow-y-auto scrollbar-thin">
-            <div class="mb-8">
-                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
-                    data-page="dashboard" onclick="navigateTo('dashboard')">
-                    <i class="fas fa-chart-bar w-5 text-center"></i>
-                    <span class="font-medium">Dashboard</span>
-                </div>
-                <div class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 gradient-primary text-white shadow-lg shadow-primary/20"
-                    data-page="tasks" onclick="navigateTo('tasks')">
-                    <i class="fas fa-tasks w-5 text-center"></i>
-                    <span class="font-medium">Tasks</span>
-                </div>
-                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
-                    data-page="projects" onclick="navigateTo('projects')">
-                    <i class="fas fa-folder w-5 text-center"></i>
-                    <span class="font-medium">Projects</span>
-                </div>
-                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
-                    data-page="calendar" onclick="navigateTo('calendar')">
-                    <i class="fas fa-calendar w-5 text-center"></i>
-                    <span class="font-medium">Calendar</span>
-                </div>
-                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
-                    data-page="reports" onclick="navigateTo('reports')">
-                    <i class="fas fa-chart-line w-5 text-center"></i>
-                    <span class="font-medium">Reports</span>
-                </div>
-            </div>
-
-            <div>
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider px-4 mb-3">Workspaces</div>
-                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
-                    data-page="team" onclick="navigateTo('team')">
-                    <i class="fas fa-users w-5 text-center"></i>
-                    <span class="font-medium">Team</span>
-                </div>
-                <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 text-gray-600 hover:bg-gray-100 hover:text-primary"
-                    data-page="settings" onclick="navigateTo('settings')">
-                    <i class="fas fa-cog w-5 text-center"></i>
-                    <span class="font-medium">Settings</span>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="ml-64 flex-1 p-8">
-            <!-- Tasks Module -->
-            <div id="tasks-page" class="page">
-                <!-- Tasks Sub-Navigation -->
-                <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex gap-1 bg-gray-100 p-1 rounded-lg">
-                            <button id="nav-list"
-                                class="tasks-nav-item active px-4 py-2 rounded-md text-sm font-medium transition-all"
-                                data-view="list" onclick="switchTasksView('list')">
-                                <i class="fas fa-list mr-2"></i>List View
-                            </button>
-                            <button id="nav-kanban"
-                                class="tasks-nav-item px-4 py-2 rounded-md text-sm font-medium transition-all"
-                                data-view="kanban" onclick="switchTasksView('kanban')">
-                                <i class="fas fa-columns mr-2"></i>Kanban Board
-                            </button>
-                            <button id="nav-calendar"
-                                class="tasks-nav-item px-4 py-2 rounded-md text-sm font-medium transition-all"
-                                data-view="calendar" onclick="switchTasksView('calendar')">
-                                <i class="fas fa-calendar-alt mr-2"></i>Calendar
-                            </button>
-                        </div>
-
-                        <div class="flex items-center gap-4">
-                            <div class="flex gap-2">
-                                <button onclick="exportTasks()"
-                                    class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                    <i class="fas fa-download mr-1"></i> Export
-                                </button>
-                                <button onclick="showFilters()"
-                                    class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                    <i class="fas fa-filter mr-1"></i> Filter
-                                </button>
-                            </div>
-                            <button onclick="openCreateModal('task')"
-                                class="gradient-primary text-white px-4 py-2 rounded-lg font-semibold shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all flex items-center gap-2">
-                                <i class="fas fa-plus"></i>
-                                <span>New Task</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Page Header -->
-                <div class="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 class="text-4xl font-bold text-gray-900 mb-1" id="tasksPageTitle">All Tasks</h1>
-                        <p class="text-gray-500"><span id="taskCount">0</span> tasks found</p>
-                    </div>
-
-                    <!-- Quick Status Filters -->
-                    <div class="flex gap-2">
-                        <button onclick="filterTasksByStatus('all')"
-                            class="quick-filter active px-3 py-2 rounded-lg text-sm font-medium bg-primary text-white transition-all">
-                            All Tasks
-                        </button>
-                        <button onclick="filterTasksByStatus('todo')"
-                            class="quick-filter px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">
-                            To Do
-                        </button>
-                        <button onclick="filterTasksByStatus('inprogress')"
-                            class="quick-filter px-3 py-2 rounded-lg text-sm font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-all">
-                            In Progress
-                        </button>
-                        <button onclick="filterTasksByStatus('review')"
-                            class="quick-filter px-3 py-2 rounded-lg text-sm font-medium bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition-all">
-                            Review
-                        </button>
-                        <button onclick="filterTasksByStatus('done')"
-                            class="quick-filter px-3 py-2 rounded-lg text-sm font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-all">
-                            Done
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Bulk Actions Toolbar -->
-                <div id="bulkActionsToolbar"
-                    class="hidden bg-white rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <span id="selectedCount" class="font-medium text-gray-900">0 tasks selected</span>
-                            <div class="flex gap-2">
-                                <select id="bulkAction" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                    <option value="">Bulk Actions</option>
-                                    <option value="assign">Assign to...</option>
-                                    <option value="status">Change Status</option>
-                                    <option value="priority">Change Priority</option>
-                                    <option value="delete">Delete Tasks</option>
-                                </select>
-                                <button onclick="applyBulkAction()"
-                                    class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
-                                    Apply
-                                </button>
-                            </div>
-                        </div>
-                        <button onclick="clearSelection()" class="text-gray-500 hover:text-gray-700">
-                            <i class="fas fa-times mr-1"></i> Clear Selection
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Advanced Filter Panel -->
-                <div id="filterPanel" class="hidden bg-white rounded-xl border border-gray-200 p-6 mb-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Advanced Filters</h3>
-                        <button onclick="hideFilters()" class="text-gray-500 hover:text-gray-700">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Project</label>
-                            <select id="projectFilter"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                <option value="all">All Projects</option>
-                                <option value="website-redesign">Website Redesign</option>
-                                <option value="mobile-app">Mobile App Launch</option>
-                                <option value="crm-migration">CRM Migration</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Priority</label>
-                            <select id="priorityFilter"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                <option value="all">All Priorities</option>
-                                <option value="high">High</option>
-                                <option value="medium">Medium</option>
-                                <option value="low">Low</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Assignee</label>
-                            <select id="assigneeFilter"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                <option value="all">All Assignees</option>
-                                <option value="sm">Sarah Mitchell</option>
-                                <option value="mj">Mike Johnson</option>
-                                <option value="al">Alex Lee</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
-                            <select id="dueDateFilter"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                <option value="all">Any Date</option>
-                                <option value="today">Today</option>
-                                <option value="week">This Week</option>
-                                <option value="overdue">Overdue</option>
-                                <option value="future">Future</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="flex justify-end gap-3 mt-6">
-                        <button onclick="clearAllFilters()"
-                            class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                            Clear All
-                        </button>
-                        <button onclick="applyAdvancedFilters()"
-                            class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
-                            Apply Filters
-                        </button>
-                    </div>
-                </div>
-
-                <!-- List View -->
-                <div id="listView" class="tasks-view">
-                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead class="bg-gray-50 border-b border-gray-200 sticky top-0">
-                                    <tr>
-                                        <th
-                                            class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8">
-                                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
-                                        </th>
-                                        <th
-                                            class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Title</th>
-                                        <th
-                                            class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Project</th>
-                                        <th
-                                            class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Assignee</th>
-                                        <th
-                                            class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Priority</th>
-                                        <th
-                                            class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status</th>
-                                        <th
-                                            class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Due Date</th>
-                                        <th
-                                            class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
-                                            Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="taskList" class="bg-white divide-y divide-gray-200">
-                                    <!-- Task rows will be populated here -->
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- Infinite Scroll Loader -->
-                        <div id="infiniteScrollLoader" class="hidden p-4 text-center">
-                            <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                            <span class="ml-2 text-sm text-gray-500">Loading more tasks...</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kanban View -->
-                <div id="kanbanView" class="tasks-view hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <!-- To Do Column -->
-                        <div class="kanban-column bg-gray-50 rounded-xl p-4">
-                            <div class="flex justify-between items-center mb-4">
-                                <div class="flex items-center gap-2">
-                                    <h3 class="font-semibold text-gray-900">To Do</h3>
-                                    <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full"
-                                        id="todoCount">0</span>
-                                </div>
-                                <button onclick="quickAddTask('todo')"
-                                    class="w-6 h-6 rounded-full bg-white text-gray-500 hover:text-primary transition-colors">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                            <div id="todo-column" class="space-y-3 min-h-[200px] kanban-dropzone">
-                                <!-- To Do tasks will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- In Progress Column -->
-                        <div class="kanban-column bg-blue-50 rounded-xl p-4">
-                            <div class="flex justify-between items-center mb-4">
-                                <div class="flex items-center gap-2">
-                                    <h3 class="font-semibold text-gray-900">In Progress</h3>
-                                    <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full"
-                                        id="inProgressCount">0</span>
-                                </div>
-                                <div class="text-xs text-gray-500">WIP: <span id="wipCount">0/5</span></div>
-                            </div>
-                            <div id="inprogress-column" class="space-y-3 min-h-[200px] kanban-dropzone">
-                                <!-- In Progress tasks will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- Review Column -->
-                        <div class="kanban-column bg-yellow-50 rounded-xl p-4">
-                            <div class="flex justify-between items-center mb-4">
-                                <div class="flex items-center gap-2">
-                                    <h3 class="font-semibold text-gray-900">Review</h3>
-                                    <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full"
-                                        id="reviewCount">0</span>
-                                </div>
-                                <button onclick="quickAddTask('review')"
-                                    class="w-6 h-6 rounded-full bg-white text-gray-500 hover:text-primary transition-colors">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                            <div id="review-column" class="space-y-3 min-h-[200px] kanban-dropzone">
-                                <!-- Review tasks will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- Done Column -->
-                        <div class="kanban-column bg-green-50 rounded-xl p-4">
-                            <div class="flex justify-between items-center mb-4">
-                                <div class="flex items-center gap-2">
-                                    <h3 class="font-semibold text-gray-900">Done</h3>
-                                    <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full"
-                                        id="doneCount">0</span>
-                                </div>
-                                <button onclick="quickAddTask('done')"
-                                    class="w-6 h-6 rounded-full bg-white text-gray-500 hover:text-primary transition-colors">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                            <div id="done-column" class="space-y-3 min-h-[200px] kanban-dropzone">
-                                <!-- Done tasks will be populated here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Calendar View -->
-                <div id="calendarView" class="tasks-view hidden">
-                    <div class="bg-white rounded-xl border border-gray-200 p-6">
-                        <div class="flex justify-between items-center mb-6">
-                            <div class="flex items-center gap-4">
-                                <button
-                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
-                                    <i class="fas fa-chevron-left"></i>
-                                </button>
-                                <h2 class="text-xl font-semibold text-gray-900" id="calendarMonth">October 2025</h2>
-                                <button
-                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
-                                    <i class="fas fa-chevron-right"></i>
-                                </button>
-                            </div>
-                            <div class="flex gap-2">
-                                <button
-                                    class="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                    Month
-                                </button>
-                                <button class="px-3 py-1 text-sm bg-primary text-white rounded-lg transition-colors">
-                                    Week
-                                </button>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
-                            <i class="fas fa-calendar-alt text-4xl mb-3 opacity-50"></i>
-                            <p>Calendar view coming soon with task due dates and scheduling</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Other Pages (simplified) -->
-            <div id="dashboard-page" class="page hidden">
-                <h1 class="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-                <p class="text-gray-500 mb-8">Your project overview</p>
-                <div class="bg-white rounded-xl border border-gray-200 p-20 text-center text-gray-400">
-                    <i class="fas fa-chart-bar text-4xl mb-3 opacity-50"></i>
-                    <p>Dashboard interface...</p>
-                </div>
-            </div>
-        </main>
     </div>
 
-    <!-- Task Detail Drawer -->
-    <div id="taskDetailDrawer" class="hidden fixed inset-0 bg-black/50 z-50 flex justify-end">
-        <div class="bg-white w-full max-w-3xl h-full overflow-y-auto scrollbar-thin">
-            <div class="flex justify-between items-center p-6 border-b border-gray-200 sticky top-0 bg-white">
-                <h2 class="text-2xl font-semibold text-gray-900" id="taskDetailTitle">Task Details</h2>
-                <div class="flex gap-2">
-                    <button onclick="closeTaskDetail()"
-                        class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
-                        <i class="fas fa-times"></i>
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white border-r border-gray-200 overflow-y-auto">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="font-semibold text-gray-700">Home</span>
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+
+                <!-- Navigation Items -->
+                <div class="space-y-1 mb-6">
+                    <div class="sidebar-item px-3 py-2 rounded cursor-pointer flex items-center space-x-2">
+                        <i class="fas fa-inbox text-gray-400 text-sm"></i>
+                        <span class="text-sm text-gray-700">Inbox</span>
+                    </div>
+                    
+                    <div class="sidebar-item px-3 py-2 rounded cursor-pointer flex items-center space-x-2">
+                        <i class="fas fa-tasks text-gray-400 text-sm"></i>
+                        <span class="text-sm text-gray-700">My Tasks</span>
+                    </div>
+                    <div class="sidebar-item px-3 py-2 rounded cursor-pointer flex items-center space-x-2">
+                        <i class="fas fa-list text-gray-400 text-sm"></i>
+                        <span class="text-sm text-gray-700">Personal List</span>
+                    </div>
+                </div>
+
+                
+
+                <!-- Channels -->
+                <div class="mb-6">
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase mb-2 px-3">Channels</h3>
+                    <div class="space-y-1">
+                        <div class="sidebar-item px-3 py-2 rounded cursor-pointer flex items-center space-x-2">
+                            <span class="text-gray-400">#</span>
+                            <span class="text-sm text-gray-700">General </span>
+                        </div>
+                        <div class="sidebar-item px-3 py-2 rounded cursor-pointer flex items-center space-x-2">
+                            <span class="text-gray-400">#</span>
+                            <span class="text-sm text-gray-700">New Team</span>
+                        </div>
+                        <button
+                            class="sidebar-item px-3 py-2 rounded cursor-pointer flex items-center space-x-2 text-gray-400 hover:text-gray-600 w-full">
+                            <i class="fas fa-plus text-sm"></i>
+                            <span class="text-sm">Add Channel</span>
+                        </button>
+                    </div>
+                </div>
+
+                
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-hidden flex flex-col">
+            <!-- Breadcrumb and Actions -->
+            <div class="bg-white border-b border-gray-200 px-6 py-3">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <span class="font-medium text-blue-600">IT Team</span>
+                        <span>/</span>
+                        <span>IT ERP</span>
+                        <span>/</span>
+                        <span class="font-medium">ERP UPDATES</span>
+                        <i class="far fa-star text-gray-400 ml-2 cursor-pointer hover:text-yellow-400"></i>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button class="text-gray-600 hover:text-gray-800"><i class="fas fa-bolt"></i> Automate</button>
+                        <button class="text-gray-600 hover:text-gray-800"><i class="fas fa-robot"></i> Ask AI</button>
+                        <button class="bg-blue-600 text-white px-4 py-1.5 rounded hover:bg-blue-700"><i
+                                class="fas fa-share"></i> Share</button>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4 text-sm border-b border-gray-200">
+                    <button class="text-blue-600 border-b-2 border-blue-600 pb-2 px-2">
+                        <i class="fas fa-list mr-1"></i> List
+                    </button>
+                    <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
+                        <i class="fas fa-th mr-1"></i> Board
+                    </button>
+                    <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
+                        <i class="fas fa-calendar mr-1"></i> Calendar
+                    </button>
+                    <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
+                        <i class="fas fa-table mr-1"></i> Table
+                    </button>
+                    <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
+                        <i class="fas fa-chart-bar mr-1"></i> Gantt
+                    </button>
+                    <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
+                        <i class="fas fa-stream mr-1"></i> Timeline
+                    </button>
+                    <button class="text-gray-400 hover:text-gray-600 pb-2 px-2">
+                        <i class="fas fa-plus mr-1"></i> View
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Top Action Bar -->
+            <div class="bg-white border-t border-gray-200 px-6 py-3 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-600 hover:text-gray-800"><i class="fas fa-compress"></i></button>
+                    <button class="text-gray-600 hover:text-gray-800"><i class="fas fa-list"></i></button>
+                </div>
+                <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Task
+                </button>
+            </div>
+
+            <!-- Task List -->
+            <div class="flex-1 overflow-y-auto bg-white">
+                <div class="px-6 py-4">
+                    <!-- Status Group Header -->
+                    <div class="flex items-center space-x-2 mb-4">
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-caret-down"></i>
+                        </button>
+                        <div
+                            class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                            <i class="fas fa-check mr-2"></i> COMPLETE
+                        </div>
+                        <span class="text-gray-500 text-sm">20</span>
+                    </div>
+
+                    <!-- Table Header -->
+                    <div
+                        class="grid grid-cols-12 gap-4 px-4 py-2 bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase">
+                        <div class="col-span-4">Name</div>
+                        <div class="col-span-2">Assignee</div>
+                        <div class="col-span-2">Due date</div>
+                        <div class="col-span-1">Priority</div>
+                        <div class="col-span-2">Status</div>
+                        <div class="col-span-1">Comments</div>
+                    </div>
+
+                    <!-- Task Rows -->
+                    <div id="taskList" class="divide-y divide-gray-100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div id="taskModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-5xl h-5/6 flex flex-col shadow-2xl">
+            <!-- Modal Header -->
+            <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="text-sm text-gray-500 dark:text-gray-400">Team Space / Api development</div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-expand-alt"></i>
+                    </button>
+                    <button onclick="closeTaskModal()"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
             </div>
 
-            <div class="p-6 space-y-6">
-                <!-- Title & Description -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2">
-                        <div class="flex items-start gap-4 mb-4">
-                            <div class="flex-1">
-                                <input type="text" id="detailTaskTitle"
-                                    class="text-2xl font-bold text-gray-900 w-full border-none focus:ring-0 p-0"
-                                    value="Task Title">
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="toggleTaskFavorite()"
-                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-yellow-100 text-gray-500 hover:text-yellow-500 flex items-center justify-center transition-colors">
-                                    <i class="far fa-star"></i>
-                                </button>
-                                <button onclick="duplicateTask()"
-                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-blue-100 text-gray-500 hover:text-blue-500 flex items-center justify-center transition-colors">
-                                    <i class="far fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Rich Text Editor for Description -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                            <div
-                                class="border-2 border-gray-200 rounded-xl focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all">
-                                <div class="rich-text-toolbar p-2 flex gap-1 border-b border-gray-200">
-                                    <button type="button" class="w-8 h-8 rounded hover:bg-gray-100"
-                                        onclick="formatText('bold')"><i class="fas fa-bold"></i></button>
-                                    <button type="button" class="w-8 h-8 rounded hover:bg-gray-100"
-                                        onclick="formatText('italic')"><i class="fas fa-italic"></i></button>
-                                    <button type="button" class="w-8 h-8 rounded hover:bg-gray-100"
-                                        onclick="formatText('underline')"><i class="fas fa-underline"></i></button>
-                                    <div class="border-r border-gray-300 mx-1"></div>
-                                    <button type="button" class="w-8 h-8 rounded hover:bg-gray-100"
-                                        onclick="formatText('insertUnorderedList')"><i
-                                            class="fas fa-list-ul"></i></button>
-                                    <button type="button" class="w-8 h-8 rounded hover:bg-gray-100"
-                                        onclick="formatText('insertOrderedList')"><i
-                                            class="fas fa-list-ol"></i></button>
-                                    <div class="border-r border-gray-300 mx-1"></div>
-                                    <button type="button" class="w-8 h-8 rounded hover:bg-gray-100"
-                                        onclick="formatText('createLink')"><i class="fas fa-link"></i></button>
-                                    <button type="button" class="w-8 h-8 rounded hover:bg-gray-100"
-                                        onclick="formatText('unlink')"><i class="fas fa-unlink"></i></button>
-                                </div>
-                                <div id="detailTaskDescription" class="rich-text-editor p-4" contenteditable="true">
-                                    Task description goes here...
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <!-- Task Actions -->
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <h3 class="font-semibold text-gray-900 mb-3">Task Actions</h3>
-                            <div class="space-y-2">
-                                <button onclick="changeTaskStatus()"
-                                    class="w-full text-left px-3 py-2 rounded-lg bg-white border border-gray-200 hover:border-primary hover:text-primary transition-all text-sm">
-                                    <i class="fas fa-flag mr-2"></i>Change Status
-                                </button>
-                                <button onclick="assignTask()"
-                                    class="w-full text-left px-3 py-2 rounded-lg bg-white border border-gray-200 hover:border-primary hover:text-primary transition-all text-sm">
-                                    <i class="fas fa-user-plus mr-2"></i>Assign to...
-                                </button>
-                                <button onclick="setDueDate()"
-                                    class="w-full text-left px-3 py-2 rounded-lg bg-white border border-gray-200 hover:border-primary hover:text-primary transition-all text-sm">
-                                    <i class="fas fa-calendar mr-2"></i>Set Due Date
-                                </button>
-                                <button onclick="addToProject()"
-                                    class="w-full text-left px-3 py-2 rounded-lg bg-white border border-gray-200 hover:border-primary hover:text-primary transition-all text-sm">
-                                    <i class="fas fa-folder mr-2"></i>Add to Project
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Task Metadata -->
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <h3 class="font-semibold text-gray-900 mb-3">Details</h3>
-                            <div class="space-y-3">
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-600">Status</span>
-                                    <span id="detailTaskStatus"
-                                        class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700">In
-                                        Progress</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-600">Priority</span>
-                                    <span id="detailTaskPriority"
-                                        class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">High</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-600">Due Date</span>
-                                    <span id="detailTaskDueDate" class="text-sm text-gray-900">Oct 25</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-600">Assignee</span>
-                                    <div class="flex items-center gap-1">
-                                        <div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-semibold"
-                                            id="detailTaskAssigneeAvatar">SM</div>
-                                        <span class="text-sm text-gray-900" id="detailTaskAssignee">Sarah
-                                            Mitchell</span>
-                                    </div>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-sm text-gray-600">Project</span>
-                                    <span class="text-sm text-gray-900" id="detailTaskProject">Website Redesign</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Custom Fields -->
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <div class="flex justify-between items-center mb-3">
-                                <h3 class="font-semibold text-gray-900">Custom Fields</h3>
-                                <button onclick="addCustomField()" class="text-primary text-sm">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                            <div class="space-y-2" id="customFields">
-                                <!-- Custom fields will be populated here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tabs Navigation -->
-                <div class="border-b border-gray-200">
-                    <div class="flex gap-8">
-                        <button id="tab-subtasks"
-                            class="tab-button active py-3 border-b-2 border-primary text-primary font-medium"
-                            onclick="switchTab('subtasks')">
-                            <i class="fas fa-tasks mr-2"></i>Subtasks
+            <!-- Modal Content -->
+            <div class="flex-1 overflow-y-auto px-6 py-6">
+                <!-- Task Title -->
+                <div class="mb-8">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <button onclick="toggleTaskStatus()"
+                            class="text-blue-500 hover:text-blue-700 transition-colors">
+                            <i id="taskStatusIcon" class="far fa-circle text-2xl"></i>
                         </button>
-                        <button id="tab-attachments"
-                            class="tab-button py-3 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium"
-                            onclick="switchTab('attachments')">
-                            <i class="fas fa-paperclip mr-2"></i>Attachments
+                        <input id="modalTaskName" type="text" value="Api development"
+                            class="text-2xl font-semibold text-gray-800 dark:text-gray-100 bg-transparent border-none outline-none focus:bg-gray-50 dark:focus:bg-gray-700 px-2 py-1 rounded flex-1" />
+                        <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <i class="fas fa-ellipsis-h"></i>
                         </button>
-                        <button id="tab-comments"
-                            class="tab-button py-3 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium"
-                            onclick="switchTab('comments')">
-                            <i class="fas fa-comments mr-2"></i>Comments
-                        </button>
-                        <button id="tab-time"
-                            class="tab-button py-3 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium"
-                            onclick="switchTab('time')">
-                            <i class="fas fa-clock mr-2"></i>Time Tracking
-                        </button>
-                        <button id="tab-activity"
-                            class="tab-button py-3 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium"
-                            onclick="switchTab('activity')">
-                            <i class="fas fa-history mr-2"></i>Activity
+                        <button class="text-gray-400 hover:text-yellow-400 transition-colors">
+                            <i class="far fa-star"></i>
                         </button>
                     </div>
-                </div>
-
-                <!-- Subtasks Tab -->
-                <div id="tab-content-subtasks" class="tab-content">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-semibold text-gray-900">Checklist</h3>
-                        <button onclick="addNewSubtask()"
-                            class="text-primary text-sm font-medium flex items-center gap-1">
-                            <i class="fas fa-plus"></i> Add Subtask
-                        </button>
-                    </div>
-                    <div class="space-y-2 mb-4" id="detailSubtasks">
-                        <!-- Subtasks will be populated here -->
-                    </div>
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <div class="flex justify-between text-sm text-gray-700 mb-1">
-                            <span>Progress</span>
-                            <span id="subtaskProgress">0%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div id="subtaskProgressBar" class="bg-green-500 h-2 rounded-full transition-all"
-                                style="width: 0%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Attachments Tab -->
-                <div id="tab-content-attachments" class="tab-content hidden">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-semibold text-gray-900">Files & Documents</h3>
-                        <div class="flex gap-2">
-                            <button onclick="uploadFile()"
-                                class="text-primary text-sm font-medium flex items-center gap-1">
-                                <i class="fas fa-upload"></i> Upload File
-                            </button>
-                            <input type="file" id="fileUpload" class="hidden" multiple
-                                onchange="handleFileUpload(this.files)">
-                        </div>
-                    </div>
-                    <div class="space-y-3" id="detailAttachments">
-                        <!-- Attachments will be populated here -->
-                    </div>
-                </div>
-
-                <!-- Comments Tab -->
-                <div id="tab-content-comments" class="tab-content hidden">
-                    <div class="space-y-4 mb-4 max-h-96 overflow-y-auto scrollbar-thin" id="detailComments">
-                        <!-- Comments will be populated here -->
-                    </div>
-                    <div class="flex gap-3">
-                        <div
-                            class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                            SM</div>
-                        <div class="flex-1">
-                            <textarea id="newComment" rows="3"
-                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all resize-none"
-                                placeholder="Add a comment..."></textarea>
-                            <div class="flex justify-end gap-2 mt-2">
-                                <button onclick="cancelComment()"
-                                    class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 transition-colors">
-                                    Cancel
-                                </button>
-                                <button onclick="addComment()"
-                                    class="gradient-primary text-white px-4 py-2 rounded-lg text-sm font-semibold">
-                                    <i class="fas fa-paper-plane mr-1"></i> Comment
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Time Tracking Tab -->
-                <div id="tab-content-time" class="tab-content hidden">
-                    <div class="bg-gray-50 rounded-xl p-6 text-center mb-6">
-                        <div class="text-4xl font-bold text-gray-900 mb-2" id="timeTracked">0h 0m</div>
-                        <div class="text-sm text-gray-500 mb-4">Total Time Tracked</div>
-                        <button id="timerButton" onclick="toggleTimer()"
-                            class="gradient-primary text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all">
-                            <i class="fas fa-play mr-2"></i> Start Timer
-                        </button>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-3">Time Entries</h4>
-                        <div class="space-y-2" id="timeEntries">
-                            <!-- Time entries will be populated here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Activity Tab -->
-                <div id="tab-content-activity" class="tab-content hidden">
-                    <div class="space-y-3" id="detailActivityLog">
-                        <!-- Activity log will be populated here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Add Task Modal -->
-    <div id="quickAddModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
-            <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-900">Quick Add Task</h2>
-                <button onclick="closeQuickAddModal()"
-                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <input type="text" id="quickTaskTitle"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                        placeholder="Task title...">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <select id="quickTaskProject" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                        <option value="website-redesign">Website Redesign</option>
-                        <option value="mobile-app">Mobile App</option>
-                    </select>
-                    <select id="quickTaskPriority" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="low">Low</option>
-                    </select>
-                </div>
-            </div>
-            <div class="flex gap-3 justify-end p-6 border-t border-gray-200">
-                <button onclick="closeQuickAddModal()"
-                    class="px-4 py-2 rounded-lg font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-all">
-                    Cancel
-                </button>
-                <button onclick="createQuickTask()"
-                    class="gradient-primary text-white px-4 py-2 rounded-lg font-semibold">
-                    Add Task
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div id="toast"
-        class="hidden fixed top-24 right-8 bg-white p-4 rounded-xl shadow-2xl z-[60] min-w-[300px] border-l-4 animate-slide-in">
-        <div class="flex items-center gap-3">
-            <i id="toastIcon" class="fas fa-check-circle text-green-500"></i>
-            <div id="toastMessage" class="text-sm font-medium text-gray-900"></div>
-        </div>
-    </div>
-
-    <script>
-        // Tasks Data
-        let tasks = [
-            {
-                id: 1,
-                title: 'Design Login Screen',
-                project: 'Website Redesign',
-                assignee: { id: 'mj', name: 'Mike Johnson', avatar: 'MJ' },
-                priority: 'high',
-                status: 'inprogress',
-                dueDate: '2025-10-25',
-                description: 'Create modern login screen with responsive design and accessibility features',
-                favorite: false,
-                subtasks: [
-                    { id: 1, title: 'Create wireframes', completed: true },
-                    { id: 2, title: 'Design UI mockups', completed: true },
-                    { id: 3, title: 'Implement responsive design', completed: false },
-                    { id: 4, title: 'Add accessibility features', completed: false }
-                ],
-                attachments: [
-                    { id: 1, name: 'login-wireframe.pdf', type: 'pdf', size: '2.4 MB', uploaded: '2025-10-20' },
-                    { id: 2, name: 'design-specs.docx', type: 'doc', size: '1.1 MB', uploaded: '2025-10-19' }
-                ],
-                comments: [
-                    { id: 1, user: 'SM', text: 'Looks great! Can we add social login options?', timestamp: '2 hours ago' },
-                    { id: 2, user: 'MJ', text: 'Yes, working on that now. Should be ready by tomorrow.', timestamp: '1 hour ago' }
-                ],
-                timeEntries: [
-                    { id: 1, date: '2025-10-20', duration: 120, description: 'Initial design concepts' },
-                    { id: 2, date: '2025-10-21', duration: 180, description: 'Mockup development' }
-                ],
-                activity: [
-                    { action: 'created', user: 'SM', timestamp: '2025-10-20 09:30' },
-                    { action: 'assigned', user: 'MJ', timestamp: '2025-10-20 14:15' },
-                    { action: 'status_changed', user: 'MJ', timestamp: '2025-10-21 11:20' }
-                ],
-                customFields: [
-                    { id: 1, name: 'Estimate', value: '8 hours', type: 'text' },
-                    { id: 2, name: 'Story Points', value: '5', type: 'number' }
-                ]
-            },
-            {
-                id: 2,
-                title: 'API Integration',
-                project: 'Mobile App Launch',
-                assignee: { id: 'al', name: 'Alex Lee', avatar: 'AL' },
-                priority: 'medium',
-                status: 'todo',
-                dueDate: '2025-10-28',
-                description: 'Integrate backend API with mobile application and handle error cases',
-                favorite: true,
-                subtasks: [
-                    { id: 1, title: 'Set up API endpoints', completed: false },
-                    { id: 2, title: 'Implement authentication', completed: false }
-                ],
-                attachments: [],
-                comments: [],
-                timeEntries: [],
-                activity: [],
-                customFields: []
-            },
-            {
-                id: 3,
-                title: 'Database Migration',
-                project: 'CRM Migration',
-                assignee: { id: 'sm', name: 'Sarah Mitchell', avatar: 'SM' },
-                priority: 'high',
-                status: 'review',
-                dueDate: '2025-10-22',
-                description: 'Migrate customer data to new CRM system with zero downtime',
-                favorite: false,
-                subtasks: [
-                    { id: 1, title: 'Backup existing data', completed: true },
-                    { id: 2, title: 'Test migration script', completed: true },
-                    { id: 3, title: 'Schedule maintenance window', completed: false }
-                ],
-                attachments: [
-                    { id: 1, name: 'migration-script.sql', type: 'sql', size: '0.8 MB', uploaded: '2025-10-18' }
-                ],
-                comments: [],
-                timeEntries: [
-                    { id: 1, date: '2025-10-18', duration: 240, description: 'Script development and testing' }
-                ],
-                activity: [],
-                customFields: []
-            },
-            {
-                id: 4,
-                title: 'User Testing',
-                project: 'Website Redesign',
-                assignee: { id: 'sm', name: 'Sarah Mitchell', avatar: 'SM' },
-                priority: 'low',
-                status: 'done',
-                dueDate: '2025-10-15',
-                description: 'Conduct user testing sessions and gather feedback for improvements',
-                favorite: false,
-                subtasks: [
-                    { id: 1, title: 'Recruit participants', completed: true },
-                    { id: 2, title: 'Prepare test scenarios', completed: true },
-                    { id: 3, title: 'Conduct sessions', completed: true },
-                    { id: 4, title: 'Analyze results', completed: true }
-                ],
-                attachments: [],
-                comments: [],
-                timeEntries: [
-                    { id: 1, date: '2025-10-10', duration: 180, description: 'Session preparation' },
-                    { id: 2, date: '2025-10-12', duration: 240, description: 'User testing sessions' },
-                    { id: 3, date: '2025-10-14', duration: 120, description: 'Results analysis' }
-                ],
-                activity: [],
-                customFields: []
-            }
-        ];
-
-        let selectedTasks = new Set();
-        let currentView = 'list';
-        let currentStatusFilter = 'all';
-        let currentTaskDetail = null;
-        let currentTab = 'subtasks';
-        let timerInterval = null;
-        let timerStartTime = null;
-        let currentTimerTask = null;
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function () {
-            navigateTo('tasks');
-            renderTasks();
-            setupKanbanDragAndDrop();
-            updateWIPCount();
-        });
-
-        // Navigation
-        function navigateTo(page) {
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-            document.getElementById(page + '-page').classList.remove('hidden');
-
-            document.querySelectorAll('.nav-item').forEach(item => {
-                if (item.dataset.page === page) {
-                    item.classList.remove('text-gray-600', 'hover:bg-gray-100', 'hover:text-primary');
-                    item.classList.add('gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
-                } else {
-                    item.classList.add('text-gray-600', 'hover:bg-gray-100', 'hover:text-primary');
-                    item.classList.remove('gradient-primary', 'text-white', 'shadow-lg', 'shadow-primary/20');
-                }
-            });
-        }
-
-        // Tasks View Switching
-        function switchTasksView(view) {
-            // Hide all views
-            document.querySelectorAll('.tasks-view').forEach(v => v.classList.add('hidden'));
-            document.querySelectorAll('.tasks-nav-item').forEach(nav => nav.classList.remove('active', 'bg-white', 'shadow-sm', 'text-primary'));
-
-            // Show selected view
-            document.getElementById(view + 'View').classList.remove('hidden');
-            document.getElementById('nav-' + view).classList.add('active', 'bg-white', 'shadow-sm', 'text-primary');
-
-            currentView = view;
-
-            // Update page title
-            const titles = {
-                'list': 'All Tasks',
-                'kanban': 'Kanban Board',
-                'calendar': 'Calendar View'
-            };
-            document.getElementById('tasksPageTitle').textContent = titles[view] || 'Tasks';
-
-            if (view === 'kanban') {
-                renderKanbanView();
-            } else if (view === 'list') {
-                renderListView();
-            }
-        }
-
-        // Filtering
-        function filterTasksByStatus(status) {
-            currentStatusFilter = status;
-
-            // Update quick filter buttons
-            document.querySelectorAll('.quick-filter').forEach(btn => {
-                btn.classList.remove('active', 'bg-primary', 'text-white');
-                btn.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-            });
-
-            event.target.classList.add('active', 'bg-primary', 'text-white');
-            event.target.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-
-            renderTasks();
-        }
-
-        function showFilters() {
-            document.getElementById('filterPanel').classList.toggle('hidden');
-        }
-
-        function hideFilters() {
-            document.getElementById('filterPanel').classList.add('hidden');
-        }
-
-        function applyAdvancedFilters() {
-            // In a real app, this would apply the filters
-            showToast('Filters applied successfully', 'success');
-            hideFilters();
-        }
-
-        function clearAllFilters() {
-            document.getElementById('projectFilter').value = 'all';
-            document.getElementById('priorityFilter').value = 'all';
-            document.getElementById('assigneeFilter').value = 'all';
-            document.getElementById('dueDateFilter').value = 'all';
-            showToast('All filters cleared', 'success');
-        }
-
-        // Task Selection & Bulk Actions
-        function toggleTaskSelection(taskId) {
-            if (selectedTasks.has(taskId)) {
-                selectedTasks.delete(taskId);
-            } else {
-                selectedTasks.add(taskId);
-            }
-            updateBulkActionsToolbar();
-        }
-
-        function toggleSelectAll() {
-            const selectAll = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('#taskList input[type="checkbox"]');
-
-            if (selectAll.checked) {
-                tasks.forEach(task => selectedTasks.add(task.id));
-            } else {
-                selectedTasks.clear();
-            }
-
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAll.checked;
-            });
-
-            updateBulkActionsToolbar();
-        }
-
-        function updateBulkActionsToolbar() {
-            const toolbar = document.getElementById('bulkActionsToolbar');
-            const selectedCount = document.getElementById('selectedCount');
-
-            if (selectedTasks.size > 0) {
-                toolbar.classList.remove('hidden');
-                selectedCount.textContent = `${selectedTasks.size} tasks selected`;
-            } else {
-                toolbar.classList.add('hidden');
-            }
-        }
-
-        function clearSelection() {
-            selectedTasks.clear();
-            document.getElementById('selectAll').checked = false;
-            const checkboxes = document.querySelectorAll('#taskList input[type="checkbox"]');
-            checkboxes.forEach(checkbox => checkbox.checked = false);
-            updateBulkActionsToolbar();
-        }
-
-        function applyBulkAction() {
-            const action = document.getElementById('bulkAction').value;
-            if (!action) {
-                showToast('Please select an action', 'error');
-                return;
-            }
-
-            showToast(`Applied ${action} to ${selectedTasks.size} tasks`, 'success');
-            clearSelection();
-        }
-
-        // Task Rendering
-        function renderTasks() {
-            if (currentView === 'list') {
-                renderListView();
-            } else if (currentView === 'kanban') {
-                renderKanbanView();
-            }
-            updateTaskCount();
-        }
-
-        function renderListView() {
-            const container = document.getElementById('taskList');
-            let filteredTasks = tasks;
-
-            // Apply status filter
-            if (currentStatusFilter !== 'all') {
-                filteredTasks = tasks.filter(task => task.status === currentStatusFilter);
-            }
-
-            container.innerHTML = filteredTasks.map(task => `
-                <tr class="hover:bg-gray-50 transition-colors ${selectedTasks.has(task.id) ? 'bg-blue-50' : ''} ${task.favorite ? 'bg-yellow-50' : ''}">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <input type="checkbox" value="${task.id}" ${selectedTasks.has(task.id) ? 'checked' : ''} onchange="toggleTaskSelection(${task.id})">
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center gap-3">
-                            ${task.favorite ? '<i class="fas fa-star text-yellow-500"></i>' : '<i class="far fa-star text-gray-300"></i>'}
-                            <div class="text-sm font-medium text-gray-900 cursor-pointer hover:text-primary" onclick="openTaskDetail(${task.id})">
-                                ${task.title}
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-folder text-gray-400"></i>
-                            <div class="text-sm text-gray-900">${task.project}</div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-semibold">
-                                ${task.assignee.avatar}
-                            </div>
-                            <div class="ml-2 text-sm text-gray-900">${task.assignee.name}</div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${getPriorityClass(task.priority)}">
-                            <i class="fas fa-flag mr-1"></i>${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClass(task.status)}">
-                            ${getStatusText(task.status)}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm ${isOverdue(task.dueDate) ? 'text-red-600 font-semibold' : 'text-gray-500'}">
-                        <i class="far fa-calendar mr-1"></i>${formatDate(task.dueDate)}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div class="flex gap-2">
-                            <button onclick="openTaskDetail(${task.id})" class="text-primary hover:text-secondary">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button onclick="toggleTaskFavorite(${task.id})" class="text-yellow-500 hover:text-yellow-700">
-                                <i class="${task.favorite ? 'fas' : 'far'} fa-star"></i>
-                            </button>
-                            <button onclick="deleteTask(${task.id})" class="text-red-600 hover:text-red-900">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function renderKanbanView() {
-            const columns = {
-                'todo': document.getElementById('todo-column'),
-                'inprogress': document.getElementById('inprogress-column'),
-                'review': document.getElementById('review-column'),
-                'done': document.getElementById('done-column')
-            };
-
-            // Clear all columns
-            Object.values(columns).forEach(column => column.innerHTML = '');
-
-            // Count tasks per status
-            const counts = { todo: 0, inprogress: 0, review: 0, done: 0 };
-            let filteredTasks = tasks;
-
-            // Apply status filter
-            if (currentStatusFilter !== 'all') {
-                filteredTasks = tasks.filter(task => task.status === currentStatusFilter);
-            }
-
-            filteredTasks.forEach(task => {
-                counts[task.status]++;
-                const taskElement = createKanbanCard(task);
-                columns[task.status].appendChild(taskElement);
-            });
-
-            // Update counts
-            document.getElementById('todoCount').textContent = counts.todo;
-            document.getElementById('inProgressCount').textContent = counts.inprogress;
-            document.getElementById('reviewCount').textContent = counts.review;
-            document.getElementById('doneCount').textContent = counts.done;
-
-            updateWIPCount();
-        }
-
-        function createKanbanCard(task) {
-            const card = document.createElement('div');
-            card.className = 'task-card bg-white p-4 rounded-lg border border-gray-200 cursor-pointer';
-            card.setAttribute('data-task-id', task.id);
-            card.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
-                    <h4 class="font-medium text-gray-900 text-sm">${task.title}</h4>
-                    <div class="flex gap-1">
-                        ${task.favorite ? '<i class="fas fa-star text-yellow-500 text-xs"></i>' : ''}
-                        <div class="w-2 h-2 rounded-full ${getPriorityColor(task.priority)}"></div>
-                    </div>
-                </div>
-                <div class="flex items-center justify-between text-xs text-gray-500">
-                    <div class="flex items-center gap-1">
-                        <div class="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-semibold">
-                            ${task.assignee.avatar}
-                        </div>
-                        <span>${task.assignee.name.split(' ')[0]}</span>
-                    </div>
-                    <div class="flex items-center gap-1">
+                    <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 ml-11">
                         <i class="far fa-calendar"></i>
-                        <span>${formatDate(task.dueDate)}</span>
+                        <span>Created Today - 12/30/25</span>
                     </div>
                 </div>
-                ${task.priority === 'high' ? '<div class="mt-2 text-xs text-red-600 font-semibold flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> High Priority</div>' : ''}
-            `;
-            card.addEventListener('click', () => openTaskDetail(task.id));
-            return card;
-        }
 
-        function setupKanbanDragAndDrop() {
-            const columns = ['todo-column', 'inprogress-column', 'review-column', 'done-column'];
-
-            columns.forEach(columnId => {
-                const column = document.getElementById(columnId);
-                Sortable.create(column, {
-                    group: 'tasks',
-                    animation: 150,
-                    ghostClass: 'task-card-dragging',
-                    onEnd: function (evt) {
-                        const taskId = parseInt(evt.item.getAttribute('data-task-id'));
-                        const newStatus = columnId.split('-')[0];
-                        updateTaskStatus(taskId, newStatus);
-                    }
-                });
-            });
-        }
-
-        function updateTaskStatus(taskId, newStatus) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.status = newStatus;
-                task.activity.push({
-                    action: 'status_changed',
-                    user: 'SM',
-                    timestamp: new Date().toLocaleString()
-                });
-                showToast(`Task moved to ${getStatusText(newStatus)}`, 'success');
-                renderListView();
-                updateWIPCount();
-            }
-        }
-
-        function updateWIPCount() {
-            const inProgressCount = tasks.filter(t => t.status === 'inprogress').length;
-            const wipLimit = 5;
-            document.getElementById('wipCount').textContent = `${inProgressCount}/${wipLimit}`;
-
-            const inProgressColumn = document.getElementById('inprogress-column').parentElement;
-            if (inProgressCount > wipLimit) {
-                inProgressColumn.classList.add('wip-limit-exceeded');
-            } else {
-                inProgressColumn.classList.remove('wip-limit-exceeded');
-            }
-        }
-
-        // Task Detail Management
-        function openTaskDetail(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (!task) return;
-
-            currentTaskDetail = task;
-
-            // Populate basic task details
-            document.getElementById('detailTaskTitle').value = task.title;
-            document.getElementById('taskDetailTitle').textContent = task.title;
-            document.getElementById('detailTaskDescription').innerHTML = task.description;
-
-            // Populate metadata
-            document.getElementById('detailTaskStatus').textContent = getStatusText(task.status);
-            document.getElementById('detailTaskStatus').className = `px-2 py-1 text-xs font-semibold rounded-full ${getStatusClass(task.status)}`;
-            document.getElementById('detailTaskPriority').textContent = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
-            document.getElementById('detailTaskPriority').className = `px-2 py-1 text-xs font-semibold rounded-full ${getPriorityClass(task.priority)}`;
-            document.getElementById('detailTaskDueDate').textContent = formatDate(task.dueDate);
-            document.getElementById('detailTaskAssignee').textContent = task.assignee.name;
-            document.getElementById('detailTaskAssigneeAvatar').textContent = task.assignee.avatar;
-            document.getElementById('detailTaskProject').textContent = task.project;
-
-            // Load custom fields
-            loadCustomFields(task);
-
-            // Load initial tab
-            switchTab('subtasks');
-
-            document.getElementById('taskDetailDrawer').classList.remove('hidden');
-        }
-
-        function closeTaskDetail() {
-            document.getElementById('taskDetailDrawer').classList.add('hidden');
-            if (timerInterval) {
-                stopTimer();
-            }
-            currentTaskDetail = null;
-        }
-
-        // Tab Management
-        function switchTab(tabName) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active', 'border-primary', 'text-primary');
-                btn.classList.add('border-transparent', 'text-gray-500');
-            });
-
-            // Show selected tab
-            document.getElementById('tab-content-' + tabName).classList.remove('hidden');
-            document.getElementById('tab-' + tabName).classList.add('active', 'border-primary', 'text-primary');
-            document.getElementById('tab-' + tabName).classList.remove('border-transparent', 'text-gray-500');
-
-            currentTab = tabName;
-
-            // Load tab content
-            loadTabContent(tabName);
-        }
-
-        function loadTabContent(tabName) {
-            if (!currentTaskDetail) return;
-
-            const task = currentTaskDetail;
-
-            switch (tabName) {
-                case 'subtasks':
-                    loadSubtasksTab(task);
-                    break;
-                case 'attachments':
-                    loadAttachmentsTab(task);
-                    break;
-                case 'comments':
-                    loadCommentsTab(task);
-                    break;
-                case 'time':
-                    loadTimeTab(task);
-                    break;
-                case 'activity':
-                    loadActivityTab(task);
-                    break;
-            }
-        }
-
-        function loadSubtasksTab(task) {
-            const container = document.getElementById('detailSubtasks');
-            container.innerHTML = task.subtasks.map(subtask => `
-                <div class="subtask-item flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
-                    <input type="checkbox" ${subtask.completed ? 'checked' : ''} 
-                        onchange="toggleSubtask(${task.id}, ${subtask.id})" 
-                        class="rounded border-gray-300 text-primary focus:ring-primary">
-                    <span class="flex-1 text-sm ${subtask.completed ? 'line-through text-gray-500' : 'text-gray-900'}">
-                        ${subtask.title}
-                    </span>
-                    <div class="subtask-actions opacity-0 transition-opacity flex gap-1">
-                        <button onclick="editSubtask(${task.id}, ${subtask.id})" class="w-6 h-6 rounded text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-edit text-xs"></i>
+                <!-- Task Properties Grid -->
+                <div class="grid grid-cols-2 gap-6 mb-8 ml-11">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-500 dark:text-gray-400 w-24 font-medium">Assignee</span>
+                        <button
+                            class="editable-field flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
+                            <i class="far fa-user"></i>
+                            <span class="text-sm">Add assignee</span>
                         </button>
-                        <button onclick="deleteSubtask(${task.id}, ${subtask.id})" class="w-6 h-6 rounded text-gray-400 hover:text-red-600">
-                            <i class="fas fa-trash text-xs"></i>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-500 dark:text-gray-400 w-24 font-medium">Due date</span>
+                        <button
+                            class="editable-field flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
+                            <i class="far fa-calendar"></i>
+                            <span class="text-sm">Add due date</span>
                         </button>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-500 dark:text-gray-400 w-24 font-medium">Priority</span>
+                        <button
+                            class="editable-field flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
+                            <i class="far fa-flag"></i>
+                            <span class="text-sm">Set priority</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-500 dark:text-gray-400 w-24 font-medium">Status</span>
+                        <select
+                            class="bg-blue-500 text-white px-3 py-1 rounded text-sm font-medium outline-none cursor-pointer hover:bg-blue-600">
+                            <option value="in_progress">IN PROGRESS</option>
+                            <option value="todo">TO DO</option>
+                            <option value="complete">COMPLETE</option>
+                        </select>
                     </div>
                 </div>
-            `).join('');
 
-            updateSubtaskProgress(task);
-        }
+                <!-- Project Description Section -->
+                <div class="mb-8 ml-11">
+                    <button onclick="toggleDescription()"
+                        class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                        <i id="descIcon" class="fas fa-caret-right"></i>
+                        <span class="font-medium">Project Description</span>
+                    </button>
+                    <div id="descContent" class="subtask-container ml-6 mt-3">
+                        <textarea
+                            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                            rows="4" placeholder="Add a description..."></textarea>
+                    </div>
+                </div>
 
-        function loadAttachmentsTab(task) {
-            const container = document.getElementById('detailAttachments');
-            if (task.attachments.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-paperclip text-3xl mb-3 opacity-50"></i>
-                        <p>No attachments yet</p>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = task.attachments.map(attachment => `
-                    <div class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg">
-                        <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                            <i class="fas fa-file"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="font-medium text-gray-900 text-sm">${attachment.name}</div>
-                            <div class="text-xs text-gray-500">${attachment.size} • ${formatDate(attachment.uploaded)}</div>
-                        </div>
-                        <button class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                `).join('');
-            }
-        }
+                <!-- Subtasks Section -->
+                <div class="ml-11">
+                    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Subtasks</h3>
 
-        function loadCommentsTab(task) {
-            const container = document.getElementById('detailComments');
-            if (task.comments.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-comments text-3xl mb-3 opacity-50"></i>
-                        <p>No comments yet</p>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = task.comments.map(comment => `
-                    <div class="comment-item flex gap-3 group">
-                        <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                            ${comment.user}
-                        </div>
-                        <div class="flex-1">
-                            <div class="bg-gray-100 p-3 rounded-lg">
-                                <p class="text-sm text-gray-900">${comment.text}</p>
+                    <!-- IN PROGRESS Group -->
+                    <div class="mb-6">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <button onclick="toggleGroup('inProgress')"
+                                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                                <i id="inProgressIcon" class="fas fa-caret-down"></i>
+                            </button>
+                            <div
+                                class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                                <i class="fas fa-circle mr-2 text-xs"></i>
+                                IN PROGRESS
                             </div>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-xs text-gray-500">${comment.timestamp}</span>
-                                <div class="comment-actions opacity-0 transition-opacity flex gap-1">
-                                    <button class="text-xs text-gray-500 hover:text-gray-700">Edit</button>
-                                    <button class="text-xs text-gray-500 hover:text-red-600">Delete</button>
-                                </div>
-                            </div>
+                            <span class="text-gray-500 dark:text-gray-400 text-sm">1</span>
                         </div>
-                    </div>
-                `).join('');
-            }
-        }
 
-        function loadTimeTab(task) {
-            const totalMinutes = task.timeEntries.reduce((sum, entry) => sum + entry.duration, 0);
-            document.getElementById('timeTracked').textContent = formatTime(totalMinutes);
-
-            const container = document.getElementById('timeEntries');
-            if (task.timeEntries.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-4 text-gray-500">
-                        <p>No time entries yet</p>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = task.timeEntries.map(entry => `
-                    <div class="flex justify-between items-center p-2 bg-white border border-gray-200 rounded-lg">
-                        <div>
-                            <div class="text-sm text-gray-900">${entry.description}</div>
-                            <div class="text-xs text-gray-500">${formatDate(entry.date)}</div>
-                        </div>
-                        <div class="text-sm font-medium text-gray-900">
-                            ${formatTime(entry.duration)}
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            // Update timer button
-            const timerBtn = document.getElementById('timerButton');
-            if (currentTimerTask === task.id) {
-                timerBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> Stop Timer';
-                timerBtn.className = 'gradient-danger text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg shadow-danger/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-danger/40 transition-all';
-            } else {
-                timerBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Start Timer';
-                timerBtn.className = 'gradient-primary text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all';
-            }
-        }
-
-        function loadActivityTab(task) {
-            const container = document.getElementById('detailActivityLog');
-            container.innerHTML = task.activity.map(activity => `
-                <div class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
-                    <div class="w-2 h-2 bg-primary rounded-full"></div>
-                    <div class="flex-1">
-                        <span class="text-sm text-gray-900">
-                            <span class="font-semibold">${activity.user}</span> 
-                            ${formatActivityAction(activity.action)}
-                        </span>
-                        <div class="text-xs text-gray-500">${formatDateTime(activity.timestamp)}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function loadCustomFields(task) {
-            const container = document.getElementById('customFields');
-            if (task.customFields.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-2 text-gray-500 text-sm">
-                        <p>No custom fields added</p>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = task.customFields.map(field => `
-                    <div class="custom-field bg-white p-2 rounded">
-                        <div class="text-xs text-gray-500">${field.name}</div>
-                        <div class="text-sm font-medium">${field.value}</div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Subtask Management
-        function toggleSubtask(taskId, subtaskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                const subtask = task.subtasks.find(s => s.id === subtaskId);
-                if (subtask) {
-                    subtask.completed = !subtask.completed;
-                    updateSubtaskProgress(task);
-
-                    // Add to activity log
-                    task.activity.push({
-                        action: 'subtask_toggled',
-                        user: 'SM',
-                        timestamp: new Date().toLocaleString(),
-                        details: `"${subtask.title}" ${subtask.completed ? 'completed' : 'marked incomplete'}`
-                    });
-
-                    showToast(`Subtask ${subtask.completed ? 'completed' : 'marked incomplete'}`, 'success');
-                }
-            }
-        }
-
-        function updateSubtaskProgress(task) {
-            const completed = task.subtasks.filter(s => s.completed).length;
-            const total = task.subtasks.length;
-            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-            document.getElementById('subtaskProgress').textContent = `${progress}%`;
-            document.getElementById('subtaskProgressBar').style.width = `${progress}%`;
-        }
-
-        function addNewSubtask() {
-            if (!currentTaskDetail) return;
-
-            const newSubtask = {
-                id: Date.now(),
-                title: 'New subtask',
-                completed: false
-            };
-
-            currentTaskDetail.subtasks.push(newSubtask);
-            loadSubtasksTab(currentTaskDetail);
-
-            // Add to activity log
-            currentTaskDetail.activity.push({
-                action: 'subtask_added',
-                user: 'SM',
-                timestamp: new Date().toLocaleString()
-            });
-
-            showToast('New subtask added', 'success');
-        }
-
-        // Rich Text Editor Functions
-        function formatText(command, value = null) {
-            document.getElementById('detailTaskDescription').focus();
-            document.execCommand(command, false, value);
-        }
-
-        // Timer Management
-        function toggleTimer() {
-            if (!currentTaskDetail) return;
-
-            if (currentTimerTask === currentTaskDetail.id) {
-                stopTimer();
-            } else {
-                if (currentTimerTask) {
-                    stopTimerForTask(currentTimerTask);
-                }
-                startTimer();
-            }
-        }
-
-        function startTimer() {
-            if (!currentTaskDetail) return;
-
-            currentTimerTask = currentTaskDetail.id;
-            timerStartTime = Date.now();
-
-            const timerBtn = document.getElementById('timerButton');
-            timerBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> Stop Timer';
-            timerBtn.className = 'gradient-danger text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg shadow-danger/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-danger/40 transition-all';
-
-            timerInterval = setInterval(() => {
-                if (currentTab === 'time') {
-                    const elapsed = Math.floor((Date.now() - timerStartTime) / 1000 / 60);
-                    const totalMinutes = currentTaskDetail.timeEntries.reduce((sum, entry) => sum + entry.duration, 0) + elapsed;
-                    document.getElementById('timeTracked').textContent = formatTime(totalMinutes);
-                }
-            }, 1000);
-
-            showToast('Timer started', 'success');
-        }
-
-        function stopTimer() {
-            if (!currentTaskDetail || !timerStartTime) return;
-
-            const elapsed = Math.floor((Date.now() - timerStartTime) / 1000 / 60);
-
-            // Add time entry
-            currentTaskDetail.timeEntries.push({
-                id: Date.now(),
-                date: new Date().toISOString().split('T')[0],
-                duration: elapsed,
-                description: 'Time tracked via timer'
-            });
-
-            // Update UI
-            const timerBtn = document.getElementById('timerButton');
-            timerBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Start Timer';
-            timerBtn.className = 'gradient-primary text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg shadow-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 transition-all';
-
-            // Add to activity log
-            currentTaskDetail.activity.push({
-                action: 'time_tracked',
-                user: 'SM',
-                timestamp: new Date().toLocaleString(),
-                details: `Tracked ${formatTime(elapsed)}`
-            });
-
-            clearInterval(timerInterval);
-            timerInterval = null;
-            currentTimerTask = null;
-            timerStartTime = null;
-
-            // Reload time tab
-            if (currentTab === 'time') {
-                loadTimeTab(currentTaskDetail);
-            }
-
-            showToast(`Timer stopped. ${formatTime(elapsed)} logged`, 'success');
-        }
-
-        function stopTimerForTask(taskId) {
-            // This would stop timer for another task if needed
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
-            currentTimerTask = null;
-            timerStartTime = null;
-        }
-
-        // File Upload
-        function uploadFile() {
-            document.getElementById('fileUpload').click();
-        }
-
-        function handleFileUpload(files) {
-            if (!currentTaskDetail) return;
-
-            Array.from(files).forEach(file => {
-                const newAttachment = {
-                    id: Date.now(),
-                    name: file.name,
-                    type: file.type.split('/')[1] || 'file',
-                    size: formatFileSize(file.size),
-                    uploaded: new Date().toISOString().split('T')[0]
-                };
-
-                currentTaskDetail.attachments.push(newAttachment);
-
-                // Add to activity log
-                currentTaskDetail.activity.push({
-                    action: 'file_uploaded',
-                    user: 'SM',
-                    timestamp: new Date().toLocaleString(),
-                    details: `Uploaded "${file.name}"`
-                });
-            });
-
-            loadAttachmentsTab(currentTaskDetail);
-            showToast(`${files.length} file(s) uploaded`, 'success');
-        }
-
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        // Custom Fields
-        function addCustomField() {
-            if (!currentTaskDetail) return;
-
-            const newField = {
-                id: Date.now(),
-                name: 'New Field',
-                value: 'Value',
-                type: 'text'
-            };
-
-            currentTaskDetail.customFields.push(newField);
-            loadCustomFields(currentTaskDetail);
-
-            // Add to activity log
-            currentTaskDetail.activity.push({
-                action: 'custom_field_added',
-                user: 'SM',
-                timestamp: new Date().toLocaleString()
-            });
-
-            showToast('Custom field added', 'success');
-        }
-
-        // Quick Add Task
-        function quickAddTask(status) {
-            document.getElementById('quickAddModal').classList.remove('hidden');
-            // In a real app, we would pre-set the status
-        }
-
-        function closeQuickAddModal() {
-            document.getElementById('quickAddModal').classList.add('hidden');
-        }
-
-        function createQuickTask() {
-            const title = document.getElementById('quickTaskTitle').value.trim();
-            if (!title) {
-                showToast('Please enter a task title', 'error');
-                return;
-            }
-
-            const project = document.getElementById('quickTaskProject').value;
-            const priority = document.getElementById('quickTaskPriority').value;
-
-            const newTask = {
-                id: tasks.length + 1,
-                title,
-                project: getProjectName(project),
-                assignee: { id: 'sm', name: 'Sarah Mitchell', avatar: 'SM' },
-                priority,
-                status: 'todo',
-                dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                description: '',
-                favorite: false,
-                subtasks: [],
-                attachments: [],
-                comments: [],
-                timeEntries: [],
-                activity: [{
-                    action: 'created',
-                    user: 'SM',
-                    timestamp: new Date().toLocaleString()
-                }],
-                customFields: []
-            };
-
-            tasks.push(newTask);
-            renderTasks();
-            closeQuickAddModal();
-            showToast('Task created successfully', 'success');
-        }
-
-        // Task Actions
-        function toggleTaskFavorite(taskId) {
-            if (taskId) {
-                const task = tasks.find(t => t.id === taskId);
-                if (task) {
-                    task.favorite = !task.favorite;
-                    renderTasks();
-                    showToast(`Task ${task.favorite ? 'added to' : 'removed from'} favorites`, 'success');
-                }
-            } else if (currentTaskDetail) {
-                currentTaskDetail.favorite = !currentTaskDetail.favorite;
-                showToast(`Task ${currentTaskDetail.favorite ? 'added to' : 'removed from'} favorites`, 'success');
-            }
-        }
-
-        function deleteTask(taskId) {
-            if (confirm('Are you sure you want to delete this task?')) {
-                tasks = tasks.filter(t => t.id !== taskId);
-                selectedTasks.delete(taskId);
-                renderTasks();
-                showToast('Task deleted successfully', 'success');
-            }
-        }
-
-        // Utility Functions
-        function getPriorityClass(priority) {
-            switch (priority) {
-                case 'high': return 'bg-red-100 text-red-700';
-                case 'medium': return 'bg-yellow-100 text-yellow-700';
-                case 'low': return 'bg-blue-100 text-blue-700';
-                default: return 'bg-gray-100 text-gray-700';
-            }
-        }
-
-        function getPriorityColor(priority) {
-            switch (priority) {
-                case 'high': return 'bg-red-500';
-                case 'medium': return 'bg-yellow-500';
-                case 'low': return 'bg-blue-500';
-                default: return 'bg-gray-500';
-            }
-        }
-
-        function getStatusClass(status) {
-            switch (status) {
-                case 'todo': return 'bg-gray-100 text-gray-700';
-                case 'inprogress': return 'bg-blue-100 text-blue-700';
-                case 'review': return 'bg-yellow-100 text-yellow-700';
-                case 'done': return 'bg-green-100 text-green-700';
-                default: return 'bg-gray-100 text-gray-700';
-            }
-        }
-
-        function getStatusText(status) {
-            switch (status) {
-                case 'todo': return 'To Do';
-                case 'inprogress': return 'In Progress';
-                case 'review': return 'Review';
-                case 'done': return 'Done';
-                default: return status;
-            }
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        }
-
-        function formatDateTime(dateTimeString) {
-            const date = new Date(dateTimeString);
-            return date.toLocaleString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        function formatTime(minutes) {
-            const hours = Math.floor(minutes / 60);
-            const mins = minutes % 60;
-            return `${hours}h ${mins}m`;
-        }
-
-        function formatActivityAction(action) {
-            const actions = {
-                'created': 'created this task',
-                'assigned': 'assigned this task',
-                'status_changed': 'changed status',
-                'subtask_toggled': 'updated a subtask',
-                'subtask_added': 'added a subtask',
-                'time_tracked': 'tracked time',
-                'file_uploaded': 'uploaded a file',
-                'custom_field_added': 'added a custom field'
-            };
-            return actions[action] || action;
-        }
-
-        function isOverdue(dueDate) {
-            return new Date(dueDate) < new Date();
-        }
-
-        function getProjectName(key) {
-            const projects = {
-                'website-redesign': 'Website Redesign',
-                'mobile-app': 'Mobile App Launch',
-                'crm-migration': 'CRM Migration'
-            };
-            return projects[key] || key;
-        }
-
-        function updateTaskCount() {
-            let filteredTasks = tasks;
-            if (currentStatusFilter !== 'all') {
-                filteredTasks = tasks.filter(task => task.status === currentStatusFilter);
-            }
-            document.getElementById('taskCount').textContent = filteredTasks.length;
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            const toastIcon = document.getElementById('toastIcon');
-
-            // Set icon based on type
-            const icons = {
-                'success': 'fa-check-circle text-green-500',
-                'error': 'fa-exclamation-circle text-red-500',
-                'info': 'fa-info-circle text-blue-500'
-            };
-
-            toastIcon.className = `fas ${icons[type] || icons.success}`;
-            toastMessage.textContent = message;
-
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
-        }
-
-        function exportTasks() {
-            const dataStr = JSON.stringify(tasks, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'tasks-export.json';
-            link.click();
-            URL.revokeObjectURL(url);
-            showToast('Tasks exported successfully', 'success');
-        }
-
-        function toggleNotifications() {
-            showToast('Notifications panel', 'info');
-        }
-
-        // Demo helpers
-        window.demoHelpers = {
-            addSampleTask: () => {
-                const sampleTask = {
-                    id: tasks.length + 1,
-                    title: 'New Sample Task',
-                    project: 'Website Redesign',
-                    assignee: { id: 'sm', name: 'Sarah Mitchell', avatar: 'SM' },
-                    priority: 'medium',
-                    status: 'todo',
-                    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                    description: 'This is a sample task created for demonstration purposes',
-                    favorite: false,
-                    subtasks: [],
-                    attachments: [],
-                    comments: [],
-                    timeEntries: [],
-                    activity: [{
-                        action: 'created',
-                        user: 'SM',
-                        timestamp: new Date().toLocaleString()
-                    }],
-                    customFields: []
-                };
-                tasks.push(sampleTask);
-                renderTasks();
-                showToast('Sample task added', 'success');
-            },
-            showAllTasks: () => console.table(tasks.map(t => ({
-                id: t.id,
-                title: t.title,
-                project: t.project,
-                assignee: t.assignee.name,
-                priority: t.priority,
-                status: t.status,
-                dueDate: t.dueDate,
-                favorite: t.favorite
-            }))),
-            resetDemo: () => {
-                if (confirm('Reset all demo data?')) {
-                    location.reload();
-                }
-            }
-        };
-
-        console.log('%c🎉 ProjectHub Enhanced Tasks Module Loaded!', 'font-size: 20px; font-weight: bold; color: #667eea;');
-        console.log('%cAvailable demo helpers:', 'font-size: 14px; color: #64748b;');
-        console.log('• demoHelpers.addSampleTask() - Add a sample task');
-        console.log('• demoHelpers.showAllTasks() - Display all tasks in console');
-        console.log('• demoHelpers.resetDemo() - Reset all data');
-    </script>
-</body>
-
-</html>
+                        <div id="inProgressGroup" class="subtask-container expanded">
+                            <div class="space-y-2 ml-6">
+                                <!-- Task 1 with subtasks -->
+                                <div>
+                                    <div
+                                        class="flex items-center space-x-3 py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer group">
+                                        <button onclick="toggleSubtask('task1')"
+                                            class="text-blue-500 hover:text-blue-600">
+                                            <i id="task1Icon" class="fas fa-caret-down"></i>
+                                        </button>
+                                        <i class="far fa-circle text-blue-500"></i>
+                                        <input type="text" value="Task 1"
+                                            class="text-gray-800 dark:text-gray-200 font-medium bg-transparent border-none outline-none flex-1 focus:bg-gray-50 dark:focus:bg-gray-700 px-2 py-1 rounded" />
+                                        <span class="text-gray-400 text-xs">1 subtask</span>
+                                        <button
+                                            class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <i class="far fa-user text-gray-400"></i>
+                                        </button>
+                                        <button
+                                            class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <i class="far fa-calendar text-gray-400"></i>
+                                        </button>
+                                        <button
+                                            class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <i class="far fa-flag text-gray-400"></i>
+                                        </button>
+                                        <span class="bg-blue-500 text-white px-2 py-1 rounded text-xs">IN
+                                            PROGRESS</span>
+                                    </div>
+
+                                    <!-- Nested auth api subtask -->
+                                    <div id="task1Subtasks" class="subtask-container expanded ml-8">
+                                        <div class="space-y-2">
+                                            <div>
+                                                <div
+                                                    class="flex items-center space-x-3 py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer group">
+                                                    <button onclick="toggleSubtask('authApi')"
+                                                        class="text-gray-500 hover:text-gray-600">
+                                                        <i id="authApiIcon" class="fas fa-caret-down"></i>
+                                                    </button>
+                                                    <i class="far fa-circle text-gray-400"></i>
+                                                    <input type="text" value=".auth api"
+                                                        class="text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none flex-1 focus:bg-gray-50 dark:focus:bg-gray-700 px-2 py-1 rounded" />
+                                                    <span class="text-gray-400 text-xs">2 subtasks</span>
+                                                    <button
+                                                        class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <i class="far fa-user text-gray-400"></i>
+                                                    </button>
+                                                    <button
+                                                        class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <i class="far fa-calendar text-gray-400"></i>
+                                                    </button>
+                                                    <button
+                                                        class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <i class="far fa-flag text-gray-400"></i>
+                                                    </button>
+                                                    <span
+                                                        class="bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs flex items-center">
+                                                        <i class="far fa-circle mr-1 text-xs"></i>
+                                                        TO DO
+                                                    </span>
+                                                </div>
+
+                                                <!-- login and signup subtasks -->
+                                                <div id="authApiSubtasks" class="subtask-container expanded ml-8">
+                                                    <div class="space-y-2">
+                                                        <div
+                                                            class="flex items-center space-x-3 py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer group">
+                                                            <i class="far fa-circle text-gray-400 ml-4"></i>
+                                                            <input type="text" value="login"
+                                                                class="text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none flex-1 focus:bg-gray-50 dark:focus:bg-gray-700 px-2 py-1 rounded" />
+                                                            <button
+                                                                class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <i class="far fa-user text-gray-400"></i>
+                                                            </button>
+                                                            <button class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <i class="far fa-calendar text-gray-400"></i>
+                                                                </button>
+                                                                <button class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <i class="far fa-flag text-gray-400"></i>
+                                                                </button>
+                                                                <span class="bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs flex items-center">
+                                                                    <i class="far fa-circle mr-1 text-xs"></i>
+                                                                    TO DO
+                                                                </span>
+                                                                </div>
+                                                                <div class="flex items-center space-x-3 py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer group">
+                                                                    <i class="far fa-circle text-gray-400 ml-4"></i>
+                                                                    <input type="text" value="signup"
+                                                                        class="text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none flex-1 focus:bg-gray-50 dark:focus:bg-gray-700 px-2 py-1 rounded" />
+                                                                    <button class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                        <i class="far fa-user text-gray-400"></i>
+                                                                    </button>
+                                                                    <button class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                        <i class="far fa-calendar text-gray-400"></i>
+                                                                    </button>
+                                                                    <button class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                        <i class="far fa-flag text-gray-400"></i>
+                                                                    </button>
+                                                                    <span
+                                                                        class="bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs flex items-center">
+                                                                        <i class="far fa-circle mr-1 text-xs"></i>
+                                                                        TO DO
+                                                                    </span>
+                                                                </div>
+                                                                </div>
+                                                                </div>
+                                                                </div>
+                                                                </div>
+                                                                </div>
+                                                                </div>
+                                                                
+                                                                <button class="flex items-center space-x-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 py-2 ml-6">
+                                                                    <i class="fas fa-plus text-sm"></i>
+                                                                    <span class="text-sm">Add Task</span>
+                                                                </button>
+                                                                </div>
+                                                                </div>
+                                                                </div>
+                                                                
+                                                                <!-- TO DO Group -->
+                                                                <div class="mb-6">
+                                                                    <div class="flex items-center space-x-2 mb-3">
+                                                                        <button onclick="toggleGroup('todo')"
+                                                                            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                                                                            <i id="todoIcon" class="fas fa-caret-down"></i>
+                                                                        </button>
+                                                                        <div
+                                                                            class="bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                                                                            <i class="far fa-circle mr-2 text-xs"></i>
+                                                                            TO DO
+                                                                        </div>
+                                                                        <span class="text-gray-500 dark:text-gray-400 text-sm">2</span>
+                                                                    </div>
+                                                                
+                                                                    <div id="todoGroup" class="subtask-container expanded">
+                                                                        <div class="space-y-2 ml-6">
+                                                                            <div
+                                                                                class="flex items-center space-x-3 py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer group">
+                                                                                <i class="far fa-circle text-gray-400 ml-4"></i>
+                                                                                <input type="text" value="Task 2"
+                                                                                    class="text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none flex-1 focus:bg-gray-50 dark:focus:bg-gray-700 px-2 py-1 rounded" />
+                                                                                <button class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                    <i class="far fa-user text-gray-400"></i>
+                                                                                </button>
+                                                                                <button class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                    <i class="far fa-calendar text-gray-400"></i>
+                                                                                </button>
+                                                                                <button class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                    <i class="far fa-flag text-gray-400"></i>
+                                                                                </button>
+                                                                                <span
+                                                                                    class="bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs flex items-center">
+                                                                                    <i class="far fa-circle mr-1 text-xs"></i>
+                                                                                    TO DO
+                                                                                </span>
+                                                                            </div>
+                                                                            <div
+                                                                                class="flex items-center space-x-3 py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer group">
+                                                                                <i class="far fa-circle text-gray-400 ml-4"></i>
+                                                                                <input type="text" value="Task 3"
+                                                                                    class="text-gray-700 dark:text-gray-300 bg-transparent border-none outline-none flex-1 focus:bg-gray-50 dark:focus:bg-gray-700 px-2 py-1 rounded" />
+                                                                                <button class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                    <i class="far fa-user text-gray-400"></i>
+                                                                                </button>
+                                                                                <button class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                    <i class="far fa-calendar text-gray-400"></i>
+                                                                                </button>
+                                                                                <button class="editable-field opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                    <i class="far fa-flag text-gray-400"></i>
+                                                                                </button>
+                                                                                <span
+                                                                                    class="bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs flex items-center">
+                                                                                    <i class="far fa-circle mr-1 text-xs"></i>
+                                                                                    TO DO
+                                                                                </span>
+                                                                            </div>
+                                                                
+                                                                            <button
+                                                                                class="flex items-center space-x-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 py-2 ml-4">
+                                                                                <i class="fas fa-plus text-sm"></i>
+                                                                                <span class="text-sm">Add Task</span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                </div>
+                                                                </div>
+                                                                </div>
+                                                                </div>
+                                                                
+                                                                <script>
+                                                                    // Theme Toggle Functionality (using in-memory storage)
+                                                                    const themeToggle = document.getElementById('themeToggle');
+                                                                    const body = document.body;
+
+                                                                    // Use in-memory storage instead of localStorage
+                                                                    let currentTheme = 'light';
+
+                                                                    themeToggle.addEventListener('click', () => {
+                                                                        body.classList.toggle('dark');
+                                                                        currentTheme = body.classList.contains('dark') ? 'dark' : 'light';
+                                                                    });
+
+                                                                    // Task Data
+                                                                   const tasks = [
+                                                                        { name: "Website Redesign - Landing Page", assignee: "MK", date: "3/15/25", priority: "Urgent", priorityColor: "red", comments: 2 },
+                                                                        { name: "Inventory Management Module Update", assignee: "RA", date: "4/10/25", priority: "High", priorityColor: "yellow", comments: 3 },
+                                                                        { name: "Client Portal Login Fix", assignee: "AS", date: "4/18/25", priority: "Normal", priorityColor: "blue", comments: 0 },
+                                                                        { name: "Employee Attendance Sheet Automation", assignee: "VK", date: "4/21/25", priority: "Normal", priorityColor: "blue", comments: 1 },
+                                                                        { name: "Payment Gateway Integration (Stripe)", assignee: "MK", date: "4/25/25", priority: "Urgent", priorityColor: "red", comments: 0 },
+                                                                        { name: "API Documentation Update", assignee: "RA", date: "5/1/25", priority: "High", priorityColor: "yellow", comments: 2 },
+                                                                        { name: "Marketing Dashboard Analytics", assignee: "AS", date: "5/5/25", priority: "Normal", priorityColor: "blue", comments: 4 },
+                                                                        { name: "Customer Feedback Email Automation", assignee: "VK", date: "5/8/25", priority: "High", priorityColor: "yellow", comments: 0 },
+                                                                        { name: "Social Media Post Scheduler", assignee: "RA", date: "5/12/25", priority: "Urgent", priorityColor: "red", comments: 1 },
+                                                                        { name: "Onboarding Form Validation", assignee: "MK", date: "5/16/25", priority: "Normal", priorityColor: "blue", comments: 2 },
+                                                                        { name: "Data Backup and Security Check", assignee: "AS", date: "5/20/25", priority: "High", priorityColor: "yellow", comments: 1 },
+                                                                        { name: "User Role Access Control Update", assignee: "VK", date: "5/24/25", priority: "Urgent", priorityColor: "red", comments: 0 },
+                                                                        { name: "CRM Contact Sync with Google", assignee: "RA", date: "5/28/25", priority: "Normal", priorityColor: "blue", comments: 1 },
+                                                                        { name: "Website SEO Optimization Report", assignee: "MK", date: "6/2/25", priority: "High", priorityColor: "yellow", comments: 2 },
+                                                                        { name: "Project Dashboard UI Polish", assignee: "AS", date: "6/8/25", priority: "Normal", priorityColor: "blue", comments: 0 },
+                                                                        { name: "File Upload System - S3 Migration", assignee: "VK", date: "6/15/25", priority: "Urgent", priorityColor: "red", comments: 2 },
+                                                                        { name: "Employee Directory Search Enhancement", assignee: "RA", date: "6/22/25", priority: "High", priorityColor: "yellow", comments: 1 },
+                                                                        { name: "Meeting Room Reservation System", assignee: "AS", date: "6/30/25", priority: "Normal", priorityColor: "blue", comments: 3 },
+                                                                        { name: "Mobile App Notification System", assignee: "MK", date: "7/4/25", priority: "Urgent", priorityColor: "red", comments: 4 },
+                                                                        { name: "Weekly Report Automation", assignee: "VK", date: "7/10/25", priority: "Normal", priorityColor: "blue", comments: 1 }
+                                                                    ];
+
+
+                                                                    function openTaskModal(taskName) {
+                                                                        document.getElementById('modalTaskName').value = taskName;
+                                                                        document.getElementById('taskModal').classList.add('active');
+                                                                    }
+
+                                                                    function closeTaskModal() {
+                                                                        document.getElementById('taskModal').classList.remove('active');
+                                                                    }
+
+                                                                    function renderTasks() {
+                                                                        const taskList = document.getElementById('taskList');
+                                                                        taskList.innerHTML = tasks.map(task => `
+                                                                                <div class="task-row grid grid-cols-12 gap-4 px-4 py-3 items-center">
+                                                                                    <div class="col-span-4 flex items-center space-x-3">
+                                                                                        <i class="far fa-check-circle text-green-500 text-lg"></i>
+                                                                                        <span class="text-sm text-gray-800 cursor-pointer task-name" onclick="openTaskModal('${task.name}')">${task.name}</span>
+                                                                                    </div>
+                                                                                    <div class="col-span-2">
+                                                                                        <div class="flex items-center space-x-1">
+                                                                                            ${task.assignee.split('').map(initial => `
+                                                                                                <div class="w-7 h-7 rounded-full ${initial === 'A' ? 'bg-purple-600' : 'bg-orange-500'} flex items-center justify-center text-white text-xs font-medium">
+                                                                                                    ${initial}
+                                                                                                </div>
+                                                                                            `).join('')}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="col-span-2">
+                                                                                        ${task.date ? `<span class="text-sm text-gray-600">${task.date}</span>` : '<i class="far fa-calendar text-gray-300"></i>'}
+                                                                                    </div>
+                                                                                    <div class="col-span-1">
+                                                                                        <i class="fas fa-flag text-${task.priorityColor}-500"></i>
+                                                                                        <span class="text-xs text-gray-600 ml-1">${task.priority.slice(0, 4)}...</span>
+                                                                                    </div>
+                                                                                    <div class="col-span-2">
+                                                                                        <span class="bg-green-500 text-white px-3 py-1 rounded text-xs font-medium">
+                                                                                            <i class="fas fa-check mr-1"></i> COMPLETE
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div class="col-span-1">
+                                                                                        ${task.comments > 0 ? `
+                                                                                            <div class="flex items-center space-x-1 text-gray-500">
+                                                                                                <i class="far fa-comment text-sm"></i>
+                                                                                                <span class="text-sm">${task.comments}</span>
+                                                                                            </div>
+                                                                                        ` : '<i class="far fa-comment text-gray-300"></i>'}
+                                                                                    </div>
+                                                                                </div>
+                                                                            `).join('');
+                                                                    }
+
+                                                                    // Toggle Functions
+                                                                    function toggleDescription() {
+                                                                        const content = document.getElementById('descContent');
+                                                                        const icon = document.getElementById('descIcon');
+                                                                        content.classList.toggle('expanded');
+                                                                        icon.classList.toggle('fa-caret-right');
+                                                                        icon.classList.toggle('fa-caret-down');
+                                                                    }
+
+                                                                    function toggleGroup(groupId) {
+                                                                        const group = document.getElementById(groupId + 'Group');
+                                                                        const icon = document.getElementById(groupId + 'Icon');
+                                                                        group.classList.toggle('expanded');
+                                                                        icon.classList.toggle('fa-caret-right');
+                                                                        icon.classList.toggle('fa-caret-down');
+                                                                    }
+
+                                                                    function toggleSubtask(taskId) {
+                                                                        const subtasks = document.getElementById(taskId + 'Subtasks');
+                                                                        const icon = document.getElementById(taskId + 'Icon');
+                                                                        subtasks.classList.toggle('expanded');
+                                                                        icon.classList.toggle('fa-caret-right');
+                                                                        icon.classList.toggle('fa-caret-down');
+                                                                    }
+
+                                                                    function toggleTaskStatus() {
+                                                                        const icon = document.getElementById('taskStatusIcon');
+                                                                        if (icon.classList.contains('far')) {
+                                                                            icon.classList.remove('far', 'fa-circle');
+                                                                            icon.classList.add('fas', 'fa-check-circle');
+                                                                            icon.style.color = '#10b981';
+                                                                        } else {
+                                                                            icon.classList.remove('fas', 'fa-check-circle');
+                                                                            icon.classList.add('far', 'fa-circle');
+                                                                            icon.style.color = '';
+                                                                        }
+                                                                    }
+
+                                                                    renderTasks();
+
+                                                                    // Close modal when clicking outside
+                                                                    document.getElementById('taskModal').addEventListener('click', function (e) {
+                                                                        if (e.target === this) {
+                                                                            closeTaskModal();
+                                                                        }
+                                                                    });
+                                                                </script>
+                                                                </body>
+                                                                
+                                                                </html>
