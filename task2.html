@@ -273,14 +273,20 @@
                     </div>
 
                     <!-- Table Header -->
-                    <div
-                        class="grid grid-cols-12 gap-4 px-4 py-2 bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase">
-                        <div class="col-span-4">Name</div>
-                        <div class="col-span-2">Assignee</div>
-                        <div class="col-span-2">Due date</div>
-                        <div class="col-span-1">Priority</div>
-                        <div class="col-span-2">Status</div>
-                        <div class="col-span-1">Comments</div>
+                    <div id="tableHeader"
+                        class="grid gap-2 px-3 py-1.5 bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase"
+                        style="grid-template-columns: 3fr 1.5fr 1.5fr 1fr 1.5fr 0.8fr 40px;">
+                        <div>Name</div>
+                        <div>Assignee</div>
+                        <div>Due date</div>
+                        <div>Priority</div>
+                        <div>Status</div>
+                        <div>Comments</div>
+                        <div>
+                            <button onclick="addColumn()" class="text-gray-400 hover:text-gray-600" title="Add Column">
+                                <i class="fas fa-plus text-xs"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Task Rows -->
@@ -414,28 +420,32 @@
             currentTheme = body.classList.contains('dark') ? 'dark' : 'light';
         });
 
+        // Custom columns management
+        let customColumns = [];
+        let nextColumnId = 1;
+
         // Task Data with ID and subtasks
         let tasks = [
-            { id: 1, name: "Website Redesign - Landing Page", assignee: "MK", date: "3/15/25", priority: "Urgent", priorityColor: "red", comments: 2, status: "complete" },
-            { id: 2, name: "Inventory Management Module Update", assignee: "RA", date: "4/10/25", priority: "High", priorityColor: "yellow", comments: 3, status: "complete" },
-            { id: 3, name: "Client Portal Login Fix", assignee: "AS", date: "4/18/25", priority: "Normal", priorityColor: "blue", comments: 0, status: "complete" },
-            { id: 4, name: "Employee Attendance Sheet Automation", assignee: "VK", date: "4/21/25", priority: "Normal", priorityColor: "blue", comments: 1, status: "complete" },
-            { id: 5, name: "Payment Gateway Integration (Stripe)", assignee: "MK", date: "4/25/25", priority: "Urgent", priorityColor: "red", comments: 0, status: "complete" },
-            { id: 6, name: "API Documentation Update", assignee: "RA", date: "5/1/25", priority: "High", priorityColor: "yellow", comments: 2, status: "complete" },
-            { id: 7, name: "Marketing Dashboard Analytics", assignee: "AS", date: "5/5/25", priority: "Normal", priorityColor: "blue", comments: 4, status: "complete" },
-            { id: 8, name: "Customer Feedback Email Automation", assignee: "VK", date: "5/8/25", priority: "High", priorityColor: "yellow", comments: 0, status: "complete" },
-            { id: 9, name: "Social Media Post Scheduler", assignee: "RA", date: "5/12/25", priority: "Urgent", priorityColor: "red", comments: 1, status: "complete" },
-            { id: 10, name: "Onboarding Form Validation", assignee: "MK", date: "5/16/25", priority: "Normal", priorityColor: "blue", comments: 2, status: "complete" },
-            { id: 11, name: "Data Backup and Security Check", assignee: "AS", date: "5/20/25", priority: "High", priorityColor: "yellow", comments: 1, status: "complete" },
-            { id: 12, name: "User Role Access Control Update", assignee: "VK", date: "5/24/25", priority: "Urgent", priorityColor: "red", comments: 0, status: "complete" },
-            { id: 13, name: "CRM Contact Sync with Google", assignee: "RA", date: "5/28/25", priority: "Normal", priorityColor: "blue", comments: 1, status: "complete" },
-            { id: 14, name: "Website SEO Optimization Report", assignee: "MK", date: "6/2/25", priority: "High", priorityColor: "yellow", comments: 2, status: "complete" },
-            { id: 15, name: "Project Dashboard UI Polish", assignee: "AS", date: "6/8/25", priority: "Normal", priorityColor: "blue", comments: 0, status: "complete" },
-            { id: 16, name: "File Upload System - S3 Migration", assignee: "VK", date: "6/15/25", priority: "Urgent", priorityColor: "red", comments: 2, status: "complete" },
-            { id: 17, name: "Employee Directory Search Enhancement", assignee: "RA", date: "6/22/25", priority: "High", priorityColor: "yellow", comments: 1, status: "complete" },
-            { id: 18, name: "Meeting Room Reservation System", assignee: "AS", date: "6/30/25", priority: "Normal", priorityColor: "blue", comments: 3, status: "complete" },
-            { id: 19, name: "Mobile App Notification System", assignee: "MK", date: "7/4/25", priority: "Urgent", priorityColor: "red", comments: 4, status: "complete" },
-            { id: 20, name: "Weekly Report Automation", assignee: "VK", date: "7/10/25", priority: "Normal", priorityColor: "blue", comments: 1, status: "complete" }
+            { id: 1, name: "Website Redesign - Landing Page", assignee: "MK", date: "3/15/25", priority: "Urgent", priorityColor: "red", comments: 2, status: "complete", customFields: {} },
+            { id: 2, name: "Inventory Management Module Update", assignee: "RA", date: "4/10/25", priority: "High", priorityColor: "yellow", comments: 3, status: "complete", customFields: {} },
+            { id: 3, name: "Client Portal Login Fix", assignee: "AS", date: "4/18/25", priority: "Normal", priorityColor: "blue", comments: 0, status: "complete", customFields: {} },
+            { id: 4, name: "Employee Attendance Sheet Automation", assignee: "VK", date: "4/21/25", priority: "Normal", priorityColor: "blue", comments: 1, status: "complete", customFields: {} },
+            { id: 5, name: "Payment Gateway Integration (Stripe)", assignee: "MK", date: "4/25/25", priority: "Urgent", priorityColor: "red", comments: 0, status: "complete", customFields: {} },
+            { id: 6, name: "API Documentation Update", assignee: "RA", date: "5/1/25", priority: "High", priorityColor: "yellow", comments: 2, status: "complete", customFields: {} },
+            { id: 7, name: "Marketing Dashboard Analytics", assignee: "AS", date: "5/5/25", priority: "Normal", priorityColor: "blue", comments: 4, status: "complete", customFields: {} },
+            { id: 8, name: "Customer Feedback Email Automation", assignee: "VK", date: "5/8/25", priority: "High", priorityColor: "yellow", comments: 0, status: "complete", customFields: {} },
+            { id: 9, name: "Social Media Post Scheduler", assignee: "RA", date: "5/12/25", priority: "Urgent", priorityColor: "red", comments: 1, status: "complete", customFields: {} },
+            { id: 10, name: "Onboarding Form Validation", assignee: "MK", date: "5/16/25", priority: "Normal", priorityColor: "blue", comments: 2, status: "complete", customFields: {} },
+            { id: 11, name: "Data Backup and Security Check", assignee: "AS", date: "5/20/25", priority: "High", priorityColor: "yellow", comments: 1, status: "complete", customFields: {} },
+            { id: 12, name: "User Role Access Control Update", assignee: "VK", date: "5/24/25", priority: "Urgent", priorityColor: "red", comments: 0, status: "complete", customFields: {} },
+            { id: 13, name: "CRM Contact Sync with Google", assignee: "RA", date: "5/28/25", priority: "Normal", priorityColor: "blue", comments: 1, status: "complete", customFields: {} },
+            { id: 14, name: "Website SEO Optimization Report", assignee: "MK", date: "6/2/25", priority: "High", priorityColor: "yellow", comments: 2, status: "complete", customFields: {} },
+            { id: 15, name: "Project Dashboard UI Polish", assignee: "AS", date: "6/8/25", priority: "Normal", priorityColor: "blue", comments: 0, status: "complete", customFields: {} },
+            { id: 16, name: "File Upload System - S3 Migration", assignee: "VK", date: "6/15/25", priority: "Urgent", priorityColor: "red", comments: 2, status: "complete", customFields: {} },
+            { id: 17, name: "Employee Directory Search Enhancement", assignee: "RA", date: "6/22/25", priority: "High", priorityColor: "yellow", comments: 1, status: "complete", customFields: {} },
+            { id: 18, name: "Meeting Room Reservation System", assignee: "AS", date: "6/30/25", priority: "Normal", priorityColor: "blue", comments: 3, status: "complete", customFields: {} },
+            { id: 19, name: "Mobile App Notification System", assignee: "MK", date: "7/4/25", priority: "Urgent", priorityColor: "red", comments: 4, status: "complete", customFields: {} },
+            { id: 20, name: "Weekly Report Automation", assignee: "VK", date: "7/10/25", priority: "Normal", priorityColor: "blue", comments: 1, status: "complete", customFields: {} }
         ];
 
         // Subtasks data structure with status groups
@@ -508,44 +518,115 @@
             currentTaskId = null;
         }
 
+        function addColumn() {
+            const columnName = prompt('Enter column name:');
+            if (columnName && columnName.trim()) {
+                customColumns.push({
+                    id: nextColumnId++,
+                    name: columnName.trim()
+                });
+
+                // Initialize custom field for all tasks
+                tasks.forEach(task => {
+                    if (!task.customFields) task.customFields = {};
+                });
+
+                renderTasks();
+            }
+        }
+
+        function removeColumn(columnId) {
+            if (confirm('Remove this column from all tasks?')) {
+                customColumns = customColumns.filter(col => col.id !== columnId);
+                renderTasks();
+            }
+        }
+
+        function updateCustomField(taskId, columnId, value) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                if (!task.customFields) task.customFields = {};
+                task.customFields[columnId] = value;
+            }
+        }
+
         function renderTasks() {
             const taskList = document.getElementById('taskList');
+            const tableHeader = document.getElementById('tableHeader');
+
+            // Calculate grid template based on custom columns
+            const baseColumns = '3fr 1.5fr 1.5fr 1fr 1.5fr 0.8fr';
+            const customColumnsTemplate = customColumns.map(() => '1.2fr').join(' ');
+            const gridTemplate = baseColumns + (customColumns.length > 0 ? ' ' + customColumnsTemplate : '') + ' 40px';
+
+            // Update header
+            tableHeader.style.gridTemplateColumns = gridTemplate;
+
+            // Render custom column headers
+            const existingCustomHeaders = tableHeader.querySelectorAll('.custom-column-header');
+            existingCustomHeaders.forEach(el => el.remove());
+
+            const addButton = tableHeader.lastElementChild;
+            customColumns.forEach(col => {
+                const colHeader = document.createElement('div');
+                colHeader.className = 'custom-column-header flex items-center space-x-1 group';
+                colHeader.innerHTML = `
+                    <span>${col.name}</span>
+                    <button onclick="removeColumn(${col.id})" class="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700" title="Remove column">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                `;
+                tableHeader.insertBefore(colHeader, addButton);
+            });
+
+            // Render tasks
             taskList.innerHTML = tasks.map(task => `
-                    <div class="task-row grid grid-cols-12 gap-4 px-4 py-3 items-center group">
-                        <div class="col-span-4 flex items-center space-x-3">
-                            <i class="far fa-check-circle text-green-500 text-lg"></i>
-                            <span class="text-sm text-gray-800 cursor-pointer task-name" onclick="openTaskModal('${task.name}')">${task.name}</span>
+                    <div class="task-row grid gap-2 px-3 py-2 items-center group" style="grid-template-columns: ${gridTemplate};">
+                        <div class="flex items-center space-x-2">
+                            <i class="far fa-check-circle text-green-500"></i>
+                            <span class="text-xs text-gray-800 cursor-pointer task-name truncate" onclick="openTaskModal('${task.name}')">${task.name}</span>
                         </div>
-                        <div class="col-span-2">
+                        <div>
                             <div class="flex items-center space-x-1">
                                 ${task.assignee.split('').map(initial => `
-                                    <div class="w-7 h-7 rounded-full ${initial === 'A' ? 'bg-purple-600' : 'bg-orange-500'} flex items-center justify-center text-white text-xs font-medium">
+                                    <div class="w-6 h-6 rounded-full ${initial === 'A' ? 'bg-purple-600' : 'bg-orange-500'} flex items-center justify-center text-white text-xs font-medium">
                                         ${initial}
                                     </div>
                                 `).join('')}
                             </div>
                         </div>
-                        <div class="col-span-2">
-                            ${task.date ? `<span class="text-sm text-gray-600">${task.date}</span>` : '<i class="far fa-calendar text-gray-300"></i>'}
+                        <div>
+                            ${task.date ? `<span class="text-xs text-gray-600">${task.date}</span>` : '<i class="far fa-calendar text-gray-300 text-xs"></i>'}
                         </div>
-                        <div class="col-span-1">
-                            <i class="fas fa-flag text-${task.priorityColor}-500"></i>
-                            <span class="text-xs text-gray-600 ml-1">${task.priority.slice(0, 4)}...</span>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-flag text-${task.priorityColor}-500 text-xs"></i>
+                            <span class="text-xs text-gray-600">${task.priority.slice(0, 4)}</span>
                         </div>
-                        <div class="col-span-2">
-                            <span class="bg-green-500 text-white px-3 py-1 rounded text-xs font-medium">
+                        <div>
+                            <span class="bg-green-500 text-white px-2 py-0.5 rounded text-xs font-medium">
                                 <i class="fas fa-check mr-1"></i> COMPLETE
                             </span>
                         </div>
-                        <div class="col-span-1 flex items-center justify-between">
+                        <div class="flex items-center justify-center">
                             ${task.comments > 0 ? `
                                 <div class="flex items-center space-x-1 text-gray-500">
-                                    <i class="far fa-comment text-sm"></i>
-                                    <span class="text-sm">${task.comments}</span>
+                                    <i class="far fa-comment text-xs"></i>
+                                    <span class="text-xs">${task.comments}</span>
                                 </div>
-                            ` : '<i class="far fa-comment text-gray-300"></i>'}
-                            <button onclick="deleteTask(${task.id})" class="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
-                                <i class="fas fa-trash text-sm"></i>
+                            ` : '<i class="far fa-comment text-gray-300 text-xs"></i>'}
+                        </div>
+                        ${customColumns.map(col => `
+                            <div>
+                                <input type="text" 
+                                    value="${task.customFields && task.customFields[col.id] ? task.customFields[col.id] : ''}"
+                                    onblur="updateCustomField(${task.id}, ${col.id}, this.value)"
+                                    placeholder="-"
+                                    class="w-full text-xs text-gray-600 bg-transparent border-none outline-none focus:bg-gray-50 dark:focus:bg-gray-700 px-1 py-0.5 rounded" />
+                            </div>
+                        `).join('')}
+                        <div class="flex items-center justify-center">
+                            <button onclick="deleteTask(${task.id})" class="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="fas fa-trash text-xs"></i>
                             </button>
                         </div>
                     </div>
