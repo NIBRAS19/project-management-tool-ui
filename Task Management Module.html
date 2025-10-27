@@ -1,0 +1,2373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management Module - Enhanced</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        
+        /* Theme Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --bg-hover: #f3f4f6;
+            --border-color: #e5e7eb;
+            --border-light: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #374151;
+            --bg-hover: #374151;
+            --border-color: #374151;
+            --border-light: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --shadow-lg: rgba(0, 0, 0, 0.5);
+        }
+        
+        body {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Apply theme colors to elements */
+        .bg-white { background-color: var(--bg-primary) !important; }
+        .bg-gray-50 { background-color: var(--bg-secondary) !important; }
+        .bg-gray-100 { background-color: var(--bg-tertiary) !important; }
+        .hover\:bg-gray-50:hover { background-color: var(--bg-hover) !important; }
+        .hover\:bg-gray-100:hover { background-color: var(--bg-hover) !important; }
+        .border-gray-200 { border-color: var(--border-color) !important; }
+        .border-gray-300 { border-color: var(--border-light) !important; }
+        .text-gray-800 { color: var(--text-primary) !important; }
+        .text-gray-700 { color: var(--text-primary) !important; }
+        .text-gray-600 { color: var(--text-secondary) !important; }
+        .text-gray-500 { color: var(--text-secondary) !important; }
+        .text-gray-400 { color: var(--text-tertiary) !important; }
+        
+        [data-theme="dark"] .shadow-sm { box-shadow: 0 1px 2px 0 var(--shadow); }
+        [data-theme="dark"] .shadow { box-shadow: 0 1px 3px 0 var(--shadow); }
+        [data-theme="dark"] .shadow-lg { box-shadow: 0 10px 15px -3px var(--shadow); }
+        [data-theme="dark"] .shadow-xl { box-shadow: 0 20px 25px -5px var(--shadow); }
+        [data-theme="dark"] .shadow-2xl { box-shadow: 0 25px 50px -12px var(--shadow-lg); }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+        
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        [data-theme="dark"] .theme-toggle {
+            background: #3b82f6;
+        }
+        
+        [data-theme="dark"] .theme-toggle::before {
+            transform: translateX(30px);
+        }
+        
+        /* Animations */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes expandCollapse {
+            from { max-height: 0; opacity: 0; }
+            to { max-height: 1000px; opacity: 1; }
+        }
+        
+        .slide-in { animation: slideIn 0.3s ease-out; }
+        .slide-in-right { animation: slideInRight 0.3s ease-out; }
+        .fade-in { animation: fadeIn 0.2s ease-out; }
+        
+        /* Subtask tree styles */
+        .subtask-item { position: relative; }
+        
+        .subtask-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+        
+        .subtask-item.collapsed > .subtask-children {
+            display: none;
+        }
+        
+        .subtask-item.expanded > .subtask-children {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        .subtask-toggle {
+            transition: transform 0.2s ease;
+        }
+        
+        .subtask-item.expanded > .subtask-content .subtask-toggle {
+            transform: rotate(90deg);
+        }
+        
+        /* Dragging styles */
+        .dragging { opacity: 0.5; cursor: grabbing; }
+        .drag-over { border: 2px dashed #3b82f6 !important; background: #dbeafe; }
+        
+        /* Status badges */
+        .status-todo { background: #f1f5f9; color: #475569; }
+        .status-inprogress { background: #dbeafe; color: #1e40af; }
+        .status-review { background: #fef3c7; color: #92400e; }
+        .status-done { background: #dcfce7; color: #166534; }
+        
+        [data-theme="dark"] .status-todo { background: #374151; color: #d1d5db; }
+        [data-theme="dark"] .status-inprogress { background: #1e3a8a; color: #93c5fd; }
+        [data-theme="dark"] .status-review { background: #78350f; color: #fcd34d; }
+        [data-theme="dark"] .status-done { background: #14532d; color: #86efac; }
+        
+        /* Priority badges */
+        .priority-low { background: #f1f5f9; color: #64748b; }
+        .priority-medium { background: #dbeafe; color: #2563eb; }
+        .priority-high { background: #fed7aa; color: #c2410c; }
+        .priority-critical { background: #fecaca; color: #991b1b; }
+        
+        [data-theme="dark"] .priority-low { background: #374151; color: #94a3b8; }
+        [data-theme="dark"] .priority-medium { background: #1e3a8a; color: #60a5fa; }
+        [data-theme="dark"] .priority-high { background: #7c2d12; color: #fb923c; }
+        [data-theme="dark"] .priority-critical { background: #7f1d1d; color: #fca5a5; }
+        
+        /* Hover effects */
+        .hover-lift {
+            transition: all 0.2s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px var(--shadow);
+        }
+        
+        /* Custom focus */
+        .focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .mobile-hidden { display: none !important; }
+            .mobile-full { width: 100% !important; }
+        }
+        
+        /* Connection lines for subtasks */
+        .tree-line {
+            position: absolute;
+            left: 11px;
+            top: 24px;
+            bottom: -8px;
+            width: 1px;
+            background: var(--border-color);
+        }
+        
+        .tree-connector {
+            position: absolute;
+            left: 11px;
+            top: 20px;
+            width: 16px;
+            height: 1px;
+            background: var(--border-color);
+        }
+        
+        /* Smooth transitions */
+        .transition-all-smooth {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <!-- Main Container -->
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 mobile-hidden">
+            <!-- Logo Area -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-tasks text-white text-sm"></i>
+                    </div>
+                    <span class="font-bold text-lg">TaskFlow</span>
+                </div>
+            </div>
+            
+            <!-- Navigation Items -->
+            <nav class="flex-1 overflow-y-auto p-3 space-y-1">
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 bg-blue-50 text-blue-600 transition-colors">
+                    <i class="fas fa-home w-5 text-center"></i>
+                    <span class="text-sm font-medium">Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-check-circle w-5 text-center"></i>
+                    <span class="text-sm font-medium">My Tasks</span>
+                    <span class="ml-auto bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full font-semibold">12</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-folder w-5 text-center"></i>
+                    <span class="text-sm font-medium">Projects</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-calendar-alt w-5 text-center"></i>
+                    <span class="text-sm font-medium">Calendar</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-chart-bar w-5 text-center"></i>
+                    <span class="text-sm font-medium">Reports</span>
+                </a>
+                
+                <div class="pt-4 pb-2">
+                    <div class="flex items-center justify-between px-3 mb-2">
+                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Projects</span>
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-plus text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-1">
+                        <a href="#" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="w-3 h-3 bg-blue-500 rounded"></div>
+                            <span class="text-sm flex-1">Website Redesign</span>
+                            <span class="text-xs text-gray-400">24</span>
+                        </a>
+                        <a href="#" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="w-3 h-3 bg-green-500 rounded"></div>
+                            <span class="text-sm flex-1">Mobile App</span>
+                            <span class="text-xs text-gray-400">18</span>
+                        </a>
+                        <a href="#" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="w-3 h-3 bg-purple-500 rounded"></div>
+                            <span class="text-sm flex-1">Marketing Campaign</span>
+                            <span class="text-xs text-gray-400">7</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- User Profile -->
+            <div class="p-3 border-t border-gray-200">
+                <div class="flex items-center space-x-3 px-2 py-2 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                    <div class="w-9 h-9 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                        <span class="text-white font-semibold text-sm">SM</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-medium truncate">Sarah Miller</div>
+                        <div class="text-xs text-gray-500 truncate">sarah@company.com</div>
+                    </div>
+                    <i class="fas fa-cog text-gray-400 text-sm"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Header Bar -->
+            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-4">
+                        <button id="menuToggle" class="md:hidden p-2 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-bars text-gray-600"></i>
+                        </button>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-globe text-white"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-xl font-bold">Website Redesign</h1>
+                                <p class="text-xs text-gray-500">24 tasks • 5 members</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Active</span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3">
+                        <!-- Search -->
+                        <div class="relative mobile-hidden">
+                            <input type="text" placeholder="Search tasks..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-64 focus-ring text-sm">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                        </div>
+                        
+                        <!-- View Toggle -->
+                        <div class="flex bg-gray-100 rounded-lg p-1 mobile-hidden">
+                            <button id="viewList" class="px-3 py-1.5 rounded-md bg-white shadow-sm text-sm font-medium transition-all">
+                                <i class="fas fa-list mr-1"></i> List
+                            </button>
+                            <button id="viewBoard" class="px-3 py-1.5 rounded-md text-sm font-medium hover:bg-white transition-all">
+                                <i class="fas fa-columns mr-1"></i> Board
+                            </button>
+                            <button id="viewGantt" class="px-3 py-1.5 rounded-md text-sm font-medium hover:bg-white transition-all">
+                                <i class="fas fa-chart-gantt mr-1"></i> Timeline
+                            </button>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <button id="btnCreateTask" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm shadow-sm hover-lift">
+                            <i class="fas fa-plus mr-2"></i>New Task
+                        </button>
+                        <button class="p-2 hover:bg-gray-100 rounded-lg mobile-hidden" data-notifications>
+                            <i class="fas fa-bell text-gray-600"></i>
+                            <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+                        <div class="theme-toggle mobile-hidden" id="themeToggle" title="Toggle Dark/Light Mode">
+                            <i class="fas fa-sun absolute left-2 top-1.5 text-xs text-yellow-500"></i>
+                            <i class="fas fa-moon absolute right-2 top-1.5 text-xs text-blue-400"></i>
+                        </div>
+                        <button class="p-2 hover:bg-gray-100 rounded-lg mobile-hidden">
+                            <i class="fas fa-ellipsis-v text-gray-600"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Filters Bar -->
+                <div class="flex items-center space-x-2 overflow-x-auto pb-2">
+                    <button class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 whitespace-nowrap transition-colors flex items-center space-x-1">
+                        <i class="fas fa-filter text-xs"></i>
+                        <span>Status: All</span>
+                        <i class="fas fa-chevron-down text-xs ml-1"></i>
+                    </button>
+                    <button class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 whitespace-nowrap transition-colors flex items-center space-x-1">
+                        <i class="fas fa-user text-xs"></i>
+                        <span>Assignee: All</span>
+                        <i class="fas fa-chevron-down text-xs ml-1"></i>
+                    </button>
+                    <button class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 whitespace-nowrap transition-colors flex items-center space-x-1">
+                        <i class="fas fa-flag text-xs"></i>
+                        <span>Priority: All</span>
+                        <i class="fas fa-chevron-down text-xs ml-1"></i>
+                    </button>
+                    <button class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 whitespace-nowrap transition-colors flex items-center space-x-1">
+                        <i class="fas fa-calendar text-xs"></i>
+                        <span>Due Date</span>
+                        <i class="fas fa-chevron-down text-xs ml-1"></i>
+                    </button>
+                    <button class="px-3 py-1.5 text-blue-600 text-sm hover:bg-blue-50 rounded-lg whitespace-nowrap transition-colors">
+                        <i class="fas fa-plus mr-1"></i>Add Filter
+                    </button>
+                    <div class="flex-1"></div>
+                    <span class="text-sm text-gray-500 mobile-hidden">24 tasks</span>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="flex-1 overflow-hidden bg-gray-50">
+                <!-- List View -->
+                <div id="listView" class="h-full overflow-auto">
+                    <!-- Bulk Actions Bar -->
+                    <div id="bulkActionsBar" class="hidden bg-blue-50 border-b border-blue-200 px-6 py-3 sticky top-0 z-10 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-sm font-medium text-blue-900">3 tasks selected</span>
+                                <button class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-user-plus mr-2"></i>Assign
+                                </button>
+                                <button class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-exchange-alt mr-2"></i>Change Status
+                                </button>
+                                <button class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-flag mr-2"></i>Set Priority
+                                </button>
+                                <button class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors text-red-600">
+                                    <i class="fas fa-trash mr-2"></i>Delete
+                                </button>
+                            </div>
+                            <button id="closeBulkActions" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Task Table -->
+                    <div class="bg-white m-4 rounded-lg shadow-sm border border-gray-200">
+                        <!-- Table Header -->
+                        <div class="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 font-semibold text-xs text-gray-600 uppercase tracking-wider mobile-hidden rounded-t-lg">
+                            <div class="col-span-1 flex items-center">
+                                <input type="checkbox" id="selectAll" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            </div>
+                            <div class="col-span-4 flex items-center">
+                                Task Name
+                                <i class="fas fa-sort ml-2 text-gray-400"></i>
+                            </div>
+                            <div class="col-span-2">Assignee</div>
+                            <div class="col-span-1">Status</div>
+                            <div class="col-span-1">Priority</div>
+                            <div class="col-span-2">Due Date</div>
+                            <div class="col-span-1">Actions</div>
+                        </div>
+                        
+                        <!-- Task Rows -->
+                        <div id="taskList" class="divide-y divide-gray-100">
+                            <!-- Task rows will be here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Board View -->
+                <div id="boardView" class="h-full overflow-x-auto p-6 hidden">
+                    <div class="flex space-x-4 h-full min-w-max pb-4">
+                        <!-- To Do Column -->
+                        <div class="kanban-column flex flex-col w-80 bg-gray-100 rounded-lg" data-status="To Do">
+                            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
+                                    <h3 class="font-semibold text-gray-800">To Do</h3>
+                                    <span class="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full font-semibold kanban-count">0</span>
+                                </div>
+                                <button class="text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded p-1 transition-colors" onclick="addKanbanTask('To Do')">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-3 space-y-3 kanban-cards">
+                                <!-- Cards will be rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- In Progress Column -->
+                        <div class="kanban-column flex flex-col w-80 bg-gray-100 rounded-lg" data-status="In Progress">
+                            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-blue-400 rounded-full"></div>
+                                    <h3 class="font-semibold text-gray-800">In Progress</h3>
+                                    <span class="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full font-semibold kanban-count">0</span>
+                                </div>
+                                <button class="text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded p-1 transition-colors" onclick="addKanbanTask('In Progress')">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-3 space-y-3 kanban-cards">
+                                <!-- Cards will be rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- Review Column -->
+                        <div class="kanban-column flex flex-col w-80 bg-gray-100 rounded-lg" data-status="Review">
+                            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                                    <h3 class="font-semibold text-gray-800">Review</h3>
+                                    <span class="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full font-semibold kanban-count">0</span>
+                                </div>
+                                <button class="text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded p-1 transition-colors" onclick="addKanbanTask('Review')">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-3 space-y-3 kanban-cards">
+                                <!-- Cards will be rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- Done Column -->
+                        <div class="kanban-column flex flex-col w-80 bg-gray-100 rounded-lg" data-status="Done">
+                            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                                    <h3 class="font-semibold text-gray-800">Done</h3>
+                                    <span class="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full font-semibold kanban-count">0</span>
+                                </div>
+                                <button class="text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded p-1 transition-colors" onclick="addKanbanTask('Done')">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-3 space-y-3 kanban-cards">
+                                <!-- Cards will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gantt/Timeline View -->
+                <div id="ganttView" class="h-full overflow-auto hidden bg-white">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-4">
+                                <h2 class="text-xl font-bold text-gray-800">Project Timeline</h2>
+                                <div class="flex items-center space-x-2">
+                                    <button id="ganttToday" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-calendar-day mr-1"></i>Today
+                                    </button>
+                                    <button id="ganttPrevMonth" class="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-chevron-left text-sm"></i>
+                                    </button>
+                                    <span id="ganttCurrentMonth" class="px-4 text-sm font-medium text-gray-700">October 2025</span>
+                                    <button id="ganttNextMonth" class="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-chevron-right text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button id="ganttZoomOut" class="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" title="Zoom Out">
+                                    <i class="fas fa-search-minus text-sm"></i>
+                                </button>
+                                <button id="ganttZoomIn" class="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" title="Zoom In">
+                                    <i class="fas fa-search-plus text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Gantt Chart Container -->
+                        <div class="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+                            <!-- Gantt Header with Dates -->
+                            <div class="flex border-b border-gray-200 bg-gray-50">
+                                <div class="w-64 px-4 py-3 border-r border-gray-200 font-semibold text-sm text-gray-700">Task Name</div>
+                                <div class="flex-1 overflow-x-auto">
+                                    <div id="ganttDateHeader" class="flex">
+                                        <!-- Date headers will be rendered here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Gantt Chart Body -->
+                            <div id="ganttChartBody" class="divide-y divide-gray-100">
+                                <!-- Task rows will be rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="mt-6 flex items-center space-x-6 text-sm">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-blue-500 rounded"></div>
+                                <span class="text-gray-600">In Progress</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-green-500 rounded"></div>
+                                <span class="text-gray-600">Completed</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-gray-300 rounded"></div>
+                                <span class="text-gray-600">Not Started</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-red-500 rounded"></div>
+                                <span class="text-gray-600">Overdue</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-1 h-4 bg-blue-600"></div>
+                                <span class="text-gray-600">Today</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div id="taskDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col slide-in">
+            <!-- Modal Header -->
+            <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <input type="text" value="Design homepage mockup" class="text-3xl font-bold w-full border-none focus:outline-none focus-ring rounded-lg px-2 -ml-2 bg-transparent">
+                        <div class="flex items-center space-x-3 mt-3">
+                            <span class="text-sm text-gray-500">in</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-blue-500 rounded"></div>
+                                <span class="text-sm text-blue-600 font-medium">Website Redesign</span>
+                            </div>
+                            <span class="text-gray-300">•</span>
+                            <span class="text-sm text-gray-500">Created 3 days ago by Mike Chen</span>
+                        </div>
+                    </div>
+                    <button id="closeTaskDetail" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-2 transition-colors ml-4">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="flex items-center space-x-3 flex-wrap gap-2">
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus-ring font-medium bg-white hover:bg-gray-50 transition-colors">
+                        <option>To Do</option>
+                        <option selected>In Progress</option>
+                        <option>Review</option>
+                        <option>Done</option>
+                    </select>
+                    
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus-ring font-medium bg-white hover:bg-gray-50 transition-colors">
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option selected>High</option>
+                        <option>Critical</option>
+                    </select>
+                    
+                    <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-calendar text-blue-600"></i>
+                        <span>Oct 28, 2025</span>
+                    </button>
+                    
+                    <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-clock text-purple-600"></i>
+                        <span>8h estimated</span>
+                    </button>
+                    
+                    <div class="flex-1"></div>
+                    
+                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                        <i class="fas fa-star text-gray-400 hover:text-yellow-500"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                        <i class="fas fa-share-alt text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-hidden flex">
+                <!-- Main Content -->
+                <div class="flex-1 overflow-y-auto px-8 py-6">
+                    <!-- Assignees -->
+                    <div class="mb-8">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Assignees</label>
+                        <div class="flex items-center space-x-2">
+                            <div class="flex -space-x-2">
+                                <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:scale-110 transition-transform" title="Sarah Miller">
+                                    <span class="text-white font-semibold text-sm">SM</span>
+                                </div>
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:scale-110 transition-transform" title="John Davis">
+                                    <span class="text-white font-semibold text-sm">JD</span>
+                                </div>
+                            </div>
+                            <button class="w-10 h-10 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center text-gray-400 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-8">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Description</label>
+                        <div class="border border-gray-200 rounded-lg p-4 min-h-32 hover:border-gray-300 cursor-text transition-colors bg-gray-50 focus-within:bg-white">
+                            <p class="text-gray-700 leading-relaxed">Create a modern, responsive homepage design that follows our brand guidelines. Focus on user engagement and clear call-to-action buttons.</p>
+                            <p class="text-gray-700 mt-3 leading-relaxed">Key requirements:</p>
+                            <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 ml-2">
+                                <li>Hero section with compelling headline</li>
+                                <li>Feature showcase section</li>
+                                <li>Customer testimonials</li>
+                                <li>Newsletter signup form</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhanced Subtasks Section -->
+                    <div class="mb-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <label class="block text-sm font-semibold text-gray-700">Subtasks</label>
+                                <span id="subtaskProgress" class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">2 of 8 (25%)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button id="collapseAllSubtasks" class="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded transition-colors">
+                                    <i class="fas fa-compress-alt mr-1"></i>Collapse All
+                                </button>
+                                <button id="expandAllSubtasks" class="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded transition-colors">
+                                    <i class="fas fa-expand-alt mr-1"></i>Expand All
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                            <div id="subtaskProgressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 25%"></div>
+                        </div>
+                        
+                        <!-- Subtasks Container -->
+                        <div id="subtaskContainer" class="space-y-1 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <!-- Subtasks will be rendered here -->
+                        </div>
+                        
+                        <button id="addRootSubtask" class="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium px-3 py-2 hover:bg-blue-50 rounded-lg transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Add subtask
+                        </button>
+                    </div>
+                    
+                    <!-- Dependencies -->
+                    <div class="mb-8">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Dependencies</label>
+                        <div class="border border-gray-200 rounded-lg divide-y divide-gray-200 bg-gray-50">
+                            <div class="p-4">
+                                <div class="flex items-center justify-between text-sm mb-2">
+                                    <span class="text-gray-600 font-medium flex items-center">
+                                        <i class="fas fa-arrow-right text-red-500 mr-2"></i>Blocking
+                                    </span>
+                                    <button class="text-blue-600 hover:text-blue-700 text-xs font-medium">
+                                        <i class="fas fa-plus mr-1"></i>Add
+                                    </button>
+                                </div>
+                                <div class="text-xs text-gray-400">No blocking tasks</div>
+                            </div>
+                            
+                            <div class="p-4">
+                                <div class="flex items-center justify-between text-sm mb-2">
+                                    <span class="text-gray-600 font-medium flex items-center">
+                                        <i class="fas fa-arrow-left text-orange-500 mr-2"></i>Blocked by
+                                    </span>
+                                    <button class="text-blue-600 hover:text-blue-700 text-xs font-medium">
+                                        <i class="fas fa-plus mr-1"></i>Add
+                                    </button>
+                                </div>
+                                <div class="text-xs text-gray-400">No dependencies</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Attachments -->
+                    <div class="mb-8">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="block text-sm font-semibold text-gray-700">Attachments</label>
+                            <button class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                <i class="fas fa-paperclip mr-1"></i>Upload
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center text-red-600 font-semibold text-sm">
+                                    <i class="fas fa-file-pdf text-lg"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-medium truncate">brand-guidelines.pdf</div>
+                                    <div class="text-xs text-gray-500">2.4 MB • Uploaded by Sarah on Oct 20</div>
+                                </div>
+                                <button class="text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg overflow-hidden">
+                                    <div class="w-full h-full bg-gradient-to-br from-blue-200 to-blue-400"></div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-medium truncate">wireframe-v1.png</div>
+                                    <div class="text-xs text-gray-500">856 KB • Uploaded by Sarah on Oct 22</div>
+                                </div>
+                                <button class="text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Comments Section -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-4">Comments</label>
+                        
+                        <!-- Comment Input -->
+                        <div class="mb-6">
+                            <div class="border border-gray-200 rounded-lg focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+                                <textarea placeholder="Add a comment... Use @ to mention someone" class="w-full p-4 border-none focus:outline-none rounded-t-lg resize-none text-sm" rows="3"></textarea>
+                                <div class="border-t border-gray-200 p-3 flex items-center justify-between bg-gray-50 rounded-b-lg">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 hover:bg-gray-200 rounded text-gray-600 transition-colors" title="Emoji">
+                                            <i class="far fa-smile"></i>
+                                        </button>
+                                        <button class="p-2 hover:bg-gray-200 rounded text-gray-600 transition-colors" title="Attach file">
+                                            <i class="fas fa-paperclip"></i>
+                                        </button>
+                                        <button class="p-2 hover:bg-gray-200 rounded text-gray-600 transition-colors" title="Mention">
+                                            <i class="fas fa-at"></i>
+                                        </button>
+                                    </div>
+                                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                        Comment
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Comments List -->
+                        <div class="space-y-4">
+                            <div class="flex space-x-3">
+                                <div class="w-9 h-9 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex-shrink-0 flex items-center justify-center">
+                                    <span class="text-white font-semibold text-xs">JD</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <span class="font-medium text-sm">John Davis</span>
+                                            <span class="text-xs text-gray-500">2 hours ago</span>
+                                        </div>
+                                        <p class="text-sm text-gray-700 leading-relaxed">Great progress! The wireframes look solid. Make sure to incorporate the feedback from the stakeholder meeting.</p>
+                                    </div>
+                                    <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                        <button class="hover:text-blue-600 transition-colors flex items-center space-x-1">
+                                            <i class="far fa-thumbs-up"></i>
+                                            <span>2</span>
+                                        </button>
+                                        <button class="hover:text-blue-600 transition-colors">Reply</button>
+                                        <button class="hover:text-blue-600 transition-colors">Edit</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-3">
+                                <div class="w-9 h-9 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex-shrink-0 flex items-center justify-center">
+                                    <span class="text-white font-semibold text-xs">SM</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <span class="font-medium text-sm">Sarah Miller</span>
+                                            <span class="text-xs text-gray-500">5 hours ago</span>
+                                        </div>
+                                        <p class="text-sm text-gray-700 leading-relaxed">Just uploaded the updated wireframes. <span class="text-blue-600 font-medium">@JohnDavis</span> can you review?</p>
+                                    </div>
+                                    <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                        <button class="hover:text-blue-600 transition-colors flex items-center space-x-1">
+                                            <i class="fas fa-heart text-red-500"></i>
+                                            <span>1</span>
+                                        </button>
+                                        <button class="hover:text-blue-600 transition-colors">Reply</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Sidebar -->
+                <div class="w-80 border-l border-gray-200 overflow-y-auto p-6 bg-gray-50 mobile-hidden">
+                    <h3 class="font-semibold text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-history mr-2 text-gray-400"></i>
+                        Activity
+                    </h3>
+                    
+                    <div class="space-y-4 text-sm">
+                        <div class="flex space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex-shrink-0 flex items-center justify-center">
+                                <span class="text-white font-semibold text-xs">SM</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-gray-700"><span class="font-medium">Sarah Miller</span> changed status to <span class="font-medium text-blue-600">In Progress</span></p>
+                                <span class="text-xs text-gray-500">2 hours ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex-shrink-0 flex items-center justify-center">
+                                <span class="text-white font-semibold text-xs">SM</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-gray-700"><span class="font-medium">Sarah Miller</span> added attachment <span class="font-medium">wireframe-v1.png</span></p>
+                                <span class="text-xs text-gray-500">5 hours ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex-shrink-0 flex items-center justify-center">
+                                <span class="text-white font-semibold text-xs">JD</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-gray-700"><span class="font-medium">John Davis</span> added a comment</p>
+                                <span class="text-xs text-gray-500">1 day ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex-shrink-0 flex items-center justify-center">
+                                <span class="text-white font-semibold text-xs">MC</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-gray-700"><span class="font-medium">Mike Chen</span> created this task</p>
+                                <span class="text-xs text-gray-500">3 days ago</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                            <i class="fas fa-clock mr-2 text-gray-400"></i>
+                            Time Tracking
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-600">Estimated</span>
+                                <span class="font-semibold text-gray-800">8h</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-600">Logged</span>
+                                <span class="font-semibold text-blue-600">4h 30m</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full transition-all" style="width: 56%"></div>
+                            </div>
+                            <button class="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors flex items-center justify-center space-x-2">
+                                <i class="fas fa-play"></i>
+                                <span>Start Timer</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                            <i class="fas fa-tags mr-2 text-gray-400"></i>
+                            Tags
+                        </h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Design</span>
+                            <span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">UI/UX</span>
+                            <button class="px-3 py-1 border-2 border-dashed border-gray-300 text-gray-500 text-xs rounded-full hover:border-gray-400 transition-colors">
+                                <i class="fas fa-plus mr-1"></i>Add tag
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                            <i class="fas fa-info-circle mr-2 text-gray-400"></i>
+                            Details
+                        </h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Created</span>
+                                <span class="text-gray-800">Oct 23, 2025</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Updated</span>
+                                <span class="text-gray-800">2 hours ago</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Task ID</span>
+                                <span class="text-gray-800 font-mono text-xs">#WR-1234</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Task Modal -->
+    <div id="createTaskModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col slide-in">
+            <div class="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-800">Create New Task</h2>
+                    <button id="closeCreateTask" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-2 transition-colors">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6">
+                <form class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Task Title <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" placeholder="Enter task title..." class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus-ring text-sm" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                        <textarea placeholder="Add task description..." class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus-ring resize-none text-sm" rows="4"></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Project <span class="text-red-500">*</span>
+                            </label>
+                            <select class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus-ring text-sm" required>
+                                <option value="">Select project...</option>
+                                <option selected>Website Redesign</option>
+                                <option>Mobile App</option>
+                                <option>Marketing Campaign</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Assignee</label>
+                            <select class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus-ring text-sm">
+                                <option value="">Select assignee...</option>
+                                <option>Sarah Miller</option>
+                                <option>John Davis</option>
+                                <option>Mike Chen</option>
+                                <option>Emma Wilson</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Priority</label>
+                            <select class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus-ring text-sm">
+                                <option>Low</option>
+                                <option selected>Medium</option>
+                                <option>High</option>
+                                <option>Critical</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                            <select class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus-ring text-sm">
+                                <option selected>To Do</option>
+                                <option>In Progress</option>
+                                <option>Review</option>
+                                <option>Done</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Start Date</label>
+                            <input type="date" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus-ring text-sm">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Due Date</label>
+                            <input type="date" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus-ring text-sm">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Estimated Time (hours)</label>
+                        <input type="number" placeholder="0" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus-ring text-sm" min="0" step="0.5">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Tags</label>
+                        <input type="text" placeholder="Add tags (comma separated)..." class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus-ring text-sm">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Attachments</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                            <div class="text-sm text-gray-600">Drop files here or click to upload</div>
+                            <div class="text-xs text-gray-400 mt-1">Max 10MB per file</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-end space-x-3 bg-gray-50">
+                <button id="cancelCreateTask" class="px-5 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-100 font-medium text-sm transition-colors">
+                    Cancel
+                </button>
+                <button class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm transition-colors shadow-sm">
+                    Create Task
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div id="notificationPanel" class="hidden fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-40 slide-in overflow-y-auto">
+        <div class="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold flex items-center">
+                    <i class="fas fa-bell mr-2 text-blue-600"></i>
+                    Notifications
+                </h2>
+                <button id="closeNotifications" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-2 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">All</button>
+                <button class="px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-600">Tasks</button>
+                <button class="px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-600">Comments</button>
+                <button class="px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-600">Mentions</button>
+            </div>
+        </div>
+        
+        <div class="divide-y divide-gray-100">
+            <div class="p-4 hover:bg-gray-50 cursor-pointer transition-colors">
+                <div class="flex space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span class="text-white font-semibold text-sm">JD</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-800"><span class="font-semibold">John Davis</span> assigned you to <span class="font-semibold">Setup CI/CD pipeline</span></p>
+                        <span class="text-xs text-gray-500 flex items-center mt-1">
+                            <i class="far fa-clock mr-1"></i>
+                            5 minutes ago
+                        </span>
+                    </div>
+                    <div class="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-2"></div>
+                </div>
+            </div>
+            
+            <div class="p-4 hover:bg-gray-50 cursor-pointer transition-colors">
+                <div class="flex space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span class="text-white font-semibold text-sm">SM</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-800"><span class="font-semibold">Sarah Miller</span> mentioned you in a comment</p>
+                        <span class="text-xs text-gray-500 flex items-center mt-1">
+                            <i class="far fa-clock mr-1"></i>
+                            1 hour ago
+                        </span>
+                    </div>
+                    <div class="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-2"></div>
+                </div>
+            </div>
+            
+            <div class="p-4 hover:bg-gray-50 cursor-pointer transition-colors opacity-75">
+                <div class="flex space-x-3">
+                    <div class="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0 flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-gray-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-800"><span class="font-semibold">Fix critical bug</span> is overdue</p>
+                        <span class="text-xs text-gray-500 flex items-center mt-1">
+                            <i class="far fa-clock mr-1"></i>
+                            2 hours ago
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 hover:bg-gray-50 cursor-pointer transition-colors opacity-75">
+                <div class="flex space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex-shrink-0 flex items-center justify-center">
+                        <span class="text-white font-semibold text-sm">MC</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-800"><span class="font-semibold">Mike Chen</span> completed <span class="font-semibold">Write API docs</span></p>
+                        <span class="text-xs text-gray-500 flex items-center mt-1">
+                            <i class="far fa-clock mr-1"></i>
+                            3 hours ago
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // THEME SWITCHING
+        // ============================================
+        
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+        
+        // Load saved theme or default to light
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        htmlElement.setAttribute('data-theme', savedTheme);
+        
+        // Theme toggle handler
+        themeToggle?.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Show toast notification
+            showToast(`${newTheme === 'dark' ? '🌙 Dark' : '☀️ Light'} mode enabled`, 'success');
+        });
+        
+        // ============================================
+        // BASIC SETUP AND VIEW SWITCHING
+        // ============================================
+        
+        const viewList = document.getElementById('viewList');
+        const viewBoard = document.getElementById('viewBoard');
+        const viewGantt = document.getElementById('viewGantt');
+        const listView = document.getElementById('listView');
+        const boardView = document.getElementById('boardView');
+        const ganttView = document.getElementById('ganttView');
+        
+        viewList.addEventListener('click', () => {
+            viewList.classList.add('bg-white', 'shadow-sm');
+            viewBoard.classList.remove('bg-white', 'shadow-sm');
+            viewGantt.classList.remove('bg-white', 'shadow-sm');
+            listView.classList.remove('hidden');
+            boardView.classList.add('hidden');
+            ganttView.classList.add('hidden');
+        });
+        
+        viewBoard.addEventListener('click', () => {
+            viewBoard.classList.add('bg-white', 'shadow-sm');
+            viewList.classList.remove('bg-white', 'shadow-sm');
+            viewGantt.classList.remove('bg-white', 'shadow-sm');
+            boardView.classList.remove('hidden');
+            listView.classList.add('hidden');
+            ganttView.classList.add('hidden');
+            renderKanbanBoard();
+        });
+        
+        viewGantt.addEventListener('click', () => {
+            viewGantt.classList.add('bg-white', 'shadow-sm');
+            viewList.classList.remove('bg-white', 'shadow-sm');
+            viewBoard.classList.remove('bg-white', 'shadow-sm');
+            ganttView.classList.remove('hidden');
+            listView.classList.add('hidden');
+            boardView.classList.add('hidden');
+            renderGanttChart();
+        });
+        
+        // ============================================
+        // MODAL MANAGEMENT
+        // ============================================
+        
+        const taskDetailModal = document.getElementById('taskDetailModal');
+        const closeTaskDetail = document.getElementById('closeTaskDetail');
+        const createTaskModal = document.getElementById('createTaskModal');
+        const btnCreateTask = document.getElementById('btnCreateTask');
+        const closeCreateTask = document.getElementById('closeCreateTask');
+        const cancelCreateTask = document.getElementById('cancelCreateTask');
+        const notificationPanel = document.getElementById('notificationPanel');
+        const closeNotifications = document.getElementById('closeNotifications');
+        
+        btnCreateTask.addEventListener('click', () => {
+            createTaskModal.classList.remove('hidden');
+        });
+        
+        closeCreateTask.addEventListener('click', () => {
+            createTaskModal.classList.add('hidden');
+        });
+        
+        cancelCreateTask.addEventListener('click', () => {
+            createTaskModal.classList.add('hidden');
+        });
+        
+        closeTaskDetail.addEventListener('click', () => {
+            taskDetailModal.classList.add('hidden');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('[data-notifications]')) {
+                notificationPanel.classList.remove('hidden');
+            }
+        });
+        
+        closeNotifications.addEventListener('click', () => {
+            notificationPanel.classList.add('hidden');
+        });
+        
+        // Close modals on outside click
+        [taskDetailModal, createTaskModal].forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        });
+        
+        // ============================================
+        // ENHANCED SUBTASK SYSTEM WITH COLLAPSIBLE TREE
+        // ============================================
+        
+        let subtasks = [
+            {
+                id: 1,
+                title: 'Research competitor designs',
+                completed: true,
+                assignee: 'Mike Chen',
+                assigneeInitials: 'MC',
+                assigneeColor: 'from-green-400 to-green-600',
+                status: 'Done',
+                dueDate: '2025-10-24',
+                level: 0,
+                parentId: null,
+                expanded: true
+            },
+            {
+                id: 2,
+                title: 'Create wireframes',
+                completed: true,
+                assignee: 'Sarah Miller',
+                assigneeInitials: 'SM',
+                assigneeColor: 'from-purple-400 to-pink-400',
+                status: 'Done',
+                dueDate: '2025-10-25',
+                level: 0,
+                parentId: null,
+                expanded: true
+            },
+            {
+                id: 3,
+                title: 'Low-fidelity wireframes',
+                completed: true,
+                assignee: 'Sarah Miller',
+                assigneeInitials: 'SM',
+                assigneeColor: 'from-purple-400 to-pink-400',
+                status: 'Done',
+                dueDate: '2025-10-25',
+                level: 1,
+                parentId: 2,
+                expanded: false
+            },
+            {
+                id: 4,
+                title: 'Design hero section',
+                completed: false,
+                assignee: 'Sarah Miller',
+                assigneeInitials: 'SM',
+                assigneeColor: 'from-purple-400 to-pink-400',
+                status: 'In Progress',
+                dueDate: '2025-10-27',
+                level: 0,
+                parentId: null,
+                expanded: true
+            },
+            {
+                id: 5,
+                title: 'Header design',
+                completed: false,
+                assignee: 'Sarah Miller',
+                assigneeInitials: 'SM',
+                assigneeColor: 'from-purple-400 to-pink-400',
+                status: 'In Progress',
+                dueDate: '2025-10-27',
+                level: 1,
+                parentId: 4,
+                expanded: true
+            },
+            {
+                id: 6,
+                title: 'CTA button styles',
+                completed: false,
+                assignee: 'John Davis',
+                assigneeInitials: 'JD',
+                assigneeColor: 'from-blue-400 to-blue-600',
+                status: 'To Do',
+                dueDate: '2025-10-28',
+                level: 2,
+                parentId: 5,
+                expanded: false
+            },
+            {
+                id: 7,
+                title: 'Hero image selection',
+                completed: false,
+                assignee: 'Sarah Miller',
+                assigneeInitials: 'SM',
+                assigneeColor: 'from-purple-400 to-pink-400',
+                status: 'To Do',
+                dueDate: '2025-10-27',
+                level: 1,
+                parentId: 4,
+                expanded: false
+            },
+            {
+                id: 8,
+                title: 'Design features section',
+                completed: false,
+                assignee: null,
+                assigneeInitials: null,
+                assigneeColor: '',
+                status: 'To Do',
+                dueDate: '2025-10-29',
+                level: 0,
+                parentId: null,
+                expanded: false
+            }
+        ];
+        
+        let subtaskIdCounter = 9;
+        const MAX_DEPTH = 3;
+        
+        // Status color mapping
+        const statusColors = {
+            'To Do': 'status-todo',
+            'In Progress': 'status-inprogress',
+            'Review': 'status-review',
+            'Done': 'status-done'
+        };
+        
+        // Render subtasks with collapsible tree
+        function renderSubtasks() {
+            const container = document.getElementById('subtaskContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            const tree = buildSubtaskTree();
+            renderSubtaskTree(tree, container, 0);
+            updateParentProgress();
+        }
+        
+        function buildSubtaskTree() {
+            const map = {};
+            const roots = [];
+            
+            subtasks.forEach(task => {
+                map[task.id] = { ...task, children: [] };
+            });
+            
+            subtasks.forEach(task => {
+                if (task.parentId === null) {
+                    roots.push(map[task.id]);
+                } else if (map[task.parentId]) {
+                    map[task.parentId].children.push(map[task.id]);
+                }
+            });
+            
+            return roots;
+        }
+        
+        function renderSubtaskTree(nodes, container, level) {
+            nodes.forEach(node => {
+                const subtaskEl = createSubtaskElement(node, level);
+                container.appendChild(subtaskEl);
+                
+                if (node.children.length > 0) {
+                    const childContainer = document.createElement('div');
+                    childContainer.className = 'subtask-children pl-6 border-l-2 border-gray-200 ml-3';
+                    childContainer.style.display = node.expanded ? 'block' : 'none';
+                    
+                    renderSubtaskTree(node.children, childContainer, level + 1);
+                    subtaskEl.appendChild(childContainer);
+                }
+            });
+        }
+        
+        function createSubtaskElement(subtask, level) {
+            const hasChildren = subtasks.some(t => t.parentId === subtask.id);
+            const childCount = subtasks.filter(t => t.parentId === subtask.id).length;
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = `subtask-item mb-1 ${subtask.expanded ? 'expanded' : 'collapsed'}`;
+            wrapper.dataset.id = subtask.id;
+            
+            const div = document.createElement('div');
+            div.className = 'subtask-content group bg-white hover:bg-gray-50 rounded-lg border border-gray-200 transition-all';
+            
+            div.innerHTML = `
+                <div class="flex items-center space-x-2 p-3">
+                    <!-- Expand/Collapse Toggle -->
+                    ${hasChildren ? `
+                        <button class="subtask-toggle w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-all">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </button>
+                    ` : '<div class="w-5"></div>'}
+                    
+                    <!-- Checkbox -->
+                    <input type="checkbox" ${subtask.completed ? 'checked' : ''} 
+                        class="subtask-checkbox w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                    
+                    <!-- Title -->
+                    <input type="text" value="${subtask.title}" 
+                        class="subtask-title flex-1 text-sm bg-transparent border-none focus:outline-none focus-ring rounded px-2 py-1 ${subtask.completed ? 'line-through text-gray-400' : 'text-gray-800 font-medium'}"
+                        placeholder="Subtask title...">
+                    
+                    <!-- Status Badge -->
+                    <select class="subtask-status text-xs border-0 rounded-full px-3 py-1 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 ${statusColors[subtask.status]} cursor-pointer">
+                        <option value="To Do" ${subtask.status === 'To Do' ? 'selected' : ''}>To Do</option>
+                        <option value="In Progress" ${subtask.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                        <option value="Review" ${subtask.status === 'Review' ? 'selected' : ''}>Review</option>
+                        <option value="Done" ${subtask.status === 'Done' ? 'selected' : ''}>Done</option>
+                    </select>
+                    
+                    <!-- Due Date -->
+                    <div class="flex items-center space-x-1 text-xs text-gray-500 mobile-hidden">
+                        <i class="far fa-calendar text-gray-400"></i>
+                        <input type="date" value="${subtask.dueDate}" 
+                            class="subtask-date border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1 cursor-pointer">
+                    </div>
+                    
+                    <!-- Assignee -->
+                    ${subtask.assignee ? `
+                        <div class="w-7 h-7 bg-gradient-to-br ${subtask.assigneeColor} rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform" 
+                            title="${subtask.assignee}">
+                            <span class="text-white font-semibold text-xs">${subtask.assigneeInitials}</span>
+                        </div>
+                    ` : `
+                        <button class="assign-btn w-7 h-7 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center text-gray-400 hover:border-blue-400 hover:text-blue-600 transition-colors text-xs">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    `}
+                    
+                    <!-- Actions (shown on hover) -->
+                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        ${level > 0 ? `
+                            <button class="outdent-btn p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Outdent">
+                                <i class="fas fa-outdent text-xs"></i>
+                            </button>
+                        ` : ''}
+                        ${level < MAX_DEPTH ? `
+                            <button class="indent-btn p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Indent">
+                                <i class="fas fa-indent text-xs"></i>
+                            </button>
+                        ` : ''}
+                        ${level < MAX_DEPTH ? `
+                            <button class="add-child-btn p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors" title="Add sub-subtask">
+                                <i class="fas fa-plus text-xs"></i>
+                            </button>
+                        ` : ''}
+                        <button class="delete-subtask-btn p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
+                            <i class="fas fa-trash-alt text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                ${hasChildren && !subtask.expanded ? `
+                    <div class="px-3 pb-2 text-xs text-gray-400">
+                        <i class="fas fa-layer-group mr-1"></i>${childCount} subtask${childCount > 1 ? 's' : ''}
+                    </div>
+                ` : ''}
+            `;
+            
+            wrapper.appendChild(div);
+            
+            // Event Listeners
+            const toggleBtn = div.querySelector('.subtask-toggle');
+            const checkbox = div.querySelector('.subtask-checkbox');
+            const titleInput = div.querySelector('.subtask-title');
+            const statusSelect = div.querySelector('.subtask-status');
+            const dateInput = div.querySelector('.subtask-date');
+            const indentBtn = div.querySelector('.indent-btn');
+            const outdentBtn = div.querySelector('.outdent-btn');
+            const addChildBtn = div.querySelector('.add-child-btn');
+            const deleteBtn = div.querySelector('.delete-subtask-btn');
+            const assignBtn = div.querySelector('.assign-btn');
+            
+            // Toggle expand/collapse
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const task = subtasks.find(t => t.id === subtask.id);
+                    if (task) {
+                        task.expanded = !task.expanded;
+                        renderSubtasks();
+                    }
+                });
+            }
+            
+            // Checkbox
+            checkbox.addEventListener('change', () => {
+                const task = subtasks.find(t => t.id === subtask.id);
+                if (task) {
+                    task.completed = checkbox.checked;
+                    task.status = checkbox.checked ? 'Done' : 'To Do';
+                    renderSubtasks();
+                }
+            });
+            
+            // Title
+            titleInput.addEventListener('blur', () => {
+                const task = subtasks.find(t => t.id === subtask.id);
+                if (task) task.title = titleInput.value;
+            });
+            
+            titleInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    titleInput.blur();
+                }
+            });
+            
+            // Status
+            statusSelect.addEventListener('change', () => {
+                const task = subtasks.find(t => t.id === subtask.id);
+                if (task) {
+                    task.status = statusSelect.value;
+                    task.completed = statusSelect.value === 'Done';
+                    renderSubtasks();
+                }
+            });
+            
+            // Date
+            if (dateInput) {
+                dateInput.addEventListener('change', () => {
+                    const task = subtasks.find(t => t.id === subtask.id);
+                    if (task) task.dueDate = dateInput.value;
+                });
+            }
+            
+            // Indent
+            if (indentBtn) {
+                indentBtn.addEventListener('click', () => indentSubtask(subtask.id));
+            }
+            
+            // Outdent
+            if (outdentBtn) {
+                outdentBtn.addEventListener('click', () => outdentSubtask(subtask.id));
+            }
+            
+            // Add child
+            if (addChildBtn) {
+                addChildBtn.addEventListener('click', () => addSubtask(subtask.id));
+            }
+            
+            // Delete
+            deleteBtn.addEventListener('click', () => {
+                if (confirm('Delete this subtask and all its children?')) {
+                    deleteSubtask(subtask.id);
+                }
+            });
+            
+            // Assign
+            if (assignBtn) {
+                assignBtn.addEventListener('click', () => assignSubtask(subtask.id));
+            }
+            
+            return wrapper;
+        }
+        
+        // Add subtask
+        function addSubtask(parentId = null) {
+            const parent = parentId ? subtasks.find(t => t.id === parentId) : null;
+            const level = parent ? parent.level + 1 : 0;
+            
+            if (level > MAX_DEPTH) {
+                showToast('Maximum nesting level reached (4 levels)', 'error');
+                return;
+            }
+            
+            const newSubtask = {
+                id: subtaskIdCounter++,
+                title: '',
+                completed: false,
+                assignee: null,
+                assigneeInitials: null,
+                assigneeColor: '',
+                status: 'To Do',
+                dueDate: new Date().toISOString().split('T')[0],
+                level: level,
+                parentId: parentId,
+                expanded: false
+            };
+            
+            subtasks.push(newSubtask);
+            
+            // Expand parent if exists
+            if (parent) {
+                parent.expanded = true;
+            }
+            
+            renderSubtasks();
+            
+            // Focus on new subtask
+            setTimeout(() => {
+                const newEl = document.querySelector(`[data-id="${newSubtask.id}"] .subtask-title`);
+                if (newEl) newEl.focus();
+            }, 100);
+        }
+        
+        // Delete subtask and children
+        function deleteSubtask(id) {
+            const toDelete = [id];
+            
+            function findChildren(parentId) {
+                subtasks.forEach(task => {
+                    if (task.parentId === parentId) {
+                        toDelete.push(task.id);
+                        findChildren(task.id);
+                    }
+                });
+            }
+            
+            findChildren(id);
+            subtasks = subtasks.filter(t => !toDelete.includes(t.id));
+            renderSubtasks();
+            showToast('Subtask deleted', 'success');
+        }
+        
+        // Indent subtask
+        function indentSubtask(id) {
+            const task = subtasks.find(t => t.id === id);
+            if (!task) return;
+            
+            const taskIndex = subtasks.indexOf(task);
+            
+            // Find previous sibling
+            let newParent = null;
+            for (let i = taskIndex - 1; i >= 0; i--) {
+                if (subtasks[i].level === task.level && subtasks[i].parentId === task.parentId) {
+                    newParent = subtasks[i];
+                    break;
+                }
+            }
+            
+            if (newParent && newParent.level < MAX_DEPTH) {
+                task.parentId = newParent.id;
+                task.level = newParent.level + 1;
+                newParent.expanded = true;
+                updateChildrenLevels(task.id);
+                renderSubtasks();
+            } else {
+                showToast('Cannot indent this subtask', 'error');
+            }
+        }
+        
+        // Outdent subtask
+        function outdentSubtask(id) {
+            const task = subtasks.find(t => t.id === id);
+            if (!task || task.level === 0) return;
+            
+            const parent = subtasks.find(t => t.id === task.parentId);
+            if (parent) {
+                task.parentId = parent.parentId;
+                task.level = parent.level;
+                updateChildrenLevels(task.id);
+                renderSubtasks();
+            }
+        }
+        
+        // Update children levels recursively
+        function updateChildrenLevels(parentId) {
+            const parent = subtasks.find(t => t.id === parentId);
+            if (!parent) return;
+            
+            subtasks.forEach(task => {
+                if (task.parentId === parentId) {
+                    task.level = parent.level + 1;
+                    updateChildrenLevels(task.id);
+                }
+            });
+        }
+        
+        // Assign subtask
+        function assignSubtask(id) {
+            const task = subtasks.find(t => t.id === id);
+            if (!task) return;
+            
+            const assignees = [
+                { name: 'Sarah Miller', initials: 'SM', color: 'from-purple-400 to-pink-400' },
+                { name: 'John Davis', initials: 'JD', color: 'from-blue-400 to-blue-600' },
+                { name: 'Mike Chen', initials: 'MC', color: 'from-green-400 to-green-600' },
+                { name: 'Emma Wilson', initials: 'EW', color: 'from-red-400 to-red-600' }
+            ];
+            
+            const randomAssignee = assignees[Math.floor(Math.random() * assignees.length)];
+            task.assignee = randomAssignee.name;
+            task.assigneeInitials = randomAssignee.initials;
+            task.assigneeColor = randomAssignee.color;
+            renderSubtasks();
+        }
+        
+        // Update progress
+        function updateParentProgress() {
+            const total = subtasks.length;
+            const completed = subtasks.filter(t => t.completed).length;
+            const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            const progressEl = document.getElementById('subtaskProgress');
+            const progressBar = document.getElementById('subtaskProgressBar');
+            
+            if (progressEl) {
+                progressEl.textContent = `${completed} of ${total} (${percentage}%)`;
+            }
+            
+            if (progressBar) {
+                progressBar.style.width = `${percentage}%`;
+            }
+        }
+        
+        // Collapse/Expand all
+        document.getElementById('collapseAllSubtasks')?.addEventListener('click', () => {
+            subtasks.forEach(t => t.expanded = false);
+            renderSubtasks();
+        });
+        
+        document.getElementById('expandAllSubtasks')?.addEventListener('click', () => {
+            subtasks.forEach(t => t.expanded = true);
+            renderSubtasks();
+        });
+        
+        // Add root subtask
+        document.getElementById('addRootSubtask')?.addEventListener('click', () => {
+            addSubtask(null);
+        });
+        
+        // ============================================
+        // TASK LIST RENDERING
+        // ============================================
+        
+        const taskListData = [
+            {
+                id: 1,
+                title: 'Design homepage mockup',
+                assignee: 'Sarah Miller',
+                assigneeInitials: 'SM',
+                assigneeColor: 'from-purple-400 to-pink-400',
+                status: 'In Progress',
+                priority: 'High',
+                dueDate: 'Oct 28, 2025',
+                subtasks: '3/5',
+                comments: 2
+            },
+            {
+                id: 2,
+                title: 'Setup development environment',
+                assignee: 'John Davis',
+                assigneeInitials: 'JD',
+                assigneeColor: 'from-blue-400 to-blue-600',
+                status: 'Done',
+                priority: 'Medium',
+                dueDate: 'Oct 25, 2025',
+                subtasks: null,
+                comments: 5
+            },
+            {
+                id: 3,
+                title: 'Write technical documentation',
+                assignee: 'Mike Chen',
+                assigneeInitials: 'MC',
+                assigneeColor: 'from-green-400 to-green-600',
+                status: 'To Do',
+                priority: 'Low',
+                dueDate: 'Nov 2, 2025',
+                subtasks: null,
+                comments: 0
+            },
+            {
+                id: 4,
+                title: 'Fix critical bug in checkout',
+                assignee: 'Emma Wilson',
+                assigneeInitials: 'EW',
+                assigneeColor: 'from-red-400 to-red-600',
+                status: 'Review',
+                priority: 'Critical',
+                dueDate: 'Oct 24, 2025',
+                overdue: true,
+                subtasks: null,
+                comments: 8
+            }
+        ];
+        
+        function renderTaskList() {
+            const taskList = document.getElementById('taskList');
+            if (!taskList) return;
+            
+            taskList.innerHTML = taskListData.map(task => `
+                <div class="task-row grid grid-cols-12 gap-4 px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors items-center ${task.overdue ? 'bg-red-50' : ''}">
+                    <div class="col-span-12 md:col-span-1">
+                        <input type="checkbox" class="task-checkbox w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                    </div>
+                    <div class="col-span-12 md:col-span-4">
+                        <div class="font-medium text-gray-800 mb-1 ${task.overdue ? 'text-red-600' : ''}">${task.title}</div>
+                        <div class="flex items-center space-x-3 text-xs text-gray-500">
+                            ${task.subtasks ? `<span><i class="fas fa-list-ul mr-1"></i>${task.subtasks}</span>` : ''}
+                            ${task.comments > 0 ? `<span><i class="far fa-comment mr-1"></i>${task.comments}</span>` : ''}
+                            ${task.overdue ? '<span class="text-red-600"><i class="fas fa-exclamation-triangle mr-1"></i>Overdue</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="col-span-6 md:col-span-2 flex items-center space-x-2">
+                        <div class="w-7 h-7 bg-gradient-to-br ${task.assigneeColor} rounded-full flex items-center justify-center">
+                            <span class="text-white font-semibold text-xs">${task.assigneeInitials}</span>
+                        </div>
+                        <span class="text-sm mobile-hidden">${task.assignee.split(' ')[0]}</span>
+                    </div>
+                    <div class="col-span-6 md:col-span-1">
+                        <span class="px-3 py-1 ${statusColors[task.status]} text-xs rounded-full font-medium">${task.status}</span>
+                    </div>
+                    <div class="col-span-6 md:col-span-1">
+                        <span class="px-3 py-1 priority-${task.priority.toLowerCase()} text-xs rounded-full font-medium">${task.priority}</span>
+                    </div>
+                    <div class="col-span-6 md:col-span-2 text-sm ${task.overdue ? 'text-red-600 font-semibold' : 'text-gray-600'}">
+                        <i class="far fa-calendar mr-1"></i>${task.dueDate}
+                    </div>
+                    <div class="col-span-12 md:col-span-1 flex space-x-2 justify-end">
+                        <button class="p-1.5 hover:bg-gray-200 rounded transition-colors">
+                            <i class="fas fa-star text-gray-400"></i>
+                        </button>
+                        <button class="p-1.5 hover:bg-gray-200 rounded transition-colors">
+                            <i class="fas fa-ellipsis-h text-gray-400"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Add click handlers
+            document.querySelectorAll('.task-row').forEach((row, index) => {
+                row.addEventListener('click', (e) => {
+                    if (!e.target.closest('input[type="checkbox"]') && !e.target.closest('button')) {
+                        taskDetailModal.classList.remove('hidden');
+                    }
+                });
+            });
+        }
+        
+        // ============================================
+        // KANBAN BOARD VIEW
+        // ============================================
+        
+        function renderKanbanBoard() {
+            const columns = document.querySelectorAll('.kanban-column');
+            
+            columns.forEach(column => {
+                const status = column.dataset.status;
+                const cardsContainer = column.querySelector('.kanban-cards');
+                const countBadge = column.querySelector('.kanban-count');
+                
+                const tasksForStatus = taskListData.filter(task => task.status === status);
+                countBadge.textContent = tasksForStatus.length;
+                
+                cardsContainer.innerHTML = tasksForStatus.map(task => `
+                    <div class="kanban-card bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-move hover:shadow-md transition-all" 
+                         draggable="true" 
+                         data-task-id="${task.id}"
+                         data-status="${task.status}">
+                        <div class="flex items-start justify-between mb-3">
+                            <span class="px-2 py-1 priority-${task.priority.toLowerCase()} text-xs rounded-full font-medium">
+                                ${task.priority}
+                            </span>
+                            <button class="text-gray-400 hover:text-gray-600 transition-colors" onclick="openTaskDetail(${task.id})">
+                                <i class="fas fa-ellipsis-h text-sm"></i>
+                            </button>
+                        </div>
+                        
+                        <h4 class="font-medium text-gray-800 mb-3 leading-snug">${task.title}</h4>
+                        
+                        ${task.subtasks || task.comments > 0 ? `
+                            <div class="flex items-center space-x-3 text-xs text-gray-500 mb-3">
+                                ${task.subtasks ? `<span><i class="fas fa-list-ul mr-1"></i>${task.subtasks}</span>` : ''}
+                                ${task.comments > 0 ? `<span><i class="far fa-comment mr-1"></i>${task.comments}</span>` : ''}
+                            </div>
+                        ` : ''}
+                        
+                        ${task.subtasks ? `
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 mb-3">
+                                <div class="bg-blue-600 h-1.5 rounded-full" style="width: ${(parseInt(task.subtasks.split('/')[0]) / parseInt(task.subtasks.split('/')[1]) * 100)}%"></div>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="w-7 h-7 bg-gradient-to-br ${task.assigneeColor} rounded-full flex items-center justify-center" title="${task.assignee}">
+                                <span class="text-white font-semibold text-xs">${task.assigneeInitials}</span>
+                            </div>
+                            <span class="text-xs ${task.overdue ? 'text-red-600 font-semibold' : 'text-gray-500'}">
+                                <i class="far fa-calendar mr-1"></i>${task.dueDate.split(',')[0]}
+                            </span>
+                        </div>
+                        
+                        ${task.overdue ? `
+                            <div class="mt-2 px-2 py-1 bg-red-100 text-red-700 text-xs rounded flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                Overdue
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+                
+                // Enable drag and drop
+                enableKanbanDragDrop(cardsContainer);
+            });
+        }
+        
+        function enableKanbanDragDrop(container) {
+            const cards = container.querySelectorAll('.kanban-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+            });
+            
+            container.addEventListener('dragover', handleDragOver);
+            container.addEventListener('drop', handleDrop);
+            container.addEventListener('dragleave', handleDragLeave);
+        }
+        
+        let draggedCard = null;
+        
+        function handleDragStart(e) {
+            draggedCard = this;
+            this.classList.add('opacity-50');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function handleDragEnd(e) {
+            this.classList.remove('opacity-50');
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.parentElement.classList.add('bg-blue-50');
+            return false;
+        }
+        
+        function handleDragLeave(e) {
+            this.parentElement.classList.remove('bg-blue-50');
+        }
+        
+        function handleDrop(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            if (draggedCard) {
+                const newStatus = this.parentElement.dataset.status;
+                const taskId = parseInt(draggedCard.dataset.taskId);
+                
+                // Update task status in data
+                const task = taskListData.find(t => t.id === taskId);
+                if (task) {
+                    const oldStatus = task.status;
+                    task.status = newStatus;
+                    
+                    // Re-render kanban board
+                    renderKanbanBoard();
+                    
+                    showToast(`Task moved to ${newStatus}`, 'success');
+                }
+            }
+            
+            this.parentElement.classList.remove('bg-blue-50');
+            return false;
+        }
+        
+        function addKanbanTask(status) {
+            showToast('Create task feature - opens create modal', 'success');
+            createTaskModal.classList.remove('hidden');
+        }
+        
+        function openTaskDetail(taskId) {
+            taskDetailModal.classList.remove('hidden');
+        }
+        
+        // ============================================
+        // GANTT/TIMELINE VIEW
+        // ============================================
+        
+        let ganttCurrentDate = new Date(2025, 9, 1); // October 2025
+        let ganttDayWidth = 40; // pixels per day
+        
+        const ganttTasks = [
+            {
+                id: 1,
+                title: 'Design homepage mockup',
+                startDate: '2025-10-23',
+                endDate: '2025-10-28',
+                progress: 60,
+                status: 'In Progress'
+            },
+            {
+                id: 2,
+                title: 'Setup development environment',
+                startDate: '2025-10-20',
+                endDate: '2025-10-25',
+                progress: 100,
+                status: 'Done'
+            },
+            {
+                id: 3,
+                title: 'Write technical documentation',
+                startDate: '2025-10-28',
+                endDate: '2025-11-02',
+                progress: 0,
+                status: 'To Do'
+            },
+            {
+                id: 4,
+                title: 'Fix critical bug in checkout',
+                startDate: '2025-10-22',
+                endDate: '2025-10-24',
+                progress: 90,
+                status: 'Review',
+                overdue: true
+            },
+            {
+                id: 5,
+                title: 'Backend API development',
+                startDate: '2025-10-26',
+                endDate: '2025-11-05',
+                progress: 30,
+                status: 'In Progress'
+            },
+            {
+                id: 6,
+                title: 'User testing and feedback',
+                startDate: '2025-11-01',
+                endDate: '2025-11-08',
+                progress: 0,
+                status: 'To Do'
+            }
+        ];
+        
+        function renderGanttChart() {
+            const year = ganttCurrentDate.getFullYear();
+            const month = ganttCurrentDate.getMonth();
+            
+            // Update month display
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('ganttCurrentMonth').textContent = `${monthNames[month]} ${year}`;
+            
+            // Calculate days in month
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDay = new Date(year, month, 1);
+            
+            // Render date headers
+            const dateHeader = document.getElementById('ganttDateHeader');
+            dateHeader.innerHTML = '';
+            dateHeader.style.width = `${daysInMonth * ganttDayWidth}px`;
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const isToday = date.toDateString() === new Date().toDateString();
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                
+                const dayHeader = document.createElement('div');
+                dayHeader.className = `text-center border-r border-gray-200 ${isWeekend ? 'bg-gray-100' : ''} ${isToday ? 'bg-blue-50' : ''}`;
+                dayHeader.style.width = `${ganttDayWidth}px`;
+                dayHeader.innerHTML = `
+                    <div class="text-xs text-gray-500 py-1">${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]}</div>
+                    <div class="text-sm font-semibold py-1 ${isToday ? 'text-blue-600' : 'text-gray-700'}">${day}</div>
+                `;
+                dateHeader.appendChild(dayHeader);
+            }
+            
+            // Render task rows
+            const chartBody = document.getElementById('ganttChartBody');
+            chartBody.innerHTML = ganttTasks.map(task => {
+                const start = new Date(task.startDate);
+                const end = new Date(task.endDate);
+                
+                // Calculate position and width
+                const startDay = start.getDate();
+                const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                const leftPosition = (startDay - 1) * ganttDayWidth;
+                const barWidth = duration * ganttDayWidth;
+                
+                // Determine bar color based on status
+                let barColor = 'bg-gray-300';
+                if (task.overdue) barColor = 'bg-red-500';
+                else if (task.status === 'Done') barColor = 'bg-green-500';
+                else if (task.status === 'In Progress') barColor = 'bg-blue-500';
+                else if (task.status === 'Review') barColor = 'bg-yellow-500';
+                
+                return `
+                    <div class="flex hover:bg-gray-50 transition-colors">
+                        <div class="w-64 px-4 py-4 border-r border-gray-200">
+                            <div class="font-medium text-sm text-gray-800 mb-1">${task.title}</div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs ${statusColors[task.status]} px-2 py-0.5 rounded-full">${task.status}</span>
+                                <span class="text-xs text-gray-500">${task.progress}%</span>
+                            </div>
+                        </div>
+                        <div class="flex-1 relative py-4" style="width: ${daysInMonth * ganttDayWidth}px">
+                            <!-- Weekend backgrounds -->
+                            ${Array.from({length: daysInMonth}, (_, i) => {
+                                const date = new Date(year, month, i + 1);
+                                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                                const isToday = date.toDateString() === new Date().toDateString();
+                                return isWeekend || isToday ? `
+                                    <div class="absolute top-0 bottom-0 ${isWeekend ? 'bg-gray-50' : ''} ${isToday ? 'bg-blue-50' : ''} border-r border-gray-100" 
+                                         style="left: ${i * ganttDayWidth}px; width: ${ganttDayWidth}px;"></div>
+                                ` : '';
+                            }).join('')}
+                            
+                            <!-- Today marker -->
+                            ${(() => {
+                                const today = new Date();
+                                if (today.getMonth() === month && today.getFullYear() === year) {
+                                    const todayDay = today.getDate();
+                                    return `<div class="absolute top-0 bottom-0 w-0.5 bg-blue-600 z-10" style="left: ${(todayDay - 1) * ganttDayWidth + ganttDayWidth/2}px"></div>`;
+                                }
+                                return '';
+                            })()}
+                            
+                            <!-- Task bar -->
+                            <div class="absolute top-1/2 -translate-y-1/2 ${barColor} rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-all z-20 group"
+                                 style="left: ${leftPosition}px; width: ${barWidth}px; height: 32px;"
+                                 title="${task.title}">
+                                <div class="relative h-full flex items-center px-3">
+                                    <div class="absolute inset-0 bg-gray-800 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                                    <span class="text-white text-xs font-medium truncate relative z-10">${task.title}</span>
+                                    ${task.progress > 0 && task.progress < 100 ? `
+                                        <div class="absolute bottom-0 left-0 h-1 bg-white bg-opacity-30 rounded-bl-lg" style="width: ${task.progress}%"></div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Gantt controls
+        document.getElementById('ganttPrevMonth')?.addEventListener('click', () => {
+            ganttCurrentDate.setMonth(ganttCurrentDate.getMonth() - 1);
+            renderGanttChart();
+        });
+        
+        document.getElementById('ganttNextMonth')?.addEventListener('click', () => {
+            ganttCurrentDate.setMonth(ganttCurrentDate.getMonth() + 1);
+            renderGanttChart();
+        });
+        
+        document.getElementById('ganttToday')?.addEventListener('click', () => {
+            ganttCurrentDate = new Date();
+            renderGanttChart();
+        });
+        
+        document.getElementById('ganttZoomIn')?.addEventListener('click', () => {
+            if (ganttDayWidth < 60) {
+                ganttDayWidth += 10;
+                renderGanttChart();
+            }
+        });
+        
+        document.getElementById('ganttZoomOut')?.addEventListener('click', () => {
+            if (ganttDayWidth > 20) {
+                ganttDayWidth -= 10;
+                renderGanttChart();
+            }
+        });
+        
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} fade-in z-50 flex items-center space-x-2`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        menuToggle?.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-hidden');
+            if (!sidebar.classList.contains('mobile-hidden')) {
+                sidebar.style.position = 'fixed';
+                sidebar.style.zIndex = '30';
+            } else {
+                sidebar.style.position = '';
+                sidebar.style.zIndex = '';
+            }
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                taskDetailModal.classList.add('hidden');
+                createTaskModal.classList.add('hidden');
+                notificationPanel.classList.add('hidden');
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.querySelector('input[placeholder*="Search"]')?.focus();
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                createTaskModal.classList.remove('hidden');
+            }
+        });
+        
+        // Bulk selection
+        const selectAll = document.getElementById('selectAll');
+        const bulkActionsBar = document.getElementById('bulkActionsBar');
+        const closeBulkActions = document.getElementById('closeBulkActions');
+        
+        selectAll?.addEventListener('change', (e) => {
+            document.querySelectorAll('.task-checkbox').forEach(cb => {
+                cb.checked = e.target.checked;
+            });
+            updateBulkActions();
+        });
+        
+        function updateBulkActions() {
+            const checkboxes = document.querySelectorAll('.task-checkbox');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            
+            if (checkedCount > 0) {
+                bulkActionsBar.classList.remove('hidden');
+                bulkActionsBar.querySelector('span').textContent = `${checkedCount} task${checkedCount > 1 ? 's' : ''} selected`;
+            } else {
+                bulkActionsBar.classList.add('hidden');
+            }
+        }
+        
+        closeBulkActions?.addEventListener('click', () => {
+            document.querySelectorAll('.task-checkbox').forEach(cb => cb.checked = false);
+            selectAll.checked = false;
+            bulkActionsBar.classList.add('hidden');
+        });
+        
+        // Initialize
+        renderSubtasks();
+        renderTaskList();
+        
+        // Add checkbox listeners for bulk actions
+        setTimeout(() => {
+            document.querySelectorAll('.task-checkbox').forEach(cb => {
+                cb.addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    updateBulkActions();
+                });
+            });
+        }, 100);
+        
+        console.log('✅ Task Management Module Loaded');
+        console.log('Features:');
+        console.log('- Enhanced Subtask System with Collapsible Tree (up to 4 levels)');
+        console.log('- Expand/Collapse subtasks with visual indicators');
+        console.log('- Indent/Outdent controls');
+        console.log('- Individual assignee, status, and due date per subtask');
+        console.log('- Auto-calculated progress');
+        console.log('- Modern ClickUp/Jira-inspired design');
+        console.log('- Full CRUD operations on subtasks');
+        console.log('- Keyboard shortcuts (Esc, Ctrl+K, Ctrl+N)');
+    </script>
+</body>
+</html>
