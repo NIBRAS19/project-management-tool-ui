@@ -115,7 +115,6 @@
 <body class="bg-gray-50">
     <!-- Top Header -->
     <div class="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
-        <!-- Left Section -->
         <div class="flex items-center space-x-2">
             <div class="w-8 h-8 bg-teal-500 rounded flex items-center justify-center text-white font-bold">
                 <i class="fas fa-check"></i>
@@ -123,7 +122,6 @@
             <span class="font-semibold text-gray-800">Project Management</span>
         </div>
 
-        <!-- Center Section (Search Bar) -->
         <div class="flex-1 flex justify-center">
             <div class="relative w-full max-w-xs">
                 <input type="text" placeholder="Search Ctrl + K"
@@ -132,7 +130,6 @@
             </div>
         </div>
 
-        <!-- Right Section -->
         <div class="flex items-center space-x-4">
             <button id="themeToggle"
                 class="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors">
@@ -145,7 +142,6 @@
         </div>
     </div>
 
-
     <div class="flex h-screen">
         <!-- Sidebar -->
         <div class="w-64 bg-white border-r border-gray-200 overflow-y-auto">
@@ -157,13 +153,11 @@
                     </button>
                 </div>
 
-                <!-- Navigation Items -->
                 <div class="space-y-1 mb-6">
                     <div class="sidebar-item px-3 py-2 rounded cursor-pointer flex items-center space-x-2">
                         <i class="fas fa-inbox text-gray-400 text-sm"></i>
                         <span class="text-sm text-gray-700">Inbox</span>
                     </div>
-
                     <div class="sidebar-item px-3 py-2 rounded cursor-pointer flex items-center space-x-2">
                         <i class="fas fa-tasks text-gray-400 text-sm"></i>
                         <span class="text-sm text-gray-700">My Tasks</span>
@@ -174,9 +168,6 @@
                     </div>
                 </div>
 
-
-
-                <!-- Channels -->
                 <div class="mb-6">
                     <h3 class="text-xs font-semibold text-gray-500 uppercase mb-2 px-3">Channels</h3>
                     <div class="space-y-1">
@@ -195,86 +186,72 @@
                         </button>
                     </div>
                 </div>
-
-
             </div>
         </div>
 
         <!-- Main Content -->
         <div class="flex-1 overflow-hidden flex flex-col">
-            <!-- Breadcrumb and Actions -->
-            <div class="bg-white border-b border-gray-200 px-6 py-3">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center space-x-2 text-sm text-gray-600">
-                        <span class="font-medium text-blue-600">IT Team</span>
-                        <span>/</span>
-                        <span>IT ERP</span>
-                        <span>/</span>
-                        <span class="font-medium">ERP UPDATES</span>
-                        <i class="far fa-star text-gray-400 ml-2 cursor-pointer hover:text-yellow-400"></i>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <button class="text-gray-600 hover:text-gray-800"><i class="fas fa-bolt"></i> Automate</button>
-                        <button class="text-gray-600 hover:text-gray-800"><i class="fas fa-robot"></i> Ask AI</button>
-                        <button class="bg-blue-600 text-white px-4 py-1.5 rounded hover:bg-blue-700"><i
-                                class="fas fa-share"></i> Share</button>
-                    </div>
+        <!-- Breadcrumb and Actions -->
+        <div class="bg-white px-6 py-2">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center space-x-2 text-sm text-gray-600">
+                    <span class="font-medium text-blue-600">IT Team</span>
+                    <span>/</span>
+                    <span>IT ERP</span>
+                    <span>/</span>
+                    <span class="font-medium">ERP UPDATES</span>
+                    <i class="far fa-star text-gray-400 ml-2 cursor-pointer hover:text-yellow-400"></i>
                 </div>
-                <div class="flex items-center space-x-4 text-sm border-b border-gray-200">
-                    <button class="text-blue-600 border-b-2 border-blue-600 pb-2 px-2">
-                        <i class="fas fa-list mr-1"></i> List
-                    </button>
-                    <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
-                        <i class="fas fa-th mr-1"></i> Board
-                    </button>
-                    <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
-                        <i class="fas fa-calendar mr-1"></i> Calendar
-                    </button>
-                    <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
-                        <i class="fas fa-table mr-1"></i> Table
-                    </button>
-                    <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
-                        <i class="fas fa-chart-bar mr-1"></i> Gantt
-                    </button>
-                    <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
-                        <i class="fas fa-stream mr-1"></i> Timeline
-                    </button>
-                    <button class="text-gray-400 hover:text-gray-600 pb-2 px-2">
-                        <i class="fas fa-plus mr-1"></i> View
-                    </button>
+                <div class="flex items-center space-x-2">
+                    <button class="text-gray-600 hover:text-gray-800 text-sm"><i class="fas fa-bolt"></i> Automate</button>
+                    <button class="text-gray-600 hover:text-gray-800 text-sm"><i class="fas fa-robot"></i> Ask AI</button>
+                    <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"><i
+                            class="fas fa-share"></i> Share</button>
                 </div>
-
             </div>
+            <div class="flex items-center space-x-4 text-sm border-b border-gray-200">
+                <button class="text-blue-600 border-b-2 border-blue-600 pb-2 px-2 -mb-px">
+                    <i class="fas fa-list mr-1"></i> List
+                </button>
+                <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
+                    <i class="fas fa-th mr-1"></i> Board
+                </button>
+                <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
+                    <i class="fas fa-calendar mr-1"></i> Calendar
+                </button>
+                <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
+                    <i class="fas fa-table mr-1"></i> Table
+                </button>
+                <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
+                    <i class="fas fa-chart-bar mr-1"></i> Gantt
+                </button>
+                <button class="text-gray-600 hover:text-gray-800 pb-2 px-2">
+                    <i class="fas fa-stream mr-1"></i> Timeline
+                </button>
+                <button class="text-gray-400 hover:text-gray-600 pb-2 px-2">
+                    <i class="fas fa-plus mr-1"></i> View
+                </button>
+            </div>
+        </div>
 
-            <!-- Top Action Bar -->
-            <div class="bg-white border-t border-gray-200 px-6 py-3 flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <button class="text-gray-600 hover:text-gray-800"><i class="fas fa-compress"></i></button>
-                    <button class="text-gray-600 hover:text-gray-800"><i class="fas fa-list"></i></button>
+            <!-- Top Action Bar - Reduced spacing -->
+            <div class="bg-white border-b border-gray-200 px-6 py-1 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button class="text-gray-600 hover:text-gray-800 text-xs"><i class="fas fa-compress"></i></button>
+                    <button class="text-gray-600 hover:text-gray-800 text-xs"><i class="fas fa-list"></i></button>
                 </div>
-                <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center">
-                    <i class="fas fa-plus mr-2"></i> Task
+                <button onclick="openCreateTaskModal()"
+                    class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 flex items-center">
+                    <i class="fas fa-plus mr-1.5"></i> Task
                 </button>
             </div>
 
-            <!-- Task List -->
+            <!-- Task List - Reduced top spacing -->
             <div class="flex-1 overflow-y-auto bg-white">
-                <div class="px-6 py-4">
-                    <!-- Status Group Header -->
-                    <div class="flex items-center space-x-2 mb-4">
-                        <button class="text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-caret-down"></i>
-                        </button>
-                        <div
-                            class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
-                            <i class="fas fa-check mr-2"></i> COMPLETE
-                        </div>
-                        <span class="text-gray-500 text-sm">20</span>
-                    </div>
-
+                <div class="px-6 py-2">
                     <!-- Table Header -->
                     <div id="tableHeader"
-                        class="grid gap-2 px-3 py-1.5 bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase"
+                        class="grid gap-2 px-3 py-1.5 bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase mb-2"
                         style="grid-template-columns: 3fr 1.5fr 1.5fr 1fr 1.5fr 0.8fr 40px;">
                         <div>Name</div>
                         <div>Assignee</div>
@@ -283,14 +260,144 @@
                         <div>Status</div>
                         <div>Comments</div>
                         <div>
-                            <button onclick="addColumn()" class="text-gray-400 hover:text-gray-600" title="Add Column">
+                            <button onclick="openCustomFieldModal()" class="text-gray-400 hover:text-gray-600" title="Add Column">
                                 <i class="fas fa-plus text-xs"></i>
                             </button>
                         </div>
                     </div>
 
                     <!-- Task Rows -->
-                    <div id="taskList" class="divide-y divide-gray-100"></div>
+                    <div id="taskList" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Task Modal -->
+    <div id="createTaskModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl shadow-2xl">
+            <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button onclick="switchCreateTab('task')" id="taskTab" class="text-sm font-medium text-blue-600 border-b-2 border-blue-600 pb-1">Task</button>
+                    <button onclick="switchCreateTab('doc')" id="docTab" class="text-sm font-medium text-gray-500 pb-1">Doc</button>
+                    <button onclick="switchCreateTab('reminder')" id="reminderTab" class="text-sm font-medium text-gray-500 pb-1">Reminder</button>
+                    <button onclick="switchCreateTab('whiteboard')" id="whiteboardTab" class="text-sm font-medium text-gray-500 pb-1">Whiteboard</button>
+                </div>
+                <button onclick="closeCreateTaskModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="p-6">
+                <input id="newTaskName" type="text" placeholder="Task Name"
+                    class="w-full text-lg font-medium border-none outline-none focus:ring-0 mb-4 text-gray-800 dark:text-gray-100 bg-transparent" />
+                
+                <div class="space-y-3 mb-6">
+                    <button class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800">
+                        <i class="far fa-file-alt"></i>
+                        <span>Add description</span>
+                    </button>
+                    <button class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                        <span>Write with AI</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-4 mb-6">
+                    <select id="newTaskStatus" class="bg-red-500 text-white px-3 py-1 rounded text-sm font-medium outline-none cursor-pointer">
+                        <option value="not_started">NOT STARTED</option>
+                        <option value="in_progress">IN PROGRESS</option>
+                        <option value="review">REVIEW</option>
+                        <option value="completed">COMPLETED</option>
+                    </select>
+                    <button class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 px-3 py-1">
+                        <i class="far fa-user"></i>
+                        <span>Assignee</span>
+                    </button>
+                    <button class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 px-3 py-1">
+                        <i class="far fa-calendar"></i>
+                        <span>Due date</span>
+                    </button>
+                    <button class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 px-3 py-1">
+                        <i class="far fa-flag"></i>
+                        <span>Priority</span>
+                    </button>
+                    <button class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 px-3 py-1">
+                        <i class="fas fa-tag"></i>
+                        <span>Tags</span>
+                    </button>
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                </div>
+
+                <div class="border-t border-gray-200 pt-4">
+                    <button class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 mb-3">
+                        <i class="fas fa-paperclip"></i>
+                        <span>Custom Fields</span>
+                    </button>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <button class="text-sm text-gray-500 hover:text-gray-700">Show custom fields</button>
+                        <button onclick="openCustomFieldModal()" class="text-sm text-blue-600 hover:text-blue-700 flex items-center space-x-1">
+                            <i class="fas fa-plus"></i>
+                            <span>Create new field</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between border-t border-gray-200 pt-4">
+                    <div class="flex items-center space-x-3">
+                        <button class="text-gray-400 hover:text-gray-600" title="Templates">
+                            <i class="fas fa-file-alt"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-gray-600" title="Attach file">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <span class="text-sm text-gray-500">1</span>
+                    </div>
+                    <button onclick="createTask()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Create Task
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Field Modal -->
+    <div id="customFieldModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md shadow-2xl">
+            <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Create Custom Field</h3>
+                <button onclick="closeCustomFieldModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="p-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Field Name</label>
+                    <input id="customFieldName" type="text" placeholder="e.g., Development Stage"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100" />
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Field Type</label>
+                    <select id="customFieldType" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100">
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="date">Date</option>
+                        <option value="dropdown">Dropdown</option>
+                        <option value="checkbox">Checkbox</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeCustomFieldModal()" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">
+                        Cancel
+                    </button>
+                    <button onclick="createCustomField()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+                        Create Field
+                    </button>
                 </div>
             </div>
         </div>
@@ -299,7 +406,6 @@
     <!-- Task Detail Modal -->
     <div id="taskModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-5xl h-5/6 flex flex-col shadow-2xl">
-            <!-- Modal Header -->
             <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="text-sm text-gray-500 dark:text-gray-400">Team Space / Api development</div>
@@ -315,9 +421,7 @@
                 </div>
             </div>
 
-            <!-- Modal Content -->
             <div class="flex-1 overflow-y-auto px-6 py-6">
-                <!-- Task Title -->
                 <div class="mb-8">
                     <div class="flex items-center space-x-3 mb-3">
                         <button onclick="toggleTaskStatus()"
@@ -339,7 +443,6 @@
                     </div>
                 </div>
 
-                <!-- Task Properties Grid -->
                 <div class="grid grid-cols-2 gap-6 mb-8 ml-11">
                     <div class="flex items-center space-x-4">
                         <span class="text-sm text-gray-500 dark:text-gray-400 w-24 font-medium">Assignee</span>
@@ -376,7 +479,6 @@
                     </div>
                 </div>
 
-                <!-- Project Description Section -->
                 <div class="mb-8 ml-11">
                     <button onclick="toggleDescription()"
                         class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
@@ -390,7 +492,6 @@
                     </div>
                 </div>
 
-                <!-- Subtasks Section -->
                 <div class="ml-11">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Subtasks</h3>
@@ -400,7 +501,6 @@
                             <span>Add Status Group</span>
                         </button>
                     </div>
-
                     <div id="subtaskGroupsContainer"></div>
                 </div>
             </div>
@@ -408,11 +508,8 @@
     </div>
 
     <script>
-        // Theme Toggle Functionality (using in-memory storage)
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
-
-        // Use in-memory storage instead of localStorage
         let currentTheme = 'light';
 
         themeToggle.addEventListener('click', () => {
@@ -420,35 +517,29 @@
             currentTheme = body.classList.contains('dark') ? 'dark' : 'light';
         });
 
-        // Custom columns management
         let customColumns = [];
         let nextColumnId = 1;
 
-        // Task Data with ID and subtasks
         let tasks = [
-            { id: 1, name: "Website Redesign - Landing Page", assignee: "MK", date: "3/15/25", priority: "Urgent", priorityColor: "red", comments: 2, status: "complete", customFields: {} },
-            { id: 2, name: "Inventory Management Module Update", assignee: "RA", date: "4/10/25", priority: "High", priorityColor: "yellow", comments: 3, status: "complete", customFields: {} },
-            { id: 3, name: "Client Portal Login Fix", assignee: "AS", date: "4/18/25", priority: "Normal", priorityColor: "blue", comments: 0, status: "complete", customFields: {} },
-            { id: 4, name: "Employee Attendance Sheet Automation", assignee: "VK", date: "4/21/25", priority: "Normal", priorityColor: "blue", comments: 1, status: "complete", customFields: {} },
-            { id: 5, name: "Payment Gateway Integration (Stripe)", assignee: "MK", date: "4/25/25", priority: "Urgent", priorityColor: "red", comments: 0, status: "complete", customFields: {} },
-            { id: 6, name: "API Documentation Update", assignee: "RA", date: "5/1/25", priority: "High", priorityColor: "yellow", comments: 2, status: "complete", customFields: {} },
-            { id: 7, name: "Marketing Dashboard Analytics", assignee: "AS", date: "5/5/25", priority: "Normal", priorityColor: "blue", comments: 4, status: "complete", customFields: {} },
-            { id: 8, name: "Customer Feedback Email Automation", assignee: "VK", date: "5/8/25", priority: "High", priorityColor: "yellow", comments: 0, status: "complete", customFields: {} },
-            { id: 9, name: "Social Media Post Scheduler", assignee: "RA", date: "5/12/25", priority: "Urgent", priorityColor: "red", comments: 1, status: "complete", customFields: {} },
-            { id: 10, name: "Onboarding Form Validation", assignee: "MK", date: "5/16/25", priority: "Normal", priorityColor: "blue", comments: 2, status: "complete", customFields: {} },
-            { id: 11, name: "Data Backup and Security Check", assignee: "AS", date: "5/20/25", priority: "High", priorityColor: "yellow", comments: 1, status: "complete", customFields: {} },
-            { id: 12, name: "User Role Access Control Update", assignee: "VK", date: "5/24/25", priority: "Urgent", priorityColor: "red", comments: 0, status: "complete", customFields: {} },
-            { id: 13, name: "CRM Contact Sync with Google", assignee: "RA", date: "5/28/25", priority: "Normal", priorityColor: "blue", comments: 1, status: "complete", customFields: {} },
-            { id: 14, name: "Website SEO Optimization Report", assignee: "MK", date: "6/2/25", priority: "High", priorityColor: "yellow", comments: 2, status: "complete", customFields: {} },
-            { id: 15, name: "Project Dashboard UI Polish", assignee: "AS", date: "6/8/25", priority: "Normal", priorityColor: "blue", comments: 0, status: "complete", customFields: {} },
-            { id: 16, name: "File Upload System - S3 Migration", assignee: "VK", date: "6/15/25", priority: "Urgent", priorityColor: "red", comments: 2, status: "complete", customFields: {} },
-            { id: 17, name: "Employee Directory Search Enhancement", assignee: "RA", date: "6/22/25", priority: "High", priorityColor: "yellow", comments: 1, status: "complete", customFields: {} },
-            { id: 18, name: "Meeting Room Reservation System", assignee: "AS", date: "6/30/25", priority: "Normal", priorityColor: "blue", comments: 3, status: "complete", customFields: {} },
-            { id: 19, name: "Mobile App Notification System", assignee: "MK", date: "7/4/25", priority: "Urgent", priorityColor: "red", comments: 4, status: "complete", customFields: {} },
-            { id: 20, name: "Weekly Report Automation", assignee: "VK", date: "7/10/25", priority: "Normal", priorityColor: "blue", comments: 1, status: "complete", customFields: {} }
+            { id: 3, name: "API Documentation Update", assignee: "AS", date: "4/18/25", priority: "Normal", priorityColor: "blue", comments: 0, status: "review", customFields: {}, subtasks: [] },
+            { id: 4, name: "Marketing Dashboard Analytics", assignee: "VK", date: "4/21/25", priority: "Normal", priorityColor: "blue", comments: 1, status: "in_progress", customFields: {}, subtasks: [] },
+            { id: 5, name: "CRM Contact Sync with Google", assignee: "MK", date: "4/25/25", priority: "Urgent", priorityColor: "red", comments: 0, status: "not_started", customFields: {}, subtasks: [] }
         ];
 
-        // Subtasks data structure with status groups
+        let nextTaskId = 6;
+
+        let statusGroups = [
+            { id: 'completed', name: 'COMPLETED', color: 'green', icon: 'fas fa-check', expanded: true },
+            { id: 'review', name: 'REVIEW', color: 'yellow', icon: 'fas fa-circle', expanded: true },
+            { id: 'in_progress', name: 'IN PROGRESS', color: 'blue', icon: 'fas fa-circle', expanded: true },
+            { id: 'not_started', name: 'NOT STARTED', color: 'red', icon: 'fas fa-circle', expanded: true }
+        ];
+
+        let expandedTasks = {};
+        let currentTaskId = null;
+        let nextSubtaskId = 4;
+        let nextGroupId = 1;
+
         let subtaskGroups = [
             {
                 id: 'in_progress',
@@ -499,12 +590,89 @@
             }
         ];
 
-        let currentTaskId = null;
-        let nextSubtaskId = 4;
-        let nextGroupId = 1;
+        // Modal functions
+        function openCreateTaskModal() {
+            document.getElementById('createTaskModal').classList.add('active');
+            document.getElementById('newTaskName').focus();
+        }
+
+        function closeCreateTaskModal() {
+            document.getElementById('createTaskModal').classList.remove('active');
+            document.getElementById('newTaskName').value = '';
+        }
+
+        function switchCreateTab(tab) {
+            const tabs = ['task', 'doc', 'reminder', 'whiteboard'];
+            tabs.forEach(t => {
+                const tabEl = document.getElementById(t + 'Tab');
+                if (t === tab) {
+                    tabEl.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                    tabEl.classList.remove('text-gray-500');
+                } else {
+                    tabEl.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+                    tabEl.classList.add('text-gray-500');
+                }
+            });
+        }
+
+        function createTask() {
+            const taskName = document.getElementById('newTaskName').value.trim();
+            const status = document.getElementById('newTaskStatus').value;
+            
+            if (taskName) {
+                const newTask = {
+                    id: nextTaskId++,
+                    name: taskName,
+                    assignee: '',
+                    date: '',
+                    priority: '',
+                    priorityColor: 'blue',
+                    comments: 0,
+                    status: status,
+                    customFields: {},
+                    subtasks: []
+                };
+                tasks.push(newTask);
+                renderTasks();
+                closeCreateTaskModal();
+            }
+        }
+
+        function openCustomFieldModal() {
+            document.getElementById('customFieldModal').classList.add('active');
+        }
+
+        function closeCustomFieldModal() {
+            document.getElementById('customFieldModal').classList.remove('active');
+            document.getElementById('customFieldName').value = '';
+        }
+
+        function createCustomField() {
+            const fieldName = document.getElementById('customFieldName').value.trim();
+            const fieldType = document.getElementById('customFieldType').value;
+            
+            if (fieldName) {
+                customColumns.push({
+                    id: nextColumnId++,
+                    name: fieldName,
+                    type: fieldType
+                });
+
+                function initializeCustomFields(taskArray) {
+                    taskArray.forEach(task => {
+                        if (!task.customFields) task.customFields = {};
+                        if (task.subtasks) initializeCustomFields(task.subtasks);
+                    });
+                }
+                initializeCustomFields(tasks);
+
+                renderTasks();
+                closeCustomFieldModal();
+            }
+        }
 
         function openTaskModal(taskName) {
-            const task = tasks.find(t => t.name === taskName);
+            const task = findTaskByName(taskName);
             if (task) {
                 currentTaskId = task.id;
                 document.getElementById('modalTaskName').value = task.name;
@@ -513,26 +681,23 @@
             }
         }
 
+        function findTaskByName(name) {
+            function search(taskArray) {
+                for (let task of taskArray) {
+                    if (task.name === name) return task;
+                    if (task.subtasks && task.subtasks.length > 0) {
+                        const found = search(task.subtasks);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            }
+            return search(tasks);
+        }
+
         function closeTaskModal() {
             document.getElementById('taskModal').classList.remove('active');
             currentTaskId = null;
-        }
-
-        function addColumn() {
-            const columnName = prompt('Enter column name:');
-            if (columnName && columnName.trim()) {
-                customColumns.push({
-                    id: nextColumnId++,
-                    name: columnName.trim()
-                });
-
-                // Initialize custom field for all tasks
-                tasks.forEach(task => {
-                    if (!task.customFields) task.customFields = {};
-                });
-
-                renderTasks();
-            }
         }
 
         function removeColumn(columnId) {
@@ -543,26 +708,30 @@
         }
 
         function updateCustomField(taskId, columnId, value) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                if (!task.customFields) task.customFields = {};
-                task.customFields[columnId] = value;
+            function updateField(taskArray) {
+                for (let task of taskArray) {
+                    if (task.id === taskId) {
+                        if (!task.customFields) task.customFields = {};
+                        task.customFields[columnId] = value;
+                        return true;
+                    }
+                    if (task.subtasks && updateField(task.subtasks)) return true;
+                }
+                return false;
             }
+            updateField(tasks);
         }
 
         function renderTasks() {
             const taskList = document.getElementById('taskList');
             const tableHeader = document.getElementById('tableHeader');
 
-            // Calculate grid template based on custom columns
             const baseColumns = '3fr 1.5fr 1.5fr 1fr 1.5fr 0.8fr';
             const customColumnsTemplate = customColumns.map(() => '1.2fr').join(' ');
             const gridTemplate = baseColumns + (customColumns.length > 0 ? ' ' + customColumnsTemplate : '') + ' 40px';
 
-            // Update header
             tableHeader.style.gridTemplateColumns = gridTemplate;
 
-            // Render custom column headers
             const existingCustomHeaders = tableHeader.querySelectorAll('.custom-column-header');
             existingCustomHeaders.forEach(el => el.remove());
 
@@ -579,80 +748,278 @@
                 tableHeader.insertBefore(colHeader, addButton);
             });
 
-            // Render tasks
-            taskList.innerHTML = tasks.map(task => `
-                    <div class="task-row grid gap-2 px-3 py-2 items-center group" style="grid-template-columns: ${gridTemplate};">
-                        <div class="flex items-center space-x-2">
-                            <i class="far fa-check-circle text-green-500"></i>
-                            <span class="text-xs text-gray-800 cursor-pointer task-name truncate" onclick="openTaskModal('${task.name}')">${task.name}</span>
+            let html = '';
+            statusGroups.forEach(group => {
+                const tasksInGroup = tasks.filter(t => t.status === group.id);
+                const totalCount = countTasksInGroup(tasksInGroup);
+
+                html += `
+                    <div class="mb-6">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <button onclick="toggleStatusGroup('${group.id}')" class="text-gray-400 hover:text-gray-600">
+                                <i class="${group.expanded ? 'fas fa-caret-down' : 'fas fa-caret-right'}"></i>
+                            </button>
+                            <div class="bg-${group.color}-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                                <i class="${group.icon} mr-2"></i> ${group.name}
+                            </div>
+                            <span class="text-gray-500 text-sm">${totalCount}</span>
                         </div>
-                        <div>
+                        ${group.expanded ? `
+                            <div class="space-y-0">
+                                ${tasksInGroup.map(task => renderTaskRow(task, 0, gridTemplate, group)).join('')}
+                                <div class="px-3 py-2">
+                                    <button onclick="addTask('${group.id}')" class="flex items-center space-x-2 text-gray-400 hover:text-gray-600 text-sm">
+                                        <i class="fas fa-plus text-xs"></i>
+                                        <span>Add Task</span>
+                                    </button>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            taskList.innerHTML = html;
+        }
+
+        function renderTaskRow(task, level, gridTemplate, group) {
+            const indent = level * 32;
+            const hasSubtasks = task.subtasks && task.subtasks.length > 0;
+            const isExpanded = expandedTasks[task.id];
+
+            let statusIcon = 'far fa-circle';
+            let statusColor = 'gray';
+
+            if (task.status === 'completed') {
+                statusIcon = 'far fa-check-circle';
+                statusColor = 'green';
+            } else if (task.status === 'not_started') {
+                statusIcon = 'far fa-circle';
+                statusColor = 'red';
+            } else if (task.status === 'in_progress') {
+                statusIcon = 'fas fa-circle';
+                statusColor = 'blue';
+            } else if (task.status === 'review') {
+                statusIcon = 'fas fa-circle';
+                statusColor = 'yellow';
+            }
+
+            let html = `
+                <div class="task-row grid gap-2 px-3 py-2 items-center group hover:bg-gray-50" style="grid-template-columns: ${gridTemplate};">
+                    <div class="flex items-center space-x-2" style="margin-left: ${indent}px;">
+                        ${hasSubtasks ? `
+                            <button onclick="toggleTask(${task.id})" class="text-gray-400 hover:text-gray-600 mr-1">
+                                <i class="${isExpanded ? 'fas fa-caret-down' : 'fas fa-caret-right'}"></i>
+                            </button>
+                        ` : '<span class="w-4 mr-1"></span>'}
+                        <i class="${statusIcon} text-${statusColor}-500"></i>
+                        <span class="text-xs text-gray-800 cursor-pointer task-name truncate" onclick="openTaskModal('${task.name}')">${task.name}</span>
+                        ${hasSubtasks ? `<span class="text-xs text-gray-400 ml-1">${countAllSubtasksInTask(task)}</span>` : ''}
+                    </div>
+                    <div>
+                        ${task.assignee ? `
                             <div class="flex items-center space-x-1">
                                 ${task.assignee.split('').map(initial => `
-                                    <div class="w-6 h-6 rounded-full ${initial === 'A' ? 'bg-purple-600' : 'bg-orange-500'} flex items-center justify-center text-white text-xs font-medium">
+                                    <div class="w-6 h-6 rounded-full ${initial === 'A' ? 'bg-purple-600' : initial === 'M' ? 'bg-orange-500' : initial === 'R' ? 'bg-blue-500' : initial === 'V' ? 'bg-green-500' : 'bg-pink-500'} flex items-center justify-center text-white text-xs font-medium">
                                         ${initial}
                                     </div>
                                 `).join('')}
                             </div>
-                        </div>
-                        <div>
-                            ${task.date ? `<span class="text-xs text-gray-600">${task.date}</span>` : '<i class="far fa-calendar text-gray-300 text-xs"></i>'}
-                        </div>
-                        <div class="flex items-center space-x-1">
+                        ` : '<i class="far fa-user text-gray-300 text-xs"></i>'}
+                    </div>
+                    <div>
+                        ${task.date ? `<span class="text-xs text-gray-600">${task.date}</span>` : '<i class="far fa-calendar text-gray-300 text-xs"></i>'}
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        ${task.priority ? `
                             <i class="fas fa-flag text-${task.priorityColor}-500 text-xs"></i>
                             <span class="text-xs text-gray-600">${task.priority.slice(0, 4)}</span>
-                        </div>
-                        <div>
-                            <span class="bg-green-500 text-white px-2 py-0.5 rounded text-xs font-medium">
-                                <i class="fas fa-check mr-1"></i> COMPLETE
-                            </span>
-                        </div>
-                        <div class="flex items-center justify-center">
-                            ${task.comments > 0 ? `
-                                <div class="flex items-center space-x-1 text-gray-500">
-                                    <i class="far fa-comment text-xs"></i>
-                                    <span class="text-xs">${task.comments}</span>
-                                </div>
-                            ` : '<i class="far fa-comment text-gray-300 text-xs"></i>'}
-                        </div>
-                        ${customColumns.map(col => `
-                            <div>
-                                <input type="text" 
-                                    value="${task.customFields && task.customFields[col.id] ? task.customFields[col.id] : ''}"
-                                    onblur="updateCustomField(${task.id}, ${col.id}, this.value)"
-                                    placeholder="-"
-                                    class="w-full text-xs text-gray-600 bg-transparent border-none outline-none focus:bg-gray-50 dark:focus:bg-gray-700 px-1 py-0.5 rounded" />
-                            </div>
-                        `).join('')}
-                        <div class="flex items-center justify-center">
-                            <button onclick="deleteTask(${task.id})" class="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <i class="fas fa-trash text-xs"></i>
-                            </button>
-                        </div>
+                        ` : '<i class="far fa-flag text-gray-300 text-xs"></i>'}
                     </div>
-                `).join('');
+                    <div>
+                        <select onchange="changeTaskStatus(${task.id}, this.value)" class="bg-${group.color}-500 text-white px-2 py-0.5 rounded text-xs font-medium outline-none cursor-pointer">
+                            <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>COMPLETED</option>
+                            <option value="review" ${task.status === 'review' ? 'selected' : ''}>REVIEW</option>
+                            <option value="in_progress" ${task.status === 'in_progress' ? 'selected' : ''}>IN PROGRESS</option>
+                            <option value="not_started" ${task.status === 'not_started' ? 'selected' : ''}>NOT STARTED</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        ${task.comments > 0 ? `
+                            <div class="flex items-center space-x-1 text-gray-500">
+                                <i class="far fa-comment text-xs"></i>
+                                <span class="text-xs">${task.comments}</span>
+                            </div>
+                        ` : '<i class="far fa-comment text-gray-300 text-xs"></i>'}
+                    </div>
+                    ${customColumns.map(col => `
+                        <div>
+                            <input type="text" 
+                                value="${task.customFields && task.customFields[col.id] ? task.customFields[col.id] : ''}"
+                                onblur="updateCustomField(${task.id}, ${col.id}, this.value)"
+                                placeholder="-"
+                                class="w-full text-xs text-gray-600 bg-transparent border-none outline-none focus:bg-gray-50 dark:focus:bg-gray-700 px-1 py-0.5 rounded" />
+                        </div>
+                    `).join('')}
+                    <div class="flex items-center justify-center space-x-2">
+                        <button onclick="addSubtaskToTask(${task.id})" class="text-blue-500 hover:text-blue-700 opacity-0 group-hover:opacity-100 transition-opacity" title="Add subtask">
+                            <i class="fas fa-plus text-xs"></i>
+                        </button>
+                        <button onclick="deleteTask(${task.id})" class="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity" title="Delete task">
+                            <i class="fas fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            if (hasSubtasks && isExpanded) {
+                task.subtasks.forEach(subtask => {
+                    html += renderTaskRow(subtask, level + 1, gridTemplate, group);
+                });
+            }
+
+            return html;
         }
 
-        // Delete task
-        function deleteTask(taskId) {
-            if (confirm('Are you sure you want to delete this task?')) {
-                tasks = tasks.filter(t => t.id !== taskId);
+        function countTasksInGroup(tasks) {
+            let count = 0;
+            function countRecursive(taskArray) {
+                taskArray.forEach(task => {
+                    count++;
+                    if (task.subtasks && task.subtasks.length > 0) {
+                        countRecursive(task.subtasks);
+                    }
+                });
+            }
+            countRecursive(tasks);
+            return count;
+        }
+
+        function countAllSubtasksInTask(task) {
+            let count = 0;
+            function countRecursive(t) {
+                if (t.subtasks && t.subtasks.length > 0) {
+                    count += t.subtasks.length;
+                    t.subtasks.forEach(subtask => countRecursive(subtask));
+                }
+            }
+            countRecursive(task);
+            return count;
+        }
+
+        function toggleStatusGroup(groupId) {
+            const group = statusGroups.find(g => g.id === groupId);
+            if (group) {
+                group.expanded = !group.expanded;
                 renderTasks();
             }
         }
 
-        // Update task name from modal
+        function toggleTask(taskId) {
+            expandedTasks[taskId] = !expandedTasks[taskId];
+            renderTasks();
+        }
+
+        function changeTaskStatus(taskId, newStatus) {
+            function updateTaskStatus(taskArray) {
+                for (let task of taskArray) {
+                    if (task.id === taskId) {
+                        task.status = newStatus;
+                        return true;
+                    }
+                    if (task.subtasks && task.subtasks.length > 0) {
+                        if (updateTaskStatus(task.subtasks)) return true;
+                    }
+                }
+                return false;
+            }
+            updateTaskStatus(tasks);
+            renderTasks();
+        }
+
+        function addTask(statusId) {
+            const newTask = {
+                id: nextTaskId++,
+                name: 'New Task',
+                assignee: '',
+                date: '',
+                priority: '',
+                priorityColor: 'blue',
+                comments: 0,
+                status: statusId,
+                customFields: {},
+                subtasks: []
+            };
+            tasks.push(newTask);
+            renderTasks();
+        }
+
+        function addSubtaskToTask(parentId) {
+            function findAndAddSubtask(taskArray) {
+                for (let task of taskArray) {
+                    if (task.id === parentId) {
+                        if (!task.subtasks) task.subtasks = [];
+                        task.subtasks.push({
+                            id: nextTaskId++,
+                            name: 'New Subtask',
+                            assignee: '',
+                            date: '',
+                            priority: '',
+                            priorityColor: 'blue',
+                            comments: 0,
+                            status: task.status,
+                            customFields: {},
+                            subtasks: []
+                        });
+                        expandedTasks[parentId] = true;
+                        return true;
+                    }
+                    if (task.subtasks && task.subtasks.length > 0) {
+                        if (findAndAddSubtask(task.subtasks)) return true;
+                    }
+                }
+                return false;
+            }
+            findAndAddSubtask(tasks);
+            renderTasks();
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task and all its subtasks?')) {
+                function removeTask(taskArray) {
+                    for (let i = 0; i < taskArray.length; i++) {
+                        if (taskArray[i].id === taskId) {
+                            taskArray.splice(i, 1);
+                            return true;
+                        }
+                        if (taskArray[i].subtasks && removeTask(taskArray[i].subtasks)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                removeTask(tasks);
+                renderTasks();
+            }
+        }
+
         document.getElementById('modalTaskName').addEventListener('blur', function () {
             if (currentTaskId) {
-                const task = tasks.find(t => t.id === currentTaskId);
-                if (task) {
-                    task.name = this.value;
-                    renderTasks();
+                function updateTaskName(taskArray) {
+                    for (let task of taskArray) {
+                        if (task.id === currentTaskId) {
+                            task.name = document.getElementById('modalTaskName').value;
+                            return true;
+                        }
+                        if (task.subtasks && updateTaskName(task.subtasks)) return true;
+                    }
+                    return false;
                 }
+                updateTaskName(tasks);
+                renderTasks();
             }
         });
 
-        // Toggle Functions
         function toggleDescription() {
             const content = document.getElementById('descContent');
             const icon = document.getElementById('descIcon');
@@ -692,7 +1059,6 @@
             }
         }
 
-        // Subtask CRUD Operations
         function renderSubtasks() {
             const container = document.getElementById('subtaskGroupsContainer');
 
@@ -920,23 +1286,41 @@
 
         renderTasks();
 
-        // Close modal when clicking outside
+        // Close modals when clicking outside
         document.getElementById('taskModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeTaskModal();
             }
         });
 
+        document.getElementById('createTaskModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeCreateTaskModal();
+            }
+        });
+
+        document.getElementById('customFieldModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeCustomFieldModal();
+            }
+        });
+
         // Keyboard shortcuts
         document.addEventListener('keydown', function (e) {
-            // Escape to close modal
-            if (e.key === 'Escape' && document.getElementById('taskModal').classList.contains('active')) {
-                closeTaskModal();
+            if (e.key === 'Escape') {
+                if (document.getElementById('taskModal').classList.contains('active')) {
+                    closeTaskModal();
+                } else if (document.getElementById('createTaskModal').classList.contains('active')) {
+                    closeCreateTaskModal();
+                } else if (document.getElementById('customFieldModal').classList.contains('active')) {
+                    closeCustomFieldModal();
+                }
             }
 
-            // Ctrl/Cmd + Enter to add new subtask when modal is open
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && document.getElementById('taskModal').classList.contains('active')) {
-                if (subtaskGroups.length > 0) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                if (document.getElementById('createTaskModal').classList.contains('active')) {
+                    createTask();
+                } else if (document.getElementById('taskModal').classList.contains('active') && subtaskGroups.length > 0) {
                     addSubtask(subtaskGroups[0].id);
                 }
             }
