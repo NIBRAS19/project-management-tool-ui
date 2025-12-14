@@ -824,9 +824,18 @@
                 grid-template-columns: 1fr;
             }
 
+
             .project-grid {
                 grid-template-columns: 1fr;
             }
+        }
+
+        .project-tab-content {
+            display: none;
+        }
+
+        .project-tab-content.active {
+            display: block;
         }
     </style>
 </head>
@@ -1515,99 +1524,601 @@
                             </div>
 
                             <div class="tabs">
-                                <div class="tab active">Overview</div>
-                                <div class="tab">Tasks</div>
-                                <div class="tab">Timeline</div>
-                                <div class="tab">Files</div>
-                                <div class="tab">Activity</div>
+                                <div class="tab active" onclick="showProjectTab('overview', this)">Overview</div>
+                                <div class="tab" onclick="showProjectTab('task-list', this)">Task List</div>
+                                <div class="tab" onclick="showProjectTab('task-board', this)">Task Board</div>
+                                <div class="tab" onclick="showProjectTab('team-chat', this)">Team Chat</div>
+                                <div class="tab" onclick="showProjectTab('calendar', this)">Calendar</div>
+                                <div class="tab" onclick="showProjectTab('files', this)">Files</div>
+                                <div class="tab" onclick="showProjectTab('activity', this)">Activity</div>
                             </div>
 
-                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
-                                <div>
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <div class="card-title">Project Description</div>
+                            <!-- Overview Tab -->
+                            <div id="project-overview" class="project-tab-content active">
+                                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                                    <div>
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <div class="card-title">Project Description</div>
+                                            </div>
+                                            <div style="font-size: 14px; color: #475569; line-height: 1.8;">
+                                                <p>Complete redesign of the company website with focus on modern UI/UX
+                                                    principles,
+                                                    improved performance, and better mobile responsiveness. The project
+                                                    includes:</p>
+                                                <ul style="margin: 16px 0; padding-left: 20px;">
+                                                    <li>New design system and component library</li>
+                                                    <li>Responsive layouts for all devices</li>
+                                                    <li>Performance optimization (Core Web Vitals)</li>
+                                                    <li>SEO improvements and accessibility compliance</li>
+                                                </ul>
+                                            </div>
                                         </div>
-                                        <div style="font-size: 14px; color: #475569; line-height: 1.8;">
-                                            <p>Complete redesign of the company website with focus on modern UI/UX
-                                                principles,
-                                                improved performance, and better mobile responsiveness. The project
-                                                includes:</p>
-                                            <ul style="margin: 16px 0; padding-left: 20px;">
-                                                <li>New design system and component library</li>
-                                                <li>Responsive layouts for all devices</li>
-                                                <li>Performance optimization (Core Web Vitals)</li>
-                                                <li>SEO improvements and accessibility compliance</li>
-                                            </ul>
+
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <div class="card-title">Progress Overview</div>
+                                                <span
+                                                    style="font-size: 24px; font-weight: 700; color: #667eea;">68%</span>
+                                            </div>
+                                            <div class="stats-grid"
+                                                style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+                                                <div>
+                                                    <div style="font-size: 28px; font-weight: 700; color: #10b981;">23
+                                                    </div>
+                                                    <div style="font-size: 12px; color: #64748b;">Completed</div>
+                                                </div>
+                                                <div>
+                                                    <div style="font-size: 28px; font-weight: 700; color: #f59e0b;">8
+                                                    </div>
+                                                    <div style="font-size: 12px; color: #64748b;">In Progress</div>
+                                                </div>
+                                                <div>
+                                                    <div style="font-size: 28px; font-weight: 700; color: #ef4444;">3
+                                                    </div>
+                                                    <div style="font-size: 12px; color: #64748b;">Overdue</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="progress-bar" style="margin: 20px 0;">
+                                                <div class="progress-fill"
+                                                    style="width: 68%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="card">
                                         <div class="card-header">
-                                            <div class="card-title">Progress Overview</div>
-                                            <span style="font-size: 24px; font-weight: 700; color: #667eea;">68%</span>
+                                            <div class="card-title">Team Members</div>
                                         </div>
-                                        <div class="stats-grid"
-                                            style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
-                                            <div>
-                                                <div style="font-size: 28px; font-weight: 700; color: #10b981;">23</div>
-                                                <div style="font-size: 12px; color: #64748b;">Completed</div>
+                                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                                            <div style="display: flex; align-items: center; gap: 12px;">
+                                                <div class="user-avatar" style="width: 40px; height: 40px;">SM</div>
+                                                <div style="flex: 1;">
+                                                    <div style="font-size: 14px; font-weight: 600;">Sarah Manager</div>
+                                                    <div style="font-size: 12px; color: #64748b;">Project Lead</div>
+                                                </div>
+                                                <span class="badge badge-purple">Owner</span>
                                             </div>
-                                            <div>
-                                                <div style="font-size: 28px; font-weight: 700; color: #f59e0b;">8</div>
-                                                <div style="font-size: 12px; color: #64748b;">In Progress</div>
+                                            <div style="display: flex; align-items: center; gap: 12px;">
+                                                <div class="user-avatar"
+                                                    style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                    JD</div>
+                                                <div style="flex: 1;">
+                                                    <div style="font-size: 14px; font-weight: 600;">John Designer</div>
+                                                    <div style="font-size: 12px; color: #64748b;">UI/UX Designer</div>
+                                                </div>
+                                                <span class="badge badge-info">Member</span>
                                             </div>
-                                            <div>
-                                                <div style="font-size: 28px; font-weight: 700; color: #ef4444;">3</div>
-                                                <div style="font-size: 12px; color: #64748b;">Overdue</div>
+                                            <div style="display: flex; align-items: center; gap: 12px;">
+                                                <div class="user-avatar"
+                                                    style="width: 40px; height: 40px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                                    PS</div>
+                                                <div style="flex: 1;">
+                                                    <div style="font-size: 14px; font-weight: 600;">Priya Senior</div>
+                                                    <div style="font-size: 12px; color: #64748b;">Frontend Dev</div>
+                                                </div>
+                                                <span class="badge badge-info">Member</span>
                                             </div>
+                                            <button class="btn btn-secondary"
+                                                style="width: 100%; justify-content: center; margin-top: 8px;">
+                                                👥 Invite Team Members
+                                            </button>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                                        <div class="progress-bar" style="margin: 20px 0;">
-                                            <div class="progress-fill"
-                                                style="width: 68%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <!-- Task List Tab -->
+                            <div id="project-task-list" class="project-tab-content">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="card-title">Project Tasks</div>
+                                        <div style="display: flex; gap: 10px;">
+                                            <input type="text" class="search-input" placeholder="Search tasks..."
+                                                style="width: 200px; padding: 8px 12px;">
+                                            <button class="btn btn-secondary" style="padding: 8px 16px;">Filter</button>
+                                        </div>
+                                    </div>
+                                    <div class="task-list">
+                                        <div class="task-item">
+                                            <div class="task-checkbox"></div>
+                                            <div class="task-content">
+                                                <div class="task-title">Design homepage mockup</div>
+                                                <div class="task-meta">
+                                                    <span>👤 John D.</span>
+                                                    <span style="color: #ef4444;">⏰ Due in 3 hours</span>
+                                                </div>
+                                            </div>
+                                            <span class="badge badge-danger">High</span>
+                                        </div>
+                                        <div class="task-item">
+                                            <div class="task-checkbox"></div>
+                                            <div class="task-content">
+                                                <div class="task-title">Setup project repository</div>
+                                                <div class="task-meta">
+                                                    <span>👤 Priya S.</span>
+                                                    <span style="color: #10b981;">✓ Completed</span>
+                                                </div>
+                                            </div>
+                                            <span class="badge badge-success">Done</span>
+                                        </div>
+                                        <div class="task-item">
+                                            <div class="task-checkbox"></div>
+                                            <div class="task-content">
+                                                <div class="task-title">Initialize React application</div>
+                                                <div class="task-meta">
+                                                    <span>👤 Priya S.</span>
+                                                    <span>⏰ Tomorrow</span>
+                                                </div>
+                                            </div>
+                                            <span class="badge badge-warning">Medium</span>
+                                        </div>
+                                        <div class="task-item">
+                                            <div class="task-checkbox"></div>
+                                            <div class="task-content">
+                                                <div class="task-title">Create design system tokens</div>
+                                                <div class="task-meta">
+                                                    <span>👤 John D.</span>
+                                                    <span>⏰ Oct 25</span>
+                                                </div>
+                                            </div>
+                                            <span class="badge badge-info">Low</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Task Board Tab -->
+                            <div id="project-task-board" class="project-tab-content">
+                                <div class="kanban-board">
+                                    <div class="kanban-column">
+                                        <div class="column-header">
+                                            <span class="column-title">To Do</span>
+                                            <span class="column-count">3</span>
+                                        </div>
+                                        <div class="kanban-card">
+                                            <div style="font-size: 13px; font-weight: 500; margin-bottom: 8px;">Contents
+                                                for About Page</div>
+                                            <div
+                                                style="display: flex; justify-content: space-between; align-items: center;">
+                                                <div class="user-avatar"
+                                                    style="width: 24px; height: 24px; font-size: 10px;">SM</div>
+                                                <span class="badge badge-info">Low</span>
+                                            </div>
+                                        </div>
+                                        <div class="kanban-card">
+                                            <div style="font-size: 13px; font-weight: 500; margin-bottom: 8px;">Finalize
+                                                navigation structure</div>
+                                            <div
+                                                style="display: flex; justify-content: space-between; align-items: center;">
+                                                <div class="user-avatar"
+                                                    style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                    JD</div>
+                                                <span class="badge badge-warning">Medium</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="kanban-column">
+                                        <div class="column-header">
+                                            <span class="column-title">In Progress</span>
+                                            <span class="column-count">2</span>
+                                        </div>
+                                        <div class="kanban-card">
+                                            <div style="font-size: 13px; font-weight: 500; margin-bottom: 8px;">Design
+                                                homepage mockup</div>
+                                            <div
+                                                style="display: flex; justify-content: space-between; align-items: center;">
+                                                <div class="user-avatar"
+                                                    style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                    JD</div>
+                                                <span class="badge badge-danger">High</span>
+                                            </div>
+                                        </div>
+                                        <div class="kanban-card">
+                                            <div style="font-size: 13px; font-weight: 500; margin-bottom: 8px;">
+                                                Initialize React application</div>
+                                            <div
+                                                style="display: flex; justify-content: space-between; align-items: center;">
+                                                <div class="user-avatar"
+                                                    style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                                    PS</div>
+                                                <span class="badge badge-warning">Medium</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="kanban-column">
+                                        <div class="column-header">
+                                            <span class="column-title">Review</span>
+                                            <span class="column-count">1</span>
+                                        </div>
+                                        <div class="kanban-card">
+                                            <div style="font-size: 13px; font-weight: 500; margin-bottom: 8px;">Color
+                                                palette selection</div>
+                                            <div
+                                                style="display: flex; justify-content: space-between; align-items: center;">
+                                                <div class="user-avatar"
+                                                    style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                    JD</div>
+                                                <span class="badge badge-success">Done</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="kanban-column">
+                                        <div class="column-header">
+                                            <span class="column-title">Done</span>
+                                            <span class="column-count">4</span>
+                                        </div>
+                                        <div class="kanban-card">
+                                            <div style="font-size: 13px; font-weight: 500; margin-bottom: 8px;">Setup
+                                                project repository</div>
+                                            <div
+                                                style="display: flex; justify-content: space-between; align-items: center;">
+                                                <div class="user-avatar"
+                                                    style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                                    PS</div>
+                                                <span class="badge badge-success">Done</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
+                            <!-- Team Chat Tab -->
+                            <div id="project-team-chat" class="project-tab-content">
+                                <div class="card"
+                                    style="height: 600px; display: flex; flex-direction: column; padding: 0; overflow: hidden;">
+                                    <div
+                                        style="padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+                                        <div style="font-weight: 600; color: #0f172a;"># website-redesign</div>
+                                        <div class="avatar-group">
+                                            <div class="avatar"
+                                                style="width: 28px; height: 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                JD</div>
+                                            <div class="avatar"
+                                                style="width: 28px; height: 28px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                                PS</div>
+                                            <div class="avatar"
+                                                style="width: 28px; height: 28px; background: #94a3b8; font-size: 10px;">
+                                                +2</div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;">
+                                        <div
+                                            style="text-align: center; font-size: 12px; color: #94a3b8; margin: 10px 0;">
+                                            Today, Oct 24</div>
+
+                                        <div class="comment">
+                                            <div class="comment-avatar"
+                                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                JD</div>
+                                            <div class="comment-content">
+                                                <div class="comment-header">
+                                                    <span class="comment-author">John Designer</span>
+                                                    <span class="comment-time">10:30 AM</span>
+                                                </div>
+                                                <div class="comment-text">I've uploaded the initial wireframes for the
+                                                    homepage. Please review them when you have a moment! 🎨</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="comment">
+                                            <div class="comment-avatar"
+                                                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                                PS</div>
+                                            <div class="comment-content">
+                                                <div class="comment-header">
+                                                    <span class="comment-author">Priya Senior</span>
+                                                    <span class="comment-time">10:45 AM</span>
+                                                </div>
+                                                <div class="comment-text">Thanks John! Taking a look now. Also, I've set
+                                                    up the repo and added you both as contributors.</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="comment" style="flex-direction: row-reverse;">
+                                            <div class="comment-avatar"
+                                                style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                                                SM</div>
+                                            <div class="comment-content" style="background: #e0e7ff;">
+                                                <div class="comment-header">
+                                                    <span class="comment-author">You</span>
+                                                    <span class="comment-time">11:05 AM</span>
+                                                </div>
+                                                <div class="comment-text">Great work team! Let's aim to have the design
+                                                    review meeting tomorrow at 2 PM.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="padding: 15px 20px; border-top: 1px solid #e2e8f0; background: white;">
+                                        <div style="display: flex; gap: 10px;">
+                                            <button
+                                                style="width: 40px; height: 40px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; color: #64748b; cursor: pointer;">📎</button>
+                                            <input type="text" placeholder="Type a message..."
+                                                style="flex: 1; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0 15px; outline: none;">
+                                            <button
+                                                style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; cursor: pointer;">➤</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Calendar Tab -->
+                            <div id="project-calendar" class="project-tab-content">
                                 <div class="card">
                                     <div class="card-header">
-                                        <div class="card-title">Team Members</div>
+                                        <div class="card-title">October 2025</div>
+                                        <div style="display: flex; gap: 10px;">
+                                            <button class="btn btn-secondary" style="padding: 5px 10px;">&lt;</button>
+                                            <button class="btn btn-secondary" style="padding: 5px 10px;">&gt;</button>
+                                            <button class="btn btn-primary">Add Event</button>
+                                        </div>
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 16px;">
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div class="user-avatar" style="width: 40px; height: 40px;">SM</div>
-                                            <div style="flex: 1;">
-                                                <div style="font-size: 14px; font-weight: 600;">Sarah Manager</div>
-                                                <div style="font-size: 12px; color: #64748b;">Project Lead</div>
-                                            </div>
-                                            <span class="badge badge-purple">Owner</span>
+                                    <div
+                                        style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #e2e8f0; border: 1px solid #e2e8f0;">
+                                        <!-- Header -->
+                                        <div
+                                            style="background: #f8fafc; padding: 10px; text-align: center; font-weight: 600; font-size: 13px;">
+                                            Sun</div>
+                                        <div
+                                            style="background: #f8fafc; padding: 10px; text-align: center; font-weight: 600; font-size: 13px;">
+                                            Mon</div>
+                                        <div
+                                            style="background: #f8fafc; padding: 10px; text-align: center; font-weight: 600; font-size: 13px;">
+                                            Tue</div>
+                                        <div
+                                            style="background: #f8fafc; padding: 10px; text-align: center; font-weight: 600; font-size: 13px;">
+                                            Wed</div>
+                                        <div
+                                            style="background: #f8fafc; padding: 10px; text-align: center; font-weight: 600; font-size: 13px;">
+                                            Thu</div>
+                                        <div
+                                            style="background: #f8fafc; padding: 10px; text-align: center; font-weight: 600; font-size: 13px;">
+                                            Fri</div>
+                                        <div
+                                            style="background: #f8fafc; padding: 10px; text-align: center; font-weight: 600; font-size: 13px;">
+                                            Sat</div>
+
+                                        <!-- Days -->
+                                        <!-- Week 1 -->
+                                        <div style="background: white; height: 120px; padding: 8px; color: #cbd5e1;">28
                                         </div>
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div class="user-avatar"
-                                                style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                                JD</div>
-                                            <div style="flex: 1;">
-                                                <div style="font-size: 14px; font-weight: 600;">John Designer</div>
-                                                <div style="font-size: 12px; color: #64748b;">UI/UX Designer</div>
-                                            </div>
-                                            <span class="badge badge-info">Member</span>
+                                        <div style="background: white; height: 120px; padding: 8px; color: #cbd5e1;">29
                                         </div>
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div class="user-avatar"
-                                                style="width: 40px; height: 40px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                                                PS</div>
-                                            <div style="flex: 1;">
-                                                <div style="font-size: 14px; font-weight: 600;">Priya Developer</div>
-                                                <div style="font-size: 12px; color: #64748b;">Frontend Developer</div>
-                                            </div>
-                                            <span class="badge badge-info">Member</span>
+                                        <div style="background: white; height: 120px; padding: 8px; color: #cbd5e1;">30
                                         </div>
-                                        <button class="btn btn-secondary"
-                                            style="justify-content: center; margin-top: 8px;">
-                                            👥 Invite Team Members
-                                        </button>
+                                        <div style="background: white; height: 120px; padding: 8px;">1</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">2</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">3</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">4</div>
+
+                                        <!-- Week 2 -->
+                                        <div style="background: white; height: 120px; padding: 8px;">5</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">6</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">7</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">8</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">9</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">10</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">11</div>
+
+                                        <!-- Week 3 -->
+                                        <div style="background: white; height: 120px; padding: 8px;">12</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">13</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">14</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">15</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">16</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">17</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">18</div>
+
+                                        <!-- Week 4 -->
+                                        <div style="background: white; height: 120px; padding: 8px;">19</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">20</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">21</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">22</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">23</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">
+                                            24
+                                            <div
+                                                style="background: #e0e7ff; color: #4338ca; font-size: 11px; padding: 2px 4px; border-radius: 4px; margin-top: 4px; cursor: pointer;">
+                                                Hp Design Due</div>
+                                        </div>
+                                        <div
+                                            style="background: white; height: 120px; padding: 8px; background-color: #f8fafc;">
+                                            <span
+                                                style="display: inline-block; width: 24px; height: 24px; background: #667eea; color: white; border-radius: 50%; text-align: center; line-height: 24px;">25</span>
+                                            <div
+                                                style="background: #dcfce7; color: #15803d; font-size: 11px; padding: 2px 4px; border-radius: 4px; margin-top: 4px; cursor: pointer;">
+                                                Team Mtg</div>
+                                        </div>
+
+                                        <!-- Week 5 -->
+                                        <div style="background: white; height: 120px; padding: 8px;">26</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">27</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">28</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">29</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">30</div>
+                                        <div style="background: white; height: 120px; padding: 8px;">31</div>
+                                        <div style="background: white; height: 120px; padding: 8px; color: #cbd5e1;">1
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Files Tab -->
+                            <div id="project-files" class="project-tab-content">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="card-title">Project Files</div>
+                                        <button class="btn btn-primary">Upload File</button>
+                                    </div>
+
+                                    <div
+                                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+                                        <!-- File Card -->
+                                        <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.2s;"
+                                            onmouseover="this.style.borderColor='#667eea'; this.style.backgroundColor='#f8fafc'"
+                                            onmouseout="this.style.borderColor='#e2e8f0'; this.style.backgroundColor='white'">
+                                            <div style="font-size: 40px; margin-bottom: 10px;">📄</div>
+                                            <div
+                                                style="font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                Requirements.pdf</div>
+                                            <div style="font-size: 12px; color: #64748b;">2.4 MB • Oct 10</div>
+                                        </div>
+
+                                        <!-- File Card -->
+                                        <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.2s;"
+                                            onmouseover="this.style.borderColor='#667eea'; this.style.backgroundColor='#f8fafc'"
+                                            onmouseout="this.style.borderColor='#e2e8f0'; this.style.backgroundColor='white'">
+                                            <div style="font-size: 40px; margin-bottom: 10px;">🎨</div>
+                                            <div
+                                                style="font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                Logo_Assets.zip</div>
+                                            <div style="font-size: 12px; color: #64748b;">15.8 MB • Oct 12</div>
+                                        </div>
+
+                                        <!-- File Card -->
+                                        <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.2s;"
+                                            onmouseover="this.style.borderColor='#667eea'; this.style.backgroundColor='#f8fafc'"
+                                            onmouseout="this.style.borderColor='#e2e8f0'; this.style.backgroundColor='white'">
+                                            <div style="font-size: 40px; margin-bottom: 10px;">📊</div>
+                                            <div
+                                                style="font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                Q4_Planning.xlsx</div>
+                                            <div style="font-size: 12px; color: #64748b;">450 KB • Oct 15</div>
+                                        </div>
+
+                                        <!-- File Card -->
+                                        <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.2s;"
+                                            onmouseover="this.style.borderColor='#667eea'; this.style.backgroundColor='#f8fafc'"
+                                            onmouseout="this.style.borderColor='#e2e8f0'; this.style.backgroundColor='white'">
+                                            <div style="font-size: 40px; margin-bottom: 10px;">🖼️</div>
+                                            <div
+                                                style="font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                Homepage_V1.jpg</div>
+                                            <div style="font-size: 12px; color: #64748b;">1.2 MB • Oct 20</div>
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">Recent
+                                            Uploads List</div>
+                                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                                            <div
+                                                style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #475569; padding: 8px; border-radius: 6px; background: #f8fafc;">
+                                                <div style="display: flex; gap: 10px; align-items: center;">
+                                                    <span>🖼️</span>
+                                                    <span>Homepage_V1.jpg</span>
+                                                </div>
+                                                <div style="display: flex; gap: 20px;">
+                                                    <span>John D.</span>
+                                                    <span>Oct 20</span>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #475569; padding: 8px; border-radius: 6px; background: #f8fafc;">
+                                                <div style="display: flex; gap: 10px; align-items: center;">
+                                                    <span>📊</span>
+                                                    <span>Q4_Planning.xlsx</span>
+                                                </div>
+                                                <div style="display: flex; gap: 20px;">
+                                                    <span>Sarah M.</span>
+                                                    <span>Oct 15</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Activity Tab -->
+                            <div id="project-activity" class="project-tab-content">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="card-title">Project Activity</div>
+                                    </div>
+
+                                    <div style="position: relative; padding-left: 20px;">
+                                        <div
+                                            style="position: absolute; left: 0; top: 10px; bottom: 0; width: 2px; background: #e2e8f0;">
+                                        </div>
+
+                                        <!-- Activity Item -->
+                                        <div style="position: relative; padding-bottom: 30px;">
+                                            <div
+                                                style="position: absolute; left: -24px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #667eea; border: 4px solid white;">
+                                            </div>
+                                            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">Today,
+                                                10:30 AM</div>
+                                            <div style="font-size: 14px; color: #475569;">
+                                                <span style="font-weight: 600; color: #0f172a;">John Designer</span>
+                                                uploaded <span
+                                                    style="font-weight: 600; color: #667eea;">Homepage_V1.jpg</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Activity Item -->
+                                        <div style="position: relative; padding-bottom: 30px;">
+                                            <div
+                                                style="position: absolute; left: -24px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #10b981; border: 4px solid white;">
+                                            </div>
+                                            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">Yesterday,
+                                                4:15 PM</div>
+                                            <div style="font-size: 14px; color: #475569;">
+                                                <span style="font-weight: 600; color: #0f172a;">Priya Senior</span>
+                                                completed task <span style="font-weight: 600; color: #667eea;">Setup
+                                                    project repository</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Activity Item -->
+                                        <div style="position: relative; padding-bottom: 30px;">
+                                            <div
+                                                style="position: absolute; left: -24px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; border: 4px solid white;">
+                                            </div>
+                                            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">Oct 22,
+                                                11:00 AM</div>
+                                            <div style="font-size: 14px; color: #475569;">
+                                                <span style="font-weight: 600; color: #0f172a;">Sarah Manager</span>
+                                                moved task <span style="font-weight: 600; color: #667eea;">Design
+                                                    homepage mockup</span> to <b>In Progress</b>
+                                            </div>
+                                        </div>
+
+                                        <!-- Activity Item -->
+                                        <div style="position: relative; padding-bottom: 30px;">
+                                            <div
+                                                style="position: absolute; left: -24px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #64748b; border: 4px solid white;">
+                                            </div>
+                                            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">Oct 20,
+                                                9:00 AM</div>
+                                            <div style="font-size: 14px; color: #475569;">
+                                                <span style="font-weight: 600; color: #0f172a;">Sarah Manager</span>
+                                                created project <span style="font-weight: 600; color: #667eea;">Website
+                                                    Redesign</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -3479,6 +3990,32 @@
 
             document.getElementById('current-screen-title').textContent = titles[screenId];
             document.getElementById('current-role').textContent = roles[screenId];
+
+            // Reset Project Detail tabs to Overview when entering the screen
+            if (screenId === 'project-detail') {
+                const overviewTab = document.querySelector('#project-detail .tab');
+                if (overviewTab) {
+                    showProjectTab('overview', overviewTab);
+                }
+            }
+        }
+
+        function showProjectTab(tabId, tabElement) {
+            // Hide all tab content
+            document.querySelectorAll('.project-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tabs within project detail
+            document.querySelectorAll('#project-detail .tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById('project-' + tabId).classList.add('active');
+
+            // Set active tab
+            tabElement.classList.add('active');
         }
     </script>
 </body>
