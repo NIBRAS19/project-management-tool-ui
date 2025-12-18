@@ -58,6 +58,50 @@
                 from { transform: translateX(100%); opacity: 0; }
                 to { transform: translateX(0); opacity: 1; }
             }
+            /* Custom Toggle Switch */
+            .switch {
+                position: relative;
+                display: inline-block;
+                width: 42px;
+                height: 22px;
+            }
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #e2e8f0;
+                transition: .3s;
+                border-radius: 34px;
+            }
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 16px;
+                width: 16px;
+                left: 3px;
+                bottom: 3px;
+                background-color: white;
+                transition: .3s;
+                border-radius: 50%;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            input:checked + .slider {
+                background-color: #667eea;
+            }
+            input:checked + .slider:before {
+                transform: translateX(20px);
+            }
+            .perm-row:hover {
+                background-color: rgba(102, 126, 234, 0.03);
+            }
         }
     </style>
 </head>
@@ -276,9 +320,10 @@
                                             <select
                                                 class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
                                                 <option>All Roles</option>
-                                                <option>Admin</option>
-                                                <option>Manager</option>
-                                                <option>Member</option>
+                                                <option>Owner</option>
+                                                <option>Project Manager</option>
+                                                <option>Team Member</option>
+                                                <option>Collaborator</option>
                                                 <option>Viewer</option>
                                             </select>
                                             <select
@@ -335,7 +380,7 @@
                                                 </td>
                                                 <td class="py-4 px-6">
                                                     <span
-                                                        class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded">Admin</span>
+                                                        class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded">Owner</span>
                                                 </td>
                                                 <td class="py-4 px-6">
                                                     <span
@@ -380,7 +425,8 @@
                                                 </td>
                                                 <td class="py-4 px-6">
                                                     <span
-                                                        class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">Manager</span>
+                                                        class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">Project
+                                                        Manager</span>
                                                 </td>
                                                 <td class="py-4 px-6">
                                                     <span
@@ -424,7 +470,8 @@
                                                 <td class="py-4 px-6 text-sm text-gray-900">alex.lee@company.com</td>
                                                 <td class="py-4 px-6">
                                                     <span
-                                                        class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Member</span>
+                                                        class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Team
+                                                        Member</span>
                                                 </td>
                                                 <td class="py-4 px-6">
                                                     <span
@@ -469,7 +516,8 @@
                                                 </td>
                                                 <td class="py-4 px-6">
                                                     <span
-                                                        class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Member</span>
+                                                        class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Team
+                                                        Member</span>
                                                 </td>
                                                 <td class="py-4 px-6">
                                                     <span
@@ -513,7 +561,8 @@
                                                 <td class="py-4 px-6 text-sm text-gray-900">kim.rivera@company.com</td>
                                                 <td class="py-4 px-6">
                                                     <span
-                                                        class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded">Viewer</span>
+                                                        class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded">External
+                                                        Viewer</span>
                                                 </td>
                                                 <td class="py-4 px-6">
                                                     <span
@@ -581,26 +630,32 @@
                                                     Add Role
                                                 </button>
                                             </div>
-                                            <div class="space-y-2">
-                                                <div
-                                                    class="p-3 bg-primary/10 border border-primary/20 rounded-lg cursor-pointer">
-                                                    <div class="font-medium text-primary">Administrator</div>
-                                                    <div class="text-xs text-gray-600">Full system access</div>
+                                            <div class="space-y-2" id="rolesList">
+                                                <div class="role-item p-3 bg-primary/10 border border-primary/20 rounded-lg cursor-pointer active"
+                                                    data-role="owner">
+                                                    <div class="font-medium text-primary">Owner</div>
+                                                    <div class="text-xs text-gray-600">Full system access & setup</div>
                                                 </div>
-                                                <div
-                                                    class="p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                                                    <div class="font-medium text-gray-900">Manager</div>
-                                                    <div class="text-xs text-gray-600">Team and project management</div>
+                                                <div class="role-item p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                                                    data-role="project_manager">
+                                                    <div class="font-medium text-gray-900">Project Manager</div>
+                                                    <div class="text-xs text-gray-600">Department & project control
+                                                    </div>
                                                 </div>
-                                                <div
-                                                    class="p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                                                    <div class="font-medium text-gray-900">Member</div>
-                                                    <div class="text-xs text-gray-600">Standard user permissions</div>
+                                                <div class="role-item p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                                                    data-role="team_member">
+                                                    <div class="font-medium text-gray-900">Team Member</div>
+                                                    <div class="text-xs text-gray-600">Task execution & updates</div>
                                                 </div>
-                                                <div
-                                                    class="p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                                                    <div class="font-medium text-gray-900">Viewer</div>
-                                                    <div class="text-xs text-gray-600">Read-only access</div>
+                                                <div class="role-item p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                                                    data-role="collaborator">
+                                                    <div class="font-medium text-gray-900">Collaborator</div>
+                                                    <div class="text-xs text-gray-600">Cross-department visibility</div>
+                                                </div>
+                                                <div class="role-item p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                                                    data-role="external_viewer">
+                                                    <div class="font-medium text-gray-900">External Viewer</div>
+                                                    <div class="text-xs text-gray-600">Read-only project access</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -611,87 +666,225 @@
                                         <div class="bg-white border border-gray-200 rounded-xl p-6">
                                             <h3 class="text-lg font-semibold text-gray-900 mb-6">Role Permissions</h3>
                                             <div class="space-y-6">
-                                                <div>
-                                                    <h4 class="font-medium text-gray-900 mb-3">Project Management</h4>
-                                                    <div class="grid grid-cols-2 gap-4">
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary"
-                                                                checked>
-                                                            <span class="text-sm text-gray-700">Create Projects</span>
-                                                        </label>
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary"
-                                                                checked>
-                                                            <span class="text-sm text-gray-700">Edit Projects</span>
-                                                        </label>
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary"
-                                                                checked>
-                                                            <span class="text-sm text-gray-700">Delete Projects</span>
-                                                        </label>
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary"
-                                                                checked>
-                                                            <span class="text-sm text-gray-700">Archive Projects</span>
-                                                        </label>
+                                                <div id="permissionsGrid">
+                                                    <div class="mb-8">
+                                                        <h4
+                                                            class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                            <i class="fas fa-building text-primary text-sm"></i>
+                                                            Department Management
+                                                        </h4>
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Create
+                                                                    Departments</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="dept_create">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Edit
+                                                                    Departments</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="dept_edit">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Delete
+                                                                    Departments</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="dept_delete">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                <div>
-                                                    <h4 class="font-medium text-gray-900 mb-3">User Management</h4>
-                                                    <div class="grid grid-cols-2 gap-4">
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary">
-                                                            <span class="text-sm text-gray-700">Invite Users</span>
-                                                        </label>
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary">
-                                                            <span class="text-sm text-gray-700">Edit Users</span>
-                                                        </label>
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary">
-                                                            <span class="text-sm text-gray-700">Delete Users</span>
-                                                        </label>
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary">
-                                                            <span class="text-sm text-gray-700">Manage Roles</span>
-                                                        </label>
+                                                    <div class="mb-8">
+                                                        <h4
+                                                            class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                            <i class="fas fa-folder-open text-primary text-sm"></i>
+                                                            Project Management
+                                                        </h4>
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Create
+                                                                    Projects</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="proj_create">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Edit
+                                                                    Projects</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="proj_edit">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Delete
+                                                                    Projects</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="proj_delete">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Archive
+                                                                    Projects</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="proj_archive">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                <div>
-                                                    <h4 class="font-medium text-gray-900 mb-3">System Access</h4>
-                                                    <div class="grid grid-cols-2 gap-4">
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary">
-                                                            <span class="text-sm text-gray-700">Admin Panel</span>
-                                                        </label>
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary"
-                                                                checked>
-                                                            <span class="text-sm text-gray-700">Reports</span>
-                                                        </label>
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary">
-                                                            <span class="text-sm text-gray-700">System Settings</span>
-                                                        </label>
-                                                        <label class="flex items-center gap-3">
-                                                            <input type="checkbox"
-                                                                class="rounded border-gray-300 text-primary focus:ring-primary"
-                                                                checked>
-                                                            <span class="text-sm text-gray-700">Export Data</span>
-                                                        </label>
+                                                    <div class="mb-8">
+                                                        <h4
+                                                            class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                            <i class="fas fa-tasks text-primary text-sm"></i>
+                                                            Task Management
+                                                        </h4>
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Create
+                                                                    Tasks</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="task_create">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Edit
+                                                                    Tasks</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="task_edit">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Assign
+                                                                    Tasks</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="task_assign">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-8">
+                                                        <h4
+                                                            class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                            <i class="fas fa-user-gear text-primary text-sm"></i>
+                                                            User Management
+                                                        </h4>
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Invite
+                                                                    Users</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="user_invite">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Edit
+                                                                    Users</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="user_edit">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Delete
+                                                                    Users</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="user_delete">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Reset
+                                                                    Passwords</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="user_password">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <h4
+                                                            class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                            <i class="fas fa-shield-halved text-primary text-sm"></i>
+                                                            System Access
+                                                        </h4>
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">View
+                                                                    Logs</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="sys_logs">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">System
+                                                                    Health</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="sys_health">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                            <div
+                                                                class="perm-row flex items-center justify-between p-3 border border-gray-100 rounded-xl transition-all group">
+                                                                <span
+                                                                    class="text-sm text-gray-700 font-medium group-hover:text-primary transition-colors">Export
+                                                                    Data</span>
+                                                                <label class="switch">
+                                                                    <input type="checkbox" data-perm="sys_export">
+                                                                    <span class="slider"></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -713,30 +906,425 @@
 
                             <!-- Other admin tabs would be implemented similarly -->
                             <div id="logs-tab" class="admin-content hidden">
-                                <div class="bg-white border border-gray-200 rounded-xl p-6">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-6">System Logs</h3>
-                                    <p class="text-gray-500">System logs content would be displayed here...</p>
+                                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                                    <div
+                                        class="p-6 border-b border-gray-200 flex items-center justify-between bg-gray-50/50">
+                                        <div class="flex gap-2">
+                                            <select
+                                                class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                                <option>All Levels</option>
+                                                <option>Critical</option>
+                                                <option>Error</option>
+                                                <option>Warning</option>
+                                                <option>Info</option>
+                                            </select>
+                                            <input type="text" placeholder="Search logs..."
+                                                class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 w-64">
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <button
+                                                class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors flex items-center gap-2">
+                                                <i class="fas fa-download"></i> Export
+                                            </button>
+                                            <button
+                                                class="px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg text-sm hover:bg-red-100 transition-colors flex items-center gap-2">
+                                                <i class="fas fa-trash"></i> Clear Logs
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left">
+                                            <thead>
+                                                <tr class="bg-gray-50 border-b border-gray-200">
+                                                    <th class="py-4 px-6 text-xs font-semibold text-gray-500 uppercase">
+                                                        Timestamp</th>
+                                                    <th class="py-4 px-6 text-xs font-semibold text-gray-500 uppercase">
+                                                        Level</th>
+                                                    <th class="py-4 px-6 text-xs font-semibold text-gray-500 uppercase">
+                                                        Component</th>
+                                                    <th class="py-4 px-6 text-xs font-semibold text-gray-500 uppercase">
+                                                        Message</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-100 font-mono text-xs">
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="py-3 px-6 text-gray-500">2025-12-18 12:45:22</td>
+                                                    <td class="py-3 px-6"><span
+                                                            class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">INFO</span>
+                                                    </td>
+                                                    <td class="py-3 px-6 text-gray-900">AuthService</td>
+                                                    <td class="py-3 px-6 text-gray-700">User login successful:
+                                                        admin@projecthub.com</td>
+                                                </tr>
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="py-3 px-6 text-gray-500">2025-12-18 12:44:10</td>
+                                                    <td class="py-3 px-6"><span
+                                                            class="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">WARN</span>
+                                                    </td>
+                                                    <td class="py-3 px-6 text-gray-900">Database</td>
+                                                    <td class="py-3 px-6 text-gray-700">Slow query detected in project
+                                                        overview</td>
+                                                </tr>
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="py-3 px-6 text-gray-500">2025-12-18 12:40:05</td>
+                                                    <td class="py-3 px-6"><span
+                                                            class="px-2 py-0.5 bg-red-100 text-red-700 rounded-full">ERROR</span>
+                                                    </td>
+                                                    <td class="py-3 px-6 text-gray-900">FileUpload</td>
+                                                    <td class="py-3 px-6 text-gray-700">Failed to upload
+                                                        attachment_123.pdf - Disk quota exceeded</td>
+                                                </tr>
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="py-3 px-6 text-gray-500">2025-12-18 12:35:18</td>
+                                                    <td class="py-3 px-6"><span
+                                                            class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">INFO</span>
+                                                    </td>
+                                                    <td class="py-3 px-6 text-gray-900">System</td>
+                                                    <td class="py-3 px-6 text-gray-700">Automated daily backup started
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="p-4 border-t border-gray-200 bg-gray-50 flex justify-center">
+                                        <button class="text-sm text-primary font-medium hover:underline">View All System
+                                            Logs</button>
+                                    </div>
                                 </div>
                             </div>
 
                             <div id="usage-tab" class="admin-content hidden">
-                                <div class="bg-white border border-gray-200 rounded-xl p-6">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Usage Reports</h3>
-                                    <p class="text-gray-500">Usage reports content would be displayed here...</p>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                                    <div class="bg-white p-6 rounded-xl border border-gray-200">
+                                        <div class="flex items-center gap-4 mb-2">
+                                            <div
+                                                class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                                <i class="fas fa-users"></i>
+                                            </div>
+                                            <div class="text-sm text-gray-500">Active Users</div>
+                                        </div>
+                                        <div class="text-2xl font-bold text-gray-900">1,284</div>
+                                        <div class="text-xs text-green-600 mt-1 flex items-center gap-1">
+                                            <i class="fas fa-arrow-up"></i> +12.5% this month
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-6 rounded-xl border border-gray-200">
+                                        <div class="flex items-center gap-4 mb-2">
+                                            <div
+                                                class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                                                <i class="fas fa-rocket"></i>
+                                            </div>
+                                            <div class="text-sm text-gray-500">Active Projects</div>
+                                        </div>
+                                        <div class="text-2xl font-bold text-gray-900">452</div>
+                                        <div class="text-xs text-green-600 mt-1 flex items-center gap-1">
+                                            <i class="fas fa-arrow-up"></i> +5.2% this week
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-6 rounded-xl border border-gray-200">
+                                        <div class="flex items-center gap-4 mb-2">
+                                            <div
+                                                class="w-10 h-10 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+                                                <i class="fas fa-hdd"></i>
+                                            </div>
+                                            <div class="text-sm text-gray-500">Storage Used</div>
+                                        </div>
+                                        <div class="text-2xl font-bold text-gray-900">854 GB</div>
+                                        <div class="text-xs text-orange-600 mt-1 flex items-center gap-1">
+                                            <i class="fas fa-exclamation-triangle"></i> 85% of 1TB limit
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-6 rounded-xl border border-gray-200">
+                                        <div class="flex items-center gap-4 mb-2">
+                                            <div
+                                                class="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center">
+                                                <i class="fas fa-code"></i>
+                                            </div>
+                                            <div class="text-sm text-gray-500">API Requests</div>
+                                        </div>
+                                        <div class="text-2xl font-bold text-gray-900">8.5M</div>
+                                        <div class="text-xs text-green-600 mt-1 flex items-center gap-1">
+                                            <i class="fas fa-check"></i> System healthy
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <div class="bg-white p-6 rounded-xl border border-gray-200">
+                                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Resource Allocation</h3>
+                                        <div class="space-y-6">
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-2">
+                                                    <span class="text-gray-600">CPU Usage</span>
+                                                    <span class="font-medium">42%</span>
+                                                </div>
+                                                <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                    <div class="h-full bg-blue-500 rounded-full" style="width: 42%">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-2">
+                                                    <span class="text-gray-600">Memory Load</span>
+                                                    <span class="font-medium">68%</span>
+                                                </div>
+                                                <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                    <div class="h-full bg-purple-500 rounded-full" style="width: 68%">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex justify-between text-sm mb-2">
+                                                    <span class="text-gray-600">Network Bandwidth</span>
+                                                    <span class="font-medium">15%</span>
+                                                </div>
+                                                <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                    <div class="h-full bg-green-500 rounded-full" style="width: 15%">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="bg-white p-6 rounded-xl border border-gray-200 flex flex-col items-center justify-center text-center">
+                                        <div
+                                            class="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4">
+                                            <i class="fas fa-chart-line text-2xl"></i>
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Usage Growth Chart</h3>
+                                        <p class="text-sm text-gray-500 max-w-xs mb-6">Interactive charts would be
+                                            integrated here using Chart.js or D3.js for visual data representation.</p>
+                                        <button
+                                            class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 transition-colors">Download
+                                            Detailed Report</button>
+                                    </div>
                                 </div>
                             </div>
 
                             <div id="audit-tab" class="admin-content hidden">
-                                <div class="bg-white border border-gray-200 rounded-xl p-6">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Audit Trail</h3>
-                                    <p class="text-gray-500">Audit trail content would be displayed here...</p>
+                                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                                    <div
+                                        class="p-6 border-b border-gray-200 flex items-center justify-between bg-white">
+                                        <div class="flex gap-2">
+                                            <input type="text" placeholder="Filter by user or action..."
+                                                class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 w-64">
+                                            <button
+                                                class="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-sm hover:bg-gray-100 transition-colors">
+                                                <i class="fas fa-filter"></i> Filters
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left">
+                                            <thead>
+                                                <tr class="bg-gray-50 border-b border-gray-200">
+                                                    <th class="py-4 px-6 text-xs font-semibold text-gray-500 uppercase">
+                                                        User</th>
+                                                    <th class="py-4 px-6 text-xs font-semibold text-gray-500 uppercase">
+                                                        Action</th>
+                                                    <th class="py-4 px-6 text-xs font-semibold text-gray-500 uppercase">
+                                                        Target Resource</th>
+                                                    <th class="py-4 px-6 text-xs font-semibold text-gray-500 uppercase">
+                                                        IP Address</th>
+                                                    <th class="py-4 px-6 text-xs font-semibold text-gray-500 uppercase">
+                                                        Timestamp</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-100 text-sm">
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="py-4 px-6">
+                                                        <div class="flex items-center gap-2">
+                                                            <div
+                                                                class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold">
+                                                                SM</div>
+                                                            <span class="font-medium text-gray-900">Sarah Miller</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="py-4 px-6 text-gray-700">Updated Department Permissions
+                                                    </td>
+                                                    <td class="py-4 px-6"><span
+                                                            class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">Roles
+                                                            / Owner</span></td>
+                                                    <td class="py-4 px-6 text-gray-500">192.168.1.45</td>
+                                                    <td class="py-4 px-6 text-gray-500">Dec 18, 2025 12:45</td>
+                                                </tr>
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="py-4 px-6">
+                                                        <div class="flex items-center gap-2">
+                                                            <div
+                                                                class="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px] font-bold">
+                                                                JD</div>
+                                                            <span class="font-medium text-gray-900">John Doe</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="py-4 px-6 text-gray-700">Deleted Project</td>
+                                                    <td class="py-4 px-6"><span
+                                                            class="px-2 py-1 bg-red-100 text-red-600 rounded text-xs">Project
+                                                            #A-42</span></td>
+                                                    <td class="py-4 px-6 text-gray-500">203.0.113.12</td>
+                                                    <td class="py-4 px-6 text-gray-500">Dec 18, 2025 10:12</td>
+                                                </tr>
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="py-4 px-6">
+                                                        <div class="flex items-center gap-2">
+                                                            <div
+                                                                class="w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold">
+                                                                AL</div>
+                                                            <span class="font-medium text-gray-900">Alex Lee</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="py-4 px-6 text-gray-700">Changed Password</td>
+                                                    <td class="py-4 px-6"><span
+                                                            class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">Security
+                                                            / alex.lee</span></td>
+                                                    <td class="py-4 px-6 text-gray-500">10.0.0.5</td>
+                                                    <td class="py-4 px-6 text-gray-500">Dec 17, 2024 16:30</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="p-4 border-t border-gray-200 bg-gray-50 flex justify-center">
+                                        <button class="text-sm text-primary font-medium hover:underline">Download Audit
+                                            Log (CSV)</button>
+                                    </div>
                                 </div>
                             </div>
 
                             <div id="backup-tab" class="admin-content hidden">
-                                <div class="bg-white border border-gray-200 rounded-xl p-6">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Backup Management</h3>
-                                    <p class="text-gray-500">Backup management content would be displayed here...</p>
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                                    <div class="lg:col-span-2 space-y-6">
+                                        <div class="bg-white border border-gray-200 rounded-xl p-6">
+                                            <div class="flex items-center justify-between mb-6">
+                                                <div>
+                                                    <h3 class="font-semibold text-gray-900">Backup Snapshots</h3>
+                                                    <p class="text-sm text-gray-500">Manage and restore system data
+                                                        points</p>
+                                                </div>
+                                                <button
+                                                    class="px-4 py-2 gradient-primary text-white rounded-lg text-sm hover:shadow-lg transition-all flex items-center gap-2">
+                                                    <i class="fas fa-plus"></i> Create Backup Now
+                                                </button>
+                                            </div>
+                                            <div class="overflow-x-auto">
+                                                <table class="w-full text-left">
+                                                    <thead>
+                                                        <tr class="bg-gray-50 border-b border-gray-200">
+                                                            <th
+                                                                class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase">
+                                                                Snapshot Name</th>
+                                                            <th
+                                                                class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase">
+                                                                Size</th>
+                                                            <th
+                                                                class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase">
+                                                                Status</th>
+                                                            <th
+                                                                class="py-3 px-4 text-center text-xs font-semibold text-gray-500 uppercase">
+                                                                Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-100 text-sm">
+                                                        <tr class="hover:bg-gray-50">
+                                                            <td class="py-4 px-4 font-medium text-gray-900">
+                                                                Daily_Backup_20251218.zip</td>
+                                                            <td class="py-4 px-4 text-gray-500">156 MB</td>
+                                                            <td class="py-4 px-4"><span
+                                                                    class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">Successful</span>
+                                                            </td>
+                                                            <td class="py-4 px-4">
+                                                                <div class="flex justify-center gap-2">
+                                                                    <button
+                                                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                        title="Download"><i
+                                                                            class="fas fa-download"></i></button>
+                                                                    <button
+                                                                        class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                                                        title="Restore"><i
+                                                                            class="fas fa-undo"></i></button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="hover:bg-gray-50">
+                                                            <td class="py-4 px-4 font-medium text-gray-900">
+                                                                Weekly_Full_20251215.zip</td>
+                                                            <td class="py-4 px-4 text-gray-500">1.2 GB</td>
+                                                            <td class="py-4 px-4"><span
+                                                                    class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">Successful</span>
+                                                            </td>
+                                                            <td class="py-4 px-4">
+                                                                <div class="flex justify-center gap-2">
+                                                                    <button
+                                                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                        title="Download"><i
+                                                                            class="fas fa-download"></i></button>
+                                                                    <button
+                                                                        class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                                                        title="Restore"><i
+                                                                            class="fas fa-undo"></i></button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-6">
+                                        <div class="bg-indigo-600 rounded-xl p-6 text-white shadow-xl">
+                                            <div class="flex items-center gap-4 mb-6">
+                                                <div
+                                                    class="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                                                    <i class="fas fa-shield-check text-2xl"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="text-sm text-white/80">Backup Health</div>
+                                                    <div class="text-xl font-bold">Optimal</div>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-4">
+                                                <div class="flex justify-between text-sm">
+                                                    <span class="text-indigo-100">Last successful</span>
+                                                    <span>3 hours ago</span>
+                                                </div>
+                                                <div class="flex justify-between text-sm">
+                                                    <span class="text-indigo-100">Next scheduled</span>
+                                                    <span>In 21 hours</span>
+                                                </div>
+                                                <div class="pt-4 border-t border-indigo-500/50">
+                                                    <div class="flex justify-between text-sm mb-2">
+                                                        <span>Cloud Sync</span>
+                                                        <span>OK</span>
+                                                    </div>
+                                                    <div class="h-1.5 bg-indigo-500 rounded-full overflow-hidden">
+                                                        <div class="h-full bg-white rounded-full" style="width: 100%">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-white border border-gray-200 rounded-xl p-6">
+                                            <h3 class="font-semibold text-gray-900 mb-4">Quick Settings</h3>
+                                            <div class="space-y-4">
+                                                <label class="flex items-center justify-between group cursor-pointer">
+                                                    <span
+                                                        class="text-sm text-gray-700 group-hover:text-primary transition-colors">Auto-Backups</span>
+                                                    <label class="switch">
+                                                        <input type="checkbox" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </label>
+                                                <label class="flex items-center justify-between group cursor-pointer">
+                                                    <span
+                                                        class="text-sm text-gray-700 group-hover:text-primary transition-colors">Attach
+                                                        Media</span>
+                                                    <label class="switch">
+                                                        <input type="checkbox" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -759,7 +1347,72 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', function () {
             setupEventListeners();
+            initRoleManagement();
         });
+
+        // Role Management Logic
+        const rolePermissionsMap = {
+            'owner': ['dept_create', 'dept_edit', 'dept_delete', 'proj_create', 'proj_edit', 'proj_delete', 'proj_archive', 'task_create', 'task_edit', 'task_assign', 'user_invite', 'user_edit', 'user_delete', 'user_password', 'sys_logs', 'sys_health', 'sys_export'],
+            'project_manager': ['proj_create', 'proj_edit', 'proj_archive', 'task_create', 'task_edit', 'task_assign', 'sys_export'],
+            'team_member': ['task_edit'],
+            'collaborator': ['task_edit'],
+            'external_viewer': []
+        };
+
+        function initRoleManagement() {
+            const roleItems = document.querySelectorAll('.role-item');
+            const checkboxes = document.querySelectorAll('#permissionsGrid input[type="checkbox"]');
+            const saveBtn = findBtnByText("Save Permissions");
+            const addRoleBtn = findBtnByText("Add Role");
+
+            // Set initial state (Owner)
+            updatePermissions('owner');
+
+            roleItems.forEach(item => {
+                item.addEventListener('click', function () {
+                    roleItems.forEach(i => {
+                        i.classList.remove('active', 'bg-primary/10', 'border-primary/20', 'text-primary');
+                        i.classList.add('bg-gray-50', 'border-gray-200');
+                        i.querySelector('div').classList.remove('text-primary');
+                        i.querySelector('div').classList.add('text-gray-900');
+                    });
+
+                    this.classList.add('active', 'bg-primary/10', 'border-primary/20');
+                    this.classList.remove('bg-gray-50', 'border-gray-200');
+                    this.querySelector('div').classList.add('text-primary');
+                    this.querySelector('div').classList.remove('text-gray-900');
+
+                    updatePermissions(this.dataset.role);
+                });
+            });
+
+            function updatePermissions(role) {
+                const perms = rolePermissionsMap[role] || [];
+                checkboxes.forEach(cb => {
+                    cb.checked = perms.includes(cb.dataset.perm);
+                });
+            }
+
+            // Save simulation
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function () {
+                    const activeRole = document.querySelector('.role-item.active').dataset.role;
+                    showToast(`Permissions for ${activeRole} saved successfully`, 'success');
+                });
+            }
+
+            // Add role simulation
+            if (addRoleBtn) {
+                addRoleBtn.addEventListener('click', function () {
+                    showToast('Custom role creation would open a modal here', 'info');
+                });
+            }
+        }
+
+        // Helper to find button by text
+        function findBtnByText(text) {
+            return Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim().includes(text));
+        }
 
         // Event Listeners
         function setupEventListeners() {
