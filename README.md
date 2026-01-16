@@ -1,6 +1,6 @@
 # Project Management System - Technical Documentation
 
-**Documentation Created by:** Muhammed Nibras k           date : 01/01/2026                     
+**Documentation Created by:** Muhammed Nibras k                
 **Email Id:** nibras.selecttraining@gmail.com
 
 ## Table of Contents
