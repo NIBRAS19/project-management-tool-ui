@@ -402,4 +402,4 @@ Email not sending	Check SMTP credentials and App Password
 Event not updating	Make sure UID is the same and SEQUENCE is higher
 Weird characters in calendar	Use \r\n for line breaks, not just \n
 Event creates duplicate	The UID changed! Keep it consistent
-That's it! You now know how to send magic calendar cards through email! 🎉
+That's it! You now know how to send magic calendar cards through email! 
